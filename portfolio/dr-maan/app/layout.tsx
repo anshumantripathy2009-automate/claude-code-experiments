@@ -23,6 +23,7 @@ const dmSans = DM_Sans({
 })
 
 export const metadata: Metadata = {
+  icons: { icon: '/favicon.svg' },
   title:       `${clinic.name} | ${clinic.address.city}`,
   description: `${clinic.tagline} Advanced dental implants, cosmetic dentistry, and smile makeovers in ${clinic.address.city}. Book your free consultation today.`,
   keywords:    ['dentist', 'dental implants', 'cosmetic dentistry', 'smile makeover', clinic.address.city, 'orthodontics'],
