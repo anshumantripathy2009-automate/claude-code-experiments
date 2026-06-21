@@ -1,0 +1,193 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── CSS Variables ─────────────────────────────────────────────────────────── */
+:root {
+  --navy:       #0A1628;
+  --ivory:      #F8F5F0;
+  --gold:       #C9A961;
+  --gold-dark:  #A88940;
+  --mint:       #9FD8C7;
+
+  /* Custom cursor sizes */
+  --cursor-dot-size:  8px;
+  --cursor-ring-size: 40px;
+}
+
+/* ── Base reset ─────────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  scroll-behavior: auto; /* Lenis handles smooth scroll */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  background-color: var(--navy);
+  color: var(--ivory);
+  font-family: var(--font-geist-sans), 'Inter', system-ui, sans-serif;
+  overflow-x: hidden;
+  cursor: none; /* Hide default — custom cursor takes over */
+}
+
+/* Show default cursor on touch devices */
+@media (hover: none) {
+  body { cursor: auto; }
+  #cursor-dot, #cursor-ring { display: none; }
+}
+
+/* ── Custom Scrollbar ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar              { width: 4px; }
+::-webkit-scrollbar-track        { background: var(--navy); }
+::-webkit-scrollbar-thumb        { background: var(--gold-dark); border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover  { background: var(--gold); }
+
+/* ── Grain texture overlay (pseudo-element on body) ─────────────────────── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: -200%;
+  width: 400%;
+  height: 400%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='1'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+  opacity: 0.035;
+  pointer-events: none;
+  z-index: 9999;
+  animation: grain 0.5s steps(1) infinite;
+  mix-blend-mode: overlay;
+}
+
+@keyframes grain {
+  0%,100% { transform: translate(0, 0); }
+  10%  { transform: translate(-2%, -3%); }
+  20%  { transform: translate(2%, 1%); }
+  30%  { transform: translate(-1%, 3%); }
+  40%  { transform: translate(3%, -1%); }
+  50%  { transform: translate(-2%, 2%); }
+  60%  { transform: translate(1%, -2%); }
+  70%  { transform: translate(-3%, 1%); }
+  80%  { transform: translate(2%, 3%); }
+  90%  { transform: translate(-1%, -1%); }
+}
+
+/* ── Custom Cursor ─────────────────────────────────────────────────────────── */
+#cursor-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--cursor-dot-size);
+  height: var(--cursor-dot-size);
+  background: var(--gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 10000;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s ease, opacity 0.2s ease, width 0.3s ease, height 0.3s ease, background 0.3s ease;
+  will-change: transform;
+}
+
+#cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  width: var(--cursor-ring-size);
+  height: var(--cursor-ring-size);
+  border: 1.5px solid rgba(201, 169, 97, 0.5);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease, opacity 0.2s ease;
+  will-change: transform;
+}
+
+/* Cursor states when hovering interactive elements */
+body.cursor-hover #cursor-dot  { width: 6px; height: 6px; opacity: 0.7; }
+body.cursor-hover #cursor-ring { width: 60px; height: 60px; border-color: rgba(201,169,97,0.8); }
+body.cursor-link  #cursor-dot  { background: var(--mint); }
+body.cursor-link  #cursor-ring { border-color: var(--mint); width: 48px; height: 48px; }
+
+/* ── Page transition curtain ───────────────────────────────────────────────── */
+#page-curtain {
+  position: fixed;
+  inset: 0;
+  background: var(--gold);
+  z-index: 9998;
+  transform-origin: bottom;
+  transform: scaleY(0);
+  pointer-events: none;
+}
+
+/* ── Section base styles ───────────────────────────────────────────────────── */
+section { position: relative; overflow: hidden; }
+
+/* ── Gradient orb blobs (reusable) ─────────────────────────────────────────── */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0.18;
+}
+
+/* ── Fluid heading scale ───────────────────────────────────────────────────── */
+.text-fluid-display {
+  font-size: clamp(2.8rem, 7vw, 7rem);
+  line-height: 1.0;
+  letter-spacing: -0.04em;
+}
+
+/* ── Loading screen ─────────────────────────────────────────────────────────── */
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  background: var(--navy);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+}
+
+/* ── Bottom mobile sticky bar ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  #mobile-sticky-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    background: rgba(10, 22, 40, 0.95);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(201,169,97,0.15);
+    padding: 0.75rem 1rem env(safe-area-inset-bottom, 0.75rem);
+    display: flex;
+    gap: 0.5rem;
+  }
+}
+
+/* ── Selection ──────────────────────────────────────────────────────────────── */
+::selection {
+  background: rgba(201, 169, 97, 0.25);
+  color: var(--ivory);
+}
+
+/* ── Focus ring ─────────────────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ── Reduced motion ─────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  body::after { animation: none; }
+}
