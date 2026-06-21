@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Smile Dental Care | Best Dental Clinic in Bhubaneswar</title>
+  <meta name="description" content="Top-rated dental clinic in Bhubaneswar. Teeth cleaning, whitening, braces, implants & kids dentistry by Dr. Priya Sharma, MDS (AIIMS).">
+
+  <meta property="og:title" content="Smile Dental Care | Best Dental Clinic in Bhubaneswar">
+  <meta property="og:description" content="World-class dental care in Bhubaneswar. 10+ years, 2000+ happy patients. Book your appointment on WhatsApp today.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=1200&q=80&auto=format&fit=crop">
+  <meta property="og:type" content="website">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🦷</text></svg>">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary:    '#0EA5E9',
+            'primary-dark': '#0284C7',
+            cta:        '#F59E0B',
+            'cta-dark': '#D97706',
+            navy:       '#0F172A',
+            wa:         '#25D366',
+          },
+          fontFamily: {
+            heading: ['"Plus Jakarta Sans"', 'sans-serif'],
+            body:    ['Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; color: #0F172A; overflow-x: hidden; }
+    h1, h2, h3, h4 { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    /* ── Animations ── */
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      33%       { transform: translateY(-18px) rotate(4deg); }
+      66%       { transform: translateY(-8px) rotate(-3deg); }
+    }
+    @keyframes floatB {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50%       { transform: translateY(16px) rotate(-5deg); }
+    }
+    @keyframes spinSlow  { to { transform: rotate(360deg); } }
+    @keyframes spinSlowR { to { transform: rotate(-360deg); } }
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position:  200% center; }
+    }
+    @keyframes pulse2 {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: .4; }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .anim-float     { animation: float  6s ease-in-out infinite; }
+    .anim-float-b   { animation: floatB 7s ease-in-out infinite 1.5s; }
+    .anim-float-c   { animation: float  9s ease-in-out infinite  .8s; }
+    .anim-spin      { animation: spinSlow  20s linear infinite; }
+    .anim-spin-r    { animation: spinSlowR 15s linear infinite; }
+    .anim-pulse     { animation: pulse2 2s ease-in-out infinite; }
+    .slide-up       { animation: slideUp .7s ease-out forwards; }
+
+    /* ── Glassmorphism ── */
+    .glass {
+      background: rgba(255,255,255,.12);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(255,255,255,.22);
+    }
+    .glass-card {
+      background: rgba(255,255,255,.88);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255,255,255,.7);
+    }
+
+    /* ── Hero gradient ── */
+    .hero-bg {
+      background: linear-gradient(135deg, #0F172A 0%, #1e3a5f 45%, #0284C7 100%);
+    }
+
+    /* ── Gradient text ── */
+    .grad-text {
+      background: linear-gradient(135deg, #38bdf8, #0EA5E9);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ── Ambient orbs (decorative blurred blobs) ── */
+    .orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      pointer-events: none;
+    }
+
+    /* ── CTA shimmer button ── */
+    .btn-shimmer {
+      background: linear-gradient(90deg, #F59E0B, #FBBF24, #F59E0B);
+      background-size: 200% auto;
+      animation: shimmer 2.4s linear infinite;
+    }
+
+    /* ── Card lift ── */
+    .card-lift {
+      transition: transform .3s cubic-bezier(.4,0,.2,1),
+                  box-shadow .3s cubic-bezier(.4,0,.2,1);
+    }
+    .card-lift:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 28px 56px rgba(14,165,233,.15);
+    }
+
+    /* ── Nav solid on scroll ── */
+    .nav-solid {
+      background: rgba(15,23,42,.94) !important;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 4px 32px rgba(0,0,0,.35);
+    }
+
+    /* ── 3-D tooth SVG ── */
+    .tooth-shadow { filter: drop-shadow(0 16px 32px rgba(14,165,233,.45)); }
+
+    /* ── Section wave ── */
+    .wave-white { position: absolute; bottom: -1px; left: 0; width: 100%; }
+
+    /* ── Stat border ── */
+    .stat-box {
+      border: 1px solid rgba(14,165,233,.22);
+      background: linear-gradient(135deg,rgba(14,165,233,.08),rgba(14,165,233,.03));
+    }
+
+    /* ── Services section bg ── */
+    .services-bg { background: #ffffff; }
+
+    /* ── About section bg ── */
+    .about-bg { background: linear-gradient(145deg, #f0f9ff 0%, #e0f2fe 55%, #f0f9ff 100%); }
+
+    /* ── Contact section bg ── */
+    .contact-bg { background: linear-gradient(135deg, #0F172A 0%, #1e293b 100%); }
+
+    /* ── Testimonial card ── */
+    .testi-card {
+      background: linear-gradient(145deg,rgba(255,255,255,.97),rgba(240,249,255,.97));
+    }
+
+    /* ── Map rounded ── */
+    .map-wrap { border-radius: 1.5rem; overflow: hidden; }
+  </style>
+</head>
+
+<body class="bg-white">
+
+  <!-- ══════════════════════════════════════════
+       FLOATING WHATSAPP BUTTON (always visible)
+  ══════════════════════════════════════════ -->
+  <a href="https://wa.me/919876543210?text=Hi%20Dr.%20Priya%2C%20I%20want%20to%20book%20an%20appointment%20at%20Smile%20Dental%20Care."
+     target="_blank" rel="noopener noreferrer"
+     aria-label="Chat on WhatsApp to book an appointment"
+     class="fixed bottom-6 right-5 z-50 flex items-center gap-2.5 bg-wa text-white pl-4 pr-5 py-3.5 rounded-full shadow-2xl hover:scale-105 active:scale-95 transition-all duration-300"
+     style="box-shadow:0 8px 32px rgba(37,211,102,.45)">
+    <svg class="w-6 h-6 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+    <span class="font-heading font-bold text-sm hidden sm:inline">Book Appointment</span>
+  </a>
+
+  <!-- ══════════════════════════════════════════
+       NAV
+  ══════════════════════════════════════════ -->
+  <header>
+    <nav id="navbar"
+         class="fixed top-0 left-0 right-0 z-40 py-4 px-5 transition-all duration-500"
+         style="background:transparent;"
+         aria-label="Primary navigation">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+
+        <!-- Logo -->
+        <a href="#home" class="flex items-center gap-2.5" aria-label="Smile Dental Care home">
+          <div class="w-9 h-9 rounded-xl bg-primary flex items-center justify-center shadow-lg flex-shrink-0">
+            <svg class="w-5 h-5 text-white" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+              <path d="M16 3C12 3 9 6 9 9.5c0 2 .7 3.5 1.4 4.8.7 1.3 1.4 2.6 1.4 4.7 0 2.8.7 7 2.1 9.5.7 1.4 1.4 2 2.1 2s1.4-.6 2.1-2C19.6 26 20.3 21.8 20.3 19c0-2.1.7-3.4 1.4-4.7C22.4 13 23 11.5 23 9.5 23 6 20 3 16 3z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="font-heading font-extrabold text-white text-base leading-none tracking-tight">Smile Dental</div>
+            <div class="text-sky-300 text-[11px] font-semibold leading-none mt-0.5">Bhubaneswar · Est. 2014</div>
+          </div>
+        </a>
+
+        <!-- Desktop links -->
+        <div class="hidden md:flex items-center gap-7">
+          <a href="#services"     class="text-white/75 hover:text-white text-sm font-medium transition-colors duration-200">Services</a>
+          <a href="#about"        class="text-white/75 hover:text-white text-sm font-medium transition-colors duration-200">About</a>
+          <a href="#testimonials" class="text-white/75 hover:text-white text-sm font-medium transition-colors duration-200">Reviews</a>
+          <a href="#contact"      class="text-white/75 hover:text-white text-sm font-medium transition-colors duration-200">Contact</a>
+        </div>
+
+        <!-- WhatsApp CTA -->
+        <a href="https://wa.me/919876543210?text=Hi%20Dr.%20Priya%2C%20I%20want%20to%20book%20an%20appointment%20at%20Smile%20Dental%20Care."
+           target="_blank" rel="noopener noreferrer"
+           class="flex items-center gap-2 bg-wa text-white px-4 py-2.5 rounded-full text-sm font-heading font-bold shadow-lg hover:scale-105 active:scale-95 transition-all duration-300">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+          </svg>
+          <span class="hidden sm:inline">Book Now</span>
+        </a>
+
+      </div>
+    </nav>
+  </header>
+
+  <main>
+
+  <!-- ══════════════════════════════════════════
+       HERO
+  ══════════════════════════════════════════ -->
+  <section id="home" class="relative min-h-screen hero-bg flex items-center overflow-hidden" aria-labelledby="hero-heading">
+
+    <!-- Ambient orbs -->
+    <div class="orb w-[500px] h-[500px] bg-sky-600 -top-32 -left-32 opacity-25"></div>
+    <div class="orb w-80 h-80 bg-cta bottom-16 right-0 opacity-10"></div>
+    <div class="orb w-56 h-56 bg-primary top-1/2 left-1/2 opacity-15"></div>
+
+    <!-- Floating 3-D objects -->
+    <!-- Large spinning ring (desktop) -->
+    <div class="absolute top-1/2 right-6 -translate-y-1/2 anim-spin opacity-[.07] hidden xl:block pointer-events-none" aria-hidden="true">
+      <div class="w-[340px] h-[340px] rounded-full border-[3px] border-dashed border-sky-300"></div>
+    </div>
+    <div class="absolute top-1/2 right-6 -translate-y-1/2 anim-spin-r opacity-[.05] hidden xl:block pointer-events-none" aria-hidden="true">
+      <div class="w-56 h-56 rounded-full border-2 border-white"></div>
+    </div>
+
+    <!-- Floating tooth (top right) -->
+    <div class="absolute top-24 right-20 anim-float hidden lg:block pointer-events-none" aria-hidden="true">
+      <svg class="w-20 h-24 tooth-shadow opacity-20" viewBox="0 0 80 100" fill="white">
+        <path d="M40 4C28 4 18 14 18 26c0 8 3 14 6 20 3 6 6 13 6 24 0 10 2.5 22 5 27 1.5 3 3 5 5 5s3.5-2 5-5c2.5-5 5-17 5-27 0-11 3-18 6-24 3-6 6-12 6-20C62 14 52 4 40 4z"/>
+      </svg>
+    </div>
+
+    <!-- Small floating pill shapes -->
+    <div class="absolute top-1/3 left-12 anim-float-b hidden lg:block pointer-events-none" aria-hidden="true">
+      <div class="w-14 h-14 rounded-2xl border-2 border-white/20 rotate-12 glass"></div>
+    </div>
+    <div class="absolute bottom-40 right-1/4 anim-float-c hidden xl:block pointer-events-none" aria-hidden="true">
+      <div class="w-9 h-9 rounded-full border border-sky-300/40"></div>
+    </div>
+    <div class="absolute top-48 left-1/4 anim-float hidden xl:block pointer-events-none" aria-hidden="true">
+      <div class="w-5 h-5 rounded-full bg-cta/30"></div>
+    </div>
+
+    <!-- Floating 3-D cube -->
+    <div class="absolute bottom-32 left-24 anim-float-b hidden lg:block pointer-events-none" aria-hidden="true">
+      <div class="w-10 h-10 rounded-xl glass rotate-45 border border-white/30"
+           style="box-shadow:4px 4px 16px rgba(14,165,233,.3),-2px -2px 8px rgba(255,255,255,.1)"></div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-6 py-32 grid lg:grid-cols-2 gap-12 items-center relative z-10">
+
+      <!-- ── Left: Text ── -->
+      <div class="text-center lg:text-left">
+        <!-- Status pill -->
+        <div class="inline-flex items-center gap-2 glass px-4 py-2 rounded-full mb-7">
+          <span class="w-2 h-2 rounded-full bg-green-400 anim-pulse"></span>
+          <span class="text-white/85 text-sm font-medium">Accepting New Patients · Bhubaneswar</span>
+        </div>
+
+        <h1 id="hero-heading"
+            class="font-heading font-black text-white text-5xl sm:text-6xl lg:text-[4.2rem] leading-[1.04] mb-6 tracking-tight slide-up">
+          Your Smile,<br>
+          <span class="grad-text">Our Promise.</span>
+        </h1>
+
+        <p class="text-white/65 text-lg sm:text-xl leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0">
+          Bhubaneswar's most trusted dental clinic — where cutting-edge care meets genuine compassion. Painless, affordable, and built for every family.
+        </p>
+
+        <!-- Trust badges -->
+        <div class="flex flex-wrap justify-center lg:justify-start gap-2.5 mb-10">
+          <div class="glass px-3 py-1.5 rounded-full flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <span class="text-white text-xs font-semibold">5.0 Rated</span>
+          </div>
+          <div class="glass px-3 py-1.5 rounded-full"><span class="text-white text-xs font-semibold">✓ AIIMS Trained</span></div>
+          <div class="glass px-3 py-1.5 rounded-full"><span class="text-white text-xs font-semibold">✓ 2000+ Patients</span></div>
+          <div class="glass px-3 py-1.5 rounded-full"><span class="text-white text-xs font-semibold">✓ MDS Certified</span></div>
+          <div class="glass px-3 py-1.5 rounded-full"><span class="text-white text-xs font-semibold">✓ Pain-Free Care</span></div>
+        </div>
+
+        <!-- CTA row -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+          <a href="https://wa.me/919876543210?text=Hi%20Dr.%20Priya%2C%20I%20want%20to%20book%20an%20appointment%20at%20Smile%20Dental%20Care."
+             target="_blank" rel="noopener noreferrer"
+             class="btn-shimmer text-white px-8 py-4 rounded-2xl font-heading font-bold text-lg shadow-2xl hover:scale-105 active:scale-95 transition-transform duration-300 flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Book on WhatsApp
+          </a>
+          <a href="#services"
+             class="glass border border-white/25 text-white px-8 py-4 rounded-2xl font-heading font-semibold text-lg hover:bg-white/20 transition-all duration-300 flex items-center justify-center gap-2">
+            Explore Services
+            <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- ── Right: Hero Image ── -->
+      <div class="relative hidden lg:flex justify-end items-center">
+        <!-- Spinning rings behind image -->
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+          <div class="w-[400px] h-[400px] rounded-full border border-sky-400/15 anim-spin"></div>
+        </div>
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+          <div class="w-72 h-72 rounded-full border border-white/10 anim-spin-r"></div>
+        </div>
+
+        <!-- Main image card -->
+        <div class="relative z-10 w-[360px] h-[460px] rounded-[2.5rem] overflow-hidden border border-white/15"
+             style="box-shadow:0 40px 80px rgba(14,165,233,.3),0 0 0 1px rgba(255,255,255,.08)">
+          <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f99?w=800&q=80&auto=format&fit=crop"
+               alt="Smile Dental Care modern clinic interior in Bhubaneswar"
+               class="w-full h-full object-cover">
+          <div class="absolute inset-0 bg-gradient-to-t from-navy/55 via-transparent to-transparent"></div>
+          <!-- Bottom overlay text -->
+          <div class="absolute bottom-5 left-5 right-5">
+            <div class="glass-card rounded-2xl px-4 py-3">
+              <div class="font-heading font-bold text-navy text-sm">State-of-the-Art Clinic</div>
+              <div class="text-primary text-xs font-medium">Saheed Nagar, Bhubaneswar</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Floating stats pills on image -->
+        <div class="glass-card absolute top-10 -left-4 px-4 py-3 rounded-2xl shadow-xl anim-float z-20" aria-hidden="true">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 bg-primary/10 rounded-xl flex items-center justify-center">
+              <svg class="w-4 h-4 text-primary" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg>
+            </div>
+            <div>
+              <div class="font-heading font-bold text-navy text-sm">2,000+</div>
+              <div class="text-slate-500 text-[11px]">Happy Patients</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card absolute -right-4 bottom-24 px-4 py-3 rounded-2xl shadow-xl anim-float-b z-20" aria-hidden="true">
+          <div class="flex items-center gap-2">
+            <div class="flex -space-x-1">
+              <div class="w-6 h-6 rounded-full bg-cta flex items-center justify-center text-white text-[10px] font-bold border border-white">★</div>
+              <div class="w-6 h-6 rounded-full bg-cta flex items-center justify-center text-white text-[10px] font-bold border border-white">★</div>
+              <div class="w-6 h-6 rounded-full bg-cta flex items-center justify-center text-white text-[10px] font-bold border border-white">★</div>
+            </div>
+            <div>
+              <div class="font-heading font-bold text-navy text-sm">5.0 Stars</div>
+              <div class="text-slate-500 text-[11px]">200+ Reviews</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Years badge -->
+        <div class="glass-card absolute -left-6 bottom-36 px-4 py-3 rounded-2xl shadow-xl anim-float-c z-20 text-center" aria-hidden="true">
+          <div class="font-heading font-black text-primary text-2xl leading-none">10+</div>
+          <div class="text-slate-500 text-[11px] font-medium mt-0.5">Yrs Experience</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- White wave bottom -->
+    <svg class="wave-white" viewBox="0 0 1440 72" fill="none" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 72L60 66.7C120 61.3 240 50.7 360 45.3C480 40 600 40 720 45.3C840 50.7 960 61.3 1080 61.3C1200 61.3 1320 50.7 1380 45.3L1440 40V72H0Z" fill="white"/>
+    </svg>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       SERVICES
+  ══════════════════════════════════════════ -->
+  <section id="services" class="py-24 services-bg" aria-labelledby="services-heading">
+    <div class="max-w-7xl mx-auto px-6">
+
+      <div class="text-center mb-16">
+        <div class="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-heading font-semibold mb-5">
+          <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          Our Services
+        </div>
+        <h2 id="services-heading" class="font-heading font-black text-navy text-4xl sm:text-5xl leading-tight mb-4">
+          Complete Dental Care<br><span class="grad-text">Under One Roof</span>
+        </h2>
+        <p class="text-slate-500 text-lg max-w-2xl mx-auto">
+          From routine cleanings to advanced implants — everything your family needs for a lifetime of healthy smiles.
+        </p>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Teeth Cleaning -->
+        <article class="card-lift bg-white rounded-3xl p-8 shadow-md border border-slate-100 group">
+          <div class="w-14 h-14 bg-sky-50 group-hover:bg-primary/10 rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300">
+            <svg class="w-7 h-7 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+            </svg>
+          </div>
+          <h3 class="font-heading font-bold text-navy text-xl mb-3">Teeth Cleaning & Polishing</h3>
+          <p class="text-slate-500 text-sm leading-relaxed mb-6">Professional cleaning for healthier gums and brighter teeth. Recommended every 6 months.</p>
+          <a href="https://wa.me/919876543210?text=Hi%20Dr.%20Priya%2C%20I%20want%20to%20book%20an%20appointment%20at%20Smile%20Dental%20Care."
+             target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-1 text-primary font-heading font-semibold text-sm group-hover:gap-2 transition-all duration-200">
+            Book Now <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+          </a>
+        </article>
+
+        <!-- Teeth Whitening -->
+        <article class="card-lift bg-white rounded-3xl p-8 shadow-md border border-slate-100 group">
+          <div class="w-14 h-14 bg-amber-50 group-hover:bg-cta/10 rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300">
+            <svg class="w-7 h-7 text-cta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          </div>
+          <h3 class="font-heading font-bold text-navy text-xl mb-3">Teeth Whitening</h3>
+          <p class="text-slate-500 text-sm leading-relaxed mb-6">Same-day whitening, visible results in one sitting. Walk in dull, walk out radiant.</p>
+          <a href="https://wa.me/919876543210?text=Hi%20Dr.%20Priya%2C%20I%20want%20to%20book%20an%20appointment%20at%20Smile%20Dental%20Care."
+             target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-1 text-primary font-heading font-semibold text-sm group-hover:gap-2 transition-all duration-200">
+            Book Now <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+          </a>
+        </article>
+
+        <!-- Braces -->
+        <article class="card-lift bg-white rounded-3xl p-8 shadow-md border border-slate-100 group">
+          <div class="w-14 h-14 bg-violet-50 group-hover:bg-violet-100 rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300">
+            <svg class="w-7 h-7 text-violet-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/>
+            </svg>
+          </div>
+          <h3 class="font-heading font-bold text-navy text-xl mb-3">Braces & Aligners</h3>
+          <p class="text-slate-500 text-sm leading-relaxed mb-6">Traditional braces and clear aligners for all ages. Achieve the straight smile you've always wanted.</p>
+          <a href="https://wa.me/919876543210?text=Hi%20Dr.%20Priya%2C%20I%20want%20to%20book%20an%20appointment%20at%20Smile%20Dental%20Care."
+             target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-1 text-primary font-heading font-semibold text-sm group-hover:gap-2 transition-all duration-200">
+            Book Now <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+          </a>
+        </article>
+
+        <!-- Root Canal -->
+        <article class="card-lift bg-white rounded-3xl p-8 shadow-md border border-slate-100 group">
+          <div class="w-14 h-14 bg-rose-50 group-hover:bg-rose-100 rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300">
+            <svg class="w-7 h-7 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </div>
+          <h3 class="font-heading font-bold text-navy text-xl mb-3">Root Canal Treatment</h3>
+          <p class="text-slate-500 text-sm leading-relaxed mb-6">Pain-free root canals with modern rotary equipment. Save your natural tooth, end the pain.</p>
+          <a href="https://wa.me/919876543210?text=Hi%20Dr.%20Priya%2C%20I%20want%20to%20book%20an%20appointment%20at%20Smile%20Dental%20Care."
+             target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-1 text-primary font-heading font-semibold text-sm group-hover:gap-2 transition-all duration-200">
+            Book Now <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+          </a>
+        </article>
+
+        <!-- Dental Implants — FEATURED -->
+        <article class="card-lift rounded-3xl p-8 shadow-xl group relative overflow-hidden"
+                 style="background:linear-gradient(135deg,#0EA5E9 0%,#0284C7 100%)">
+          <!-- Decorative circles -->
+          <div class="absolute top-0 right-0 w-36 h-36 rounded-full bg-white/10 -translate-y-18 translate-x-18 pointer-events-none" aria-hidden="true"></div>
+          <div class="absolute bottom-0 left-0 w-28 h-28 rounded-full bg-white/10 translate-y-14 -translate-x-14 pointer-events-none" aria-hidden="true"></div>
+          <div class="relative z-10">
+            <div class="inline-flex items-center gap-1 bg-white/20 text-white text-xs font-heading font-bold px-3 py-1 rounded-full mb-5">⭐ Most Popular</div>
+            <div class="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mb-6">
+              <svg class="w-7 h-7 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+              </svg>
+            </div>
+            <h3 class="font-heading font-bold text-white text-xl mb-3">Dental Implants</h3>
+            <p class="text-white/80 text-sm leading-relaxed mb-6">Permanent solution for missing teeth. Looks, feels, and functions exactly like your natural tooth.</p>
+            <a href="https://wa.me/919876543210?text=Hi%20Dr.%20Priya%2C%20I%20want%20to%20book%20an%20appointment%20at%20Smile%20Dental%20Care."
+               target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-1 text-white font-heading font-semibold text-sm group-hover:gap-2 transition-all duration-200">
+              Book Consultation <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+            </a>
+          </div>
+        </article>
+
+        <!-- Kids Dentistry -->
+        <article class="card-lift bg-white rounded-3xl p-8 shadow-md border border-slate-100 group">
+          <div class="w-14 h-14 bg-green-50 group-hover:bg-green-100 rounded-2xl flex items-center justify-center mb-6 transition-colors duration-300">
+            <svg class="w-7 h-7 text-green-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3 class="font-heading font-bold text-navy text-xl mb-3">Kids Dentistry</h3>
+          <p class="text-slate-500 text-sm leading-relaxed mb-6">Gentle, fun dental care designed for children. We turn first dental visits into positive memories.</p>
+          <a href="https://wa.me/919876543210?text=Hi%20Dr.%20Priya%2C%20I%20want%20to%20book%20an%20appointment%20at%20Smile%20Dental%20Care."
+             target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-1 text-primary font-heading font-semibold text-sm group-hover:gap-2 transition-all duration-200">
+            Book Now <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"/></svg>
+          </a>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       ABOUT
+  ══════════════════════════════════════════ -->
+  <section id="about" class="py-24 about-bg relative overflow-hidden" aria-labelledby="about-heading">
+    <!-- Soft bg circles -->
+    <div class="absolute top-0 right-0 w-96 h-96 rounded-full bg-primary/5 -translate-y-48 translate-x-48 pointer-events-none" aria-hidden="true"></div>
+    <div class="absolute bottom-0 left-0 w-72 h-72 rounded-full bg-primary/5 translate-y-36 -translate-x-36 pointer-events-none" aria-hidden="true"></div>
+
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid lg:grid-cols-2 gap-16 items-center">
+
+        <!-- Image column -->
+        <div class="relative flex justify-center lg:justify-start">
+          <!-- Large glow orbs behind photo -->
+          <div class="absolute -top-6 -left-6 w-72 h-72 rounded-full bg-primary/10 anim-float-c pointer-events-none" aria-hidden="true"></div>
+          <div class="absolute -bottom-6 -right-6 w-48 h-48 rounded-full bg-cta/10 anim-float-b pointer-events-none" aria-hidden="true"></div>
+
+          <!-- 3-D diamond accent -->
+          <div class="absolute top-8 right-8 w-12 h-12 rounded-xl bg-primary/15 border border-primary/20 rotate-12 anim-float pointer-events-none" aria-hidden="true"
+               style="box-shadow:4px 6px 20px rgba(14,165,233,.2)"></div>
+
+          <!-- Photo frame -->
+          <div class="relative z-10 w-72 h-[420px] lg:w-[300px] lg:h-[460px] rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white"
+               style="box-shadow:0 32px 64px rgba(14,165,233,.2)">
+            <img src="https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=600&q=80&auto=format&fit=crop"
+                 alt="Dr. Priya Sharma, MDS from AIIMS — Lead Dentist at Smile Dental Care"
+                 class="w-full h-full object-cover object-top">
+            <div class="absolute inset-0 bg-gradient-to-t from-navy/45 via-transparent to-transparent"></div>
+            <div class="absolute bottom-5 left-5 right-5">
+              <div class="glass-card rounded-2xl px-4 py-3">
+                <div class="font-heading font-bold text-navy text-sm">Dr. Priya Sharma</div>
+                <div class="text-primary text-xs font-semibold mt-0.5">MDS (AIIMS) · Lead Dentist</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Floating experience badge -->
+          <div class="glass-card absolute top-6 -right-4 lg:right-2 px-4 py-3 rounded-2xl shadow-xl anim-float z-20 text-center" aria-hidden="true">
+            <div class="font-heading font-black text-primary text-3xl leading-none">10+</div>
+            <div class="text-slate-500 text-xs font-medium mt-0.5">Years Experience</div>
+          </div>
+        </div>
+
+        <!-- Text column -->
+        <div>
+          <div class="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-1.5 rounded-full text-sm font-heading font-semibold mb-6">
+            Meet Dr. Priya
+          </div>
+
+          <h2 id="about-heading" class="font-heading font-black text-navy text-4xl sm:text-5xl leading-[1.08] mb-8">
+            Dental Excellence,<br><span class="grad-text">Delivered with Heart</span>
+          </h2>
+
+          <p class="text-slate-600 text-base leading-relaxed mb-5">
+            Dr. Priya Sharma is a leading dental surgeon in Bhubaneswar with over 10 years of experience and an MDS from AIIMS. She founded Smile Dental Care with a simple mission — make world-class dental care accessible, affordable, and genuinely comfortable for every family.
+          </p>
+
+          <p class="text-slate-600 text-base leading-relaxed mb-10">
+            Specializing in cosmetic dentistry, orthodontics, and pediatric care, Dr. Priya combines advanced technology with a patient-first approach. Every appointment starts with a conversation, not a checklist — because she believes great dental care begins with trust.
+          </p>
+
+          <!-- Stats row -->
+          <div class="grid grid-cols-3 gap-4 mb-10">
+            <div class="stat-box rounded-2xl p-4 text-center">
+              <div class="font-heading font-black text-primary text-2xl sm:text-3xl">10+</div>
+              <div class="text-slate-500 text-xs font-medium mt-1 leading-tight">Years Experience</div>
+            </div>
+            <div class="stat-box rounded-2xl p-4 text-center">
+              <div class="font-heading font-black text-primary text-2xl sm:text-3xl">2000+</div>
+              <div class="text-slate-500 text-xs font-medium mt-1 leading-tight">Patients Served</div>
+            </div>
+            <div class="stat-box rounded-2xl p-4 text-center">
+              <div class="font-heading font-black text-primary text-2xl sm:text-3xl">15+</div>
+              <div class="text-slate-500 text-xs font-medium mt-1 leading-tight">Awards Won</div>
+            </div>
+          </div>
+
+          <a href="https://wa.me/919876543210?text=Hi%20Dr.%20Priya%2C%20I%20want%20to%20book%20an%20appointment%20at%20Smile%20Dental%20Care."
+             target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-2.5 bg-wa text-white px-8 py-4 rounded-2xl font-heading font-bold text-lg shadow-xl hover:scale-105 active:scale-95 transition-transform duration-300">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Book a Free Consultation
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       TESTIMONIALS
+  ══════════════════════════════════════════ -->
+  <section id="testimonials" class="py-24 bg-white relative overflow-hidden" aria-labelledby="testi-heading">
+    <div class="absolute inset-0 bg-gradient-to-br from-sky-50/60 to-white pointer-events-none" aria-hidden="true"></div>
+
+    <div class="max-w-7xl mx-auto px-6 relative z-10">
+
+      <div class="text-center mb-16">
+        <div class="inline-flex items-center gap-2 bg-cta/10 text-cta px-4 py-1.5 rounded-full text-sm font-heading font-semibold mb-5">
+          <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          Patient Reviews
+        </div>
+        <h2 id="testi-heading" class="font-heading font-black text-navy text-4xl sm:text-5xl leading-tight mb-4">
+          Real Stories from<br><span class="grad-text">Happy Patients</span>
+        </h2>
+        <!-- Stars line -->
+        <div class="flex items-center justify-center gap-1 mt-3" aria-label="Average rating 5 stars">
+          <svg class="w-6 h-6 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-6 h-6 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-6 h-6 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-6 h-6 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <svg class="w-6 h-6 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          <span class="text-slate-500 text-sm font-medium ml-2">200+ verified reviews</span>
+        </div>
+      </div>
+
+      <!-- Cards -->
+      <div class="grid md:grid-cols-3 gap-6">
+
+        <!-- Ravi K. -->
+        <article class="testi-card card-lift rounded-3xl p-8 shadow-lg border border-sky-100/60">
+          <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-5">
+            <svg class="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+          </div>
+          <div class="flex gap-0.5 mb-4" aria-label="5 star rating">
+            <svg class="w-5 h-5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          </div>
+          <blockquote class="text-slate-600 text-base leading-relaxed mb-6">
+            "Best dental experience I've had. Painless root canal and the team was so kind. Highly recommend Dr. Priya."
+          </blockquote>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center font-heading font-bold text-primary" aria-hidden="true">R</div>
+            <div>
+              <div class="font-heading font-semibold text-navy text-sm">Ravi K.</div>
+              <div class="text-slate-400 text-xs">Root Canal Patient</div>
+            </div>
+            <div class="ml-auto">
+              <span class="text-xs text-slate-400 bg-slate-50 border border-slate-100 px-2 py-1 rounded-full">Verified ✓</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Sneha M. — featured -->
+        <article class="card-lift rounded-3xl p-8 shadow-xl border border-primary/20 relative"
+                 style="background:linear-gradient(145deg,#f0f9ff,#e0f2fe)">
+          <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+            <div class="bg-primary text-white text-xs font-heading font-bold px-3 py-1 rounded-full shadow-lg">Featured Review</div>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-5 mt-2">
+            <svg class="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+          </div>
+          <div class="flex gap-0.5 mb-4" aria-label="5 star rating">
+            <svg class="w-5 h-5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          </div>
+          <blockquote class="text-slate-600 text-base leading-relaxed mb-6">
+            "Dr. Priya is amazing with kids. My son actually enjoys his dentist visits now. The clinic is spotless and modern."
+          </blockquote>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center font-heading font-bold text-violet-600" aria-hidden="true">S</div>
+            <div>
+              <div class="font-heading font-semibold text-navy text-sm">Sneha M.</div>
+              <div class="text-slate-400 text-xs">Kids Dentistry Patient</div>
+            </div>
+            <div class="ml-auto">
+              <span class="text-xs text-slate-400 bg-white border border-slate-100 px-2 py-1 rounded-full">Verified ✓</span>
+            </div>
+          </div>
+        </article>
+
+        <!-- Arjun P. -->
+        <article class="testi-card card-lift rounded-3xl p-8 shadow-lg border border-sky-100/60">
+          <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-5">
+            <svg class="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/></svg>
+          </div>
+          <div class="flex gap-0.5 mb-4" aria-label="5 star rating">
+            <svg class="w-5 h-5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-5 h-5 text-cta" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          </div>
+          <blockquote class="text-slate-600 text-base leading-relaxed mb-6">
+            "Got my teeth whitened — visible results in one sitting. Professional setup, fair pricing. Worth every rupee."
+          </blockquote>
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center font-heading font-bold text-green-600" aria-hidden="true">A</div>
+            <div>
+              <div class="font-heading font-semibold text-navy text-sm">Arjun P.</div>
+              <div class="text-slate-400 text-xs">Teeth Whitening Patient</div>
+            </div>
+            <div class="ml-auto">
+              <span class="text-xs text-slate-400 bg-slate-50 border border-slate-100 px-2 py-1 rounded-full">Verified ✓</span>
+            </div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- Bottom CTA banner -->
+      <div class="mt-14 rounded-3xl p-10 sm:p-14 text-center relative overflow-hidden"
+           style="background:linear-gradient(135deg,#0EA5E9,#0284C7)">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32 pointer-events-none" aria-hidden="true"></div>
+        <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-24 -translate-x-24 pointer-events-none" aria-hidden="true"></div>
+        <div class="relative z-10">
+          <h3 class="font-heading font-black text-white text-3xl sm:text-4xl mb-3">Ready for Your Best Smile?</h3>
+          <p class="text-white/75 text-lg mb-8">Book a free consultation. No pressure — just a chat with Dr. Priya.</p>
+          <a href="https://wa.me/919876543210?text=Hi%20Dr.%20Priya%2C%20I%20want%20to%20book%20an%20appointment%20at%20Smile%20Dental%20Care."
+             target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-2.5 bg-white text-primary px-8 py-4 rounded-2xl font-heading font-bold text-lg shadow-xl hover:scale-105 active:scale-95 transition-transform duration-300">
+            <svg class="w-5 h-5 text-wa" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Chat on WhatsApp
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════
+       CONTACT
+  ══════════════════════════════════════════ -->
+  <section id="contact" class="py-24 contact-bg" aria-labelledby="contact-heading">
+    <div class="max-w-7xl mx-auto px-6">
+
+      <div class="text-center mb-16">
+        <div class="inline-flex items-center gap-2 bg-primary/20 text-primary px-4 py-1.5 rounded-full text-sm font-heading font-semibold mb-5">
+          Find Us
+        </div>
+        <h2 id="contact-heading" class="font-heading font-black text-white text-4xl sm:text-5xl leading-tight mb-4">
+          Visit Us in<br><span class="grad-text">Bhubaneswar</span>
+        </h2>
+        <p class="text-white/55 text-lg">We're easy to find and even easier to love.</p>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-10 items-start">
+
+        <!-- Info cards -->
+        <div class="space-y-5">
+
+          <!-- Address -->
+          <div class="glass rounded-3xl p-6 flex items-start gap-4">
+            <div class="w-12 h-12 bg-primary/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="font-heading font-semibold text-white mb-1">Our Address</div>
+              <address class="not-italic text-white/55 text-sm leading-relaxed">
+                Plot 42, Saheed Nagar<br>
+                Bhubaneswar, Odisha 751007
+              </address>
+            </div>
+          </div>
+
+          <!-- Phone / WhatsApp -->
+          <div class="glass rounded-3xl p-6 flex items-start gap-4">
+            <div class="w-12 h-12 bg-wa/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-wa" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            </div>
+            <div>
+              <div class="font-heading font-semibold text-white mb-1">Call / WhatsApp</div>
+              <a href="tel:+919876543210" class="text-white/55 text-sm hover:text-white transition-colors">+91 98765 43210</a>
+              <br>
+              <a href="https://wa.me/919876543210?text=Hi%20Dr.%20Priya%2C%20I%20want%20to%20book%20an%20appointment%20at%20Smile%20Dental%20Care."
+                 target="_blank" rel="noopener noreferrer"
+                 class="inline-flex items-center gap-1 text-wa text-sm font-semibold mt-2 hover:opacity-80 transition-opacity">
+                Chat on WhatsApp →
+              </a>
+            </div>
+          </div>
+
+          <!-- Hours -->
+          <div class="glass rounded-3xl p-6 flex items-start gap-4">
+            <div class="w-12 h-12 bg-cta/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-cta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="font-heading font-semibold text-white mb-2">Working Hours</div>
+              <dl class="text-white/55 text-sm space-y-1">
+                <div class="flex justify-between gap-10">
+                  <dt>Mon – Sat</dt><dd class="text-white/80 font-medium">9:00 AM – 8:00 PM</dd>
+                </div>
+                <div class="flex justify-between gap-10">
+                  <dt>Sunday</dt><dd class="text-white/80 font-medium">10:00 AM – 4:00 PM</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+
+          <!-- Email -->
+          <div class="glass rounded-3xl p-6 flex items-start gap-4">
+            <div class="w-12 h-12 bg-sky-400/20 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+            </div>
+            <div>
+              <div class="font-heading font-semibold text-white mb-1">Email Us</div>
+              <a href="mailto:care@smiledental.in" class="text-white/55 text-sm hover:text-white transition-colors">care@smiledental.in</a>
+            </div>
+          </div>
+
+          <!-- Big WA button -->
+          <a href="https://wa.me/919876543210?text=Hi%20Dr.%20Priya%2C%20I%20want%20to%20book%20an%20appointment%20at%20Smile%20Dental%20Care."
+             target="_blank" rel="noopener noreferrer"
+             class="w-full flex items-center justify-center gap-3 bg-wa text-white px-6 py-4 rounded-2xl font-heading font-bold text-lg shadow-xl hover:scale-105 active:scale-95 transition-transform duration-300">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Book Your Appointment on WhatsApp
+          </a>
+        </div>
+
+        <!-- Map -->
+        <div class="map-wrap shadow-2xl border border-white/10" style="height:520px">
+          <iframe
+            title="Smile Dental Care location — Saheed Nagar, Bhubaneswar"
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3742.6063097843266!2d85.82801531491967!3d20.269103986395537!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a19a7310ed22d57%3A0x55124b1d1c51a3f1!2sSaheed%20Nagar%2C%20Bhubaneswar%2C%20Odisha!5e0!3m2!1sen!2sin!4v1680000000000!5m2!1sen!2sin"
+            width="100%" height="100%"
+            style="border:0;"
+            allowfullscreen
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  </main>
+
+  <!-- ══════════════════════════════════════════
+       FOOTER
+  ══════════════════════════════════════════ -->
+  <footer class="bg-navy py-10 border-t border-white/5">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-5">
+
+        <!-- Logo -->
+        <a href="#home" class="flex items-center gap-2" aria-label="Smile Dental Care">
+          <div class="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+            <svg class="w-4 h-4 text-white" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+              <path d="M16 3C12 3 9 6 9 9.5c0 2 .7 3.5 1.4 4.8.7 1.3 1.4 2.6 1.4 4.7 0 2.8.7 7 2.1 9.5.7 1.4 1.4 2 2.1 2s1.4-.6 2.1-2C19.6 26 20.3 21.8 20.3 19c0-2.1.7-3.4 1.4-4.7C22.4 13 23 11.5 23 9.5 23 6 20 3 16 3z"/>
+            </svg>
+          </div>
+          <span class="font-heading font-bold text-white text-sm">Smile Dental Care</span>
+        </a>
+
+        <!-- Copyright + NoirFlow credit -->
+        <p class="text-white/35 text-sm text-center">
+          © 2026 Smile Dental Care &nbsp;|&nbsp; Crafted by
+          <a href="#" class="text-primary/60 hover:text-primary transition-colors font-semibold">NoirFlow ⚡</a>
+        </p>
+
+        <!-- Phone + WA icon -->
+        <div class="flex items-center gap-4">
+          <a href="tel:+919876543210" class="text-white/35 hover:text-white/70 transition-colors text-sm">+91 98765 43210</a>
+          <a href="https://wa.me/919876543210?text=Hi%20Dr.%20Priya%2C%20I%20want%20to%20book%20an%20appointment%20at%20Smile%20Dental%20Care."
+             target="_blank" rel="noopener noreferrer"
+             aria-label="WhatsApp"
+             class="w-8 h-8 bg-wa rounded-full flex items-center justify-center hover:scale-110 transition-transform">
+            <svg class="w-4 h-4 text-white" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- ══════════════════════════════════════════
+       NAV SCROLL JS
+  ══════════════════════════════════════════ -->
+  <script>
+    const nav = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 60) {
+        nav.classList.add('nav-solid');
+      } else {
+        nav.classList.remove('nav-solid');
+        nav.style.background = 'transparent';
+      }
+    }, { passive: true });
+  </script>
+
+</body>
+</html>
