@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- SEO -->
+  <title>Aurum Realty | Luxury Properties in Bhubaneswar | Premium Real Estate</title>
+  <meta name="description" content="Discover Bhubaneswar's finest luxury homes, villas, and commercial spaces with Aurum Realty. RERA-certified. 200+ happy families. Jaydev Vihar." />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Aurum Realty | Luxury Properties in Bhubaneswar" />
+  <meta property="og:description" content="Discover Bhubaneswar's finest luxury homes, villas, and commercial spaces with Aurum Realty. RERA-certified consultancy." />
+  <meta property="og:image" content="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- Favicon: gold "A" monogram -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='16' fill='%230A1128'/><text y='.9em' font-size='72' font-family='serif' font-weight='700' fill='%23D4AF37' x='50%' text-anchor='middle'>A</text></svg>" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CDN with custom config -->
+  <script>
+    window.tailwind = {
+      config: {
+        theme: {
+          extend: {
+            colors: {
+              navy:  { DEFAULT: '#0A1128', 800: '#0d1535', 700: '#111d44' },
+              gold:  { DEFAULT: '#D4AF37', light: '#E8CC5A', dark: '#B8960E' },
+              ivory: { DEFAULT: '#FAF7F2', warm: '#F5EFE6' },
+            },
+            fontFamily: {
+              display: ['"Playfair Display"', 'Georgia', 'serif'],
+              body: ['Inter', 'sans-serif'],
+            },
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    /* ── Base ── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: #FAF7F2; color: #0A1128; overflow-x: hidden; }
+    h1, h2, h3, h4 { font-family: 'Playfair Display', serif; }
+
+    /* ── CSS Variables ── */
+    :root {
+      --navy: #0A1128;
+      --gold: #D4AF37;
+      --gold-light: #E8CC5A;
+      --ivory: #FAF7F2;
+      --ivory-warm: #F5EFE6;
+    }
+
+    /* ── Nav ── */
+    #main-nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      transition: background 0.4s, box-shadow 0.4s;
+    }
+    #main-nav.scrolled {
+      background: rgba(10, 17, 40, 0.97);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 2px 32px rgba(0,0,0,0.3);
+    }
+
+    /* ── Gold divider ── */
+    .gold-line {
+      display: block; width: 56px; height: 2px;
+      background: linear-gradient(90deg, var(--gold), transparent);
+      margin: 12px 0 20px;
+    }
+
+    /* ── Hero ── */
+    .hero-bg {
+      background: linear-gradient(135deg, rgba(10,17,40,0.92) 0%, rgba(10,17,40,0.65) 50%, rgba(10,17,40,0.80) 100%),
+                  url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+    }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(212,175,55,0.12); border: 1px solid rgba(212,175,55,0.4);
+      border-radius: 100px; padding: 6px 16px;
+      font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    /* ── Gold button ── */
+    .btn-gold {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-light));
+      color: var(--navy); font-weight: 600; font-size: 0.9rem;
+      padding: 13px 28px; border-radius: 100px;
+      text-decoration: none; transition: all 0.3s;
+      box-shadow: 0 4px 20px rgba(212,175,55,0.35);
+    }
+    .btn-gold:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(212,175,55,0.55);
+    }
+    .btn-outline {
+      display: inline-flex; align-items: center; gap: 8px;
+      border: 1px solid rgba(255,255,255,0.35); color: #fff;
+      font-size: 0.9rem; padding: 13px 28px; border-radius: 100px;
+      text-decoration: none; transition: all 0.3s;
+    }
+    .btn-outline:hover {
+      border-color: var(--gold); color: var(--gold);
+      background: rgba(212,175,55,0.07);
+    }
+
+    /* ── Trust badges ── */
+    .trust-badge {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 14px 22px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 12px; text-align: center;
+    }
+
+    /* ── Section headings ── */
+    .section-label {
+      display: inline-block; font-size: 0.72rem; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--gold); font-family: 'Inter', sans-serif;
+      font-weight: 600; margin-bottom: 8px;
+    }
+
+    /* ── Service card ── */
+    .service-card {
+      background: #fff; border: 1px solid rgba(10,17,40,0.07);
+      border-radius: 20px; padding: 32px 28px;
+      transition: all 0.35s; cursor: default;
+    }
+    .service-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(212,175,55,0.4);
+      box-shadow: 0 16px 48px rgba(10,17,40,0.1), 0 0 0 1px rgba(212,175,55,0.15);
+    }
+    .service-icon {
+      width: 52px; height: 52px; border-radius: 14px;
+      background: linear-gradient(135deg, rgba(212,175,55,0.12), rgba(212,175,55,0.05));
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px; font-size: 1.5rem;
+      border: 1px solid rgba(212,175,55,0.2);
+    }
+
+    /* ── Property card ── */
+    .property-card {
+      background: #fff; border-radius: 20px; overflow: hidden;
+      border: 1px solid rgba(10,17,40,0.07);
+      transition: all 0.35s;
+    }
+    .property-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 60px rgba(10,17,40,0.12);
+    }
+    .property-card:hover .property-img {
+      transform: scale(1.05);
+    }
+    .property-img {
+      width: 100%; height: 240px; object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .property-tag {
+      position: absolute; top: 14px; left: 14px;
+      background: var(--navy); color: var(--gold);
+      font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em;
+      text-transform: uppercase; padding: 5px 12px; border-radius: 100px;
+      border: 1px solid rgba(212,175,55,0.3);
+    }
+
+    /* ── About section ── */
+    .stat-box {
+      text-align: center; padding: 24px 16px;
+      border: 1px solid rgba(212,175,55,0.2); border-radius: 16px;
+      background: rgba(255,255,255,0.6);
+    }
+
+    /* ── Testimonial card ── */
+    .testimonial-card {
+      background: #fff; border-radius: 20px; padding: 32px 28px;
+      border: 1px solid rgba(10,17,40,0.06);
+      box-shadow: 0 4px 24px rgba(10,17,40,0.05);
+      position: relative;
+    }
+    .testimonial-card::before {
+      content: '"'; font-family: 'Playfair Display', serif;
+      position: absolute; top: 16px; right: 24px;
+      font-size: 5rem; line-height: 1; color: rgba(212,175,55,0.1);
+      pointer-events: none;
+    }
+
+    /* ── Floating WhatsApp ── */
+    .float-wa {
+      position: fixed; bottom: 28px; right: 24px; z-index: 999;
+      width: 58px; height: 58px; border-radius: 50%;
+      background: var(--navy); border: 2px solid var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 28px rgba(10,17,40,0.35), 0 0 0 0 rgba(212,175,55,0.4);
+      text-decoration: none; transition: all 0.3s;
+      animation: pulse-ring 2.5s ease-out infinite;
+    }
+    .float-wa:hover {
+      transform: scale(1.1) translateY(-2px);
+      box-shadow: 0 10px 36px rgba(10,17,40,0.5), 0 0 0 8px rgba(212,175,55,0.1);
+    }
+    @keyframes pulse-ring {
+      0%   { box-shadow: 0 6px 28px rgba(10,17,40,0.35), 0 0 0 0 rgba(212,175,55,0.4); }
+      70%  { box-shadow: 0 6px 28px rgba(10,17,40,0.35), 0 0 0 12px rgba(212,175,55,0); }
+      100% { box-shadow: 0 6px 28px rgba(10,17,40,0.35), 0 0 0 0 rgba(212,175,55,0); }
+    }
+
+    /* ── Scroll reveal ── */
+    .reveal {
+      opacity: 0; transform: translateY(36px);
+      transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-delay-5 { transition-delay: 0.5s; }
+
+    /* ── Map container ── */
+    .map-container { border-radius: 20px; overflow: hidden; }
+
+    /* ── Footer ── */
+    footer a:hover { color: var(--gold); }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     FLOATING WHATSAPP BUTTON
+═══════════════════════════════════════ -->
+<a href="https://wa.me/919876588888?text=Hi%20Rohan%2C%20I%20would%20like%20to%20explore%20properties%20with%20Aurum%20Realty."
+   class="float-wa" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+  <!-- WhatsApp SVG icon -->
+  <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.149-.172.198-.296.298-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" fill="#D4AF37"/>
+    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.558 4.12 1.533 5.851L0 24l6.335-1.514A11.946 11.946 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.807 9.807 0 0 1-5.002-1.37l-.36-.214-3.724.889.934-3.608-.235-.372A9.797 9.797 0 0 1 2.182 12C2.182 6.576 6.576 2.182 12 2.182S21.818 6.576 21.818 12 17.424 21.818 12 21.818z" fill="#D4AF37"/>
+  </svg>
+</a>
+
+
+<!-- ═══════════════════════════════════════
+     NAVIGATION
+═══════════════════════════════════════ -->
+<nav id="main-nav" class="w-full py-4 px-6 md:px-12">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+
+    <!-- Logo -->
+    <a href="#" class="flex items-center gap-2 text-white no-underline">
+      <div class="w-9 h-9 rounded-lg flex items-center justify-center text-lg font-bold"
+           style="background:linear-gradient(135deg,#D4AF37,#E8CC5A);color:#0A1128;font-family:'Playfair Display',serif">
+        A
+      </div>
+      <span style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:600;letter-spacing:0.04em">
+        Aurum <span style="color:#D4AF37">Realty</span>
+      </span>
+    </a>
+
+    <!-- Desktop nav links -->
+    <div class="hidden md:flex items-center gap-8">
+      <a href="#services" class="text-white/70 hover:text-gold text-sm transition-colors duration-200" style="color:rgba(255,255,255,0.7)">Services</a>
+      <a href="#properties" class="text-white/70 hover:text-gold text-sm transition-colors duration-200" style="color:rgba(255,255,255,0.7)">Properties</a>
+      <a href="#about" class="text-white/70 hover:text-gold text-sm transition-colors duration-200" style="color:rgba(255,255,255,0.7)">About</a>
+      <a href="#testimonials" class="text-white/70 hover:text-gold text-sm transition-colors duration-200" style="color:rgba(255,255,255,0.7)">Reviews</a>
+    </div>
+
+    <!-- WhatsApp CTA -->
+    <a href="https://wa.me/919876588888?text=Hi%20Rohan%2C%20I%20would%20like%20to%20explore%20properties%20with%20Aurum%20Realty."
+       target="_blank" rel="noopener"
+       class="btn-gold text-sm hidden sm:inline-flex">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.149-.172.198-.296.298-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.558 4.12 1.533 5.851L0 24l6.335-1.514A11.946 11.946 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.807 9.807 0 0 1-5.002-1.37l-.36-.214-3.724.889.934-3.608-.235-.372A9.797 9.797 0 0 1 2.182 12C2.182 6.576 6.576 2.182 12 2.182S21.818 6.576 21.818 12 17.424 21.818 12 21.818z"/></svg>
+      WhatsApp Us
+    </a>
+  </div>
+</nav>
+
+
+<!-- ═══════════════════════════════════════
+     HERO
+═══════════════════════════════════════ -->
+<section class="hero-bg min-h-screen flex items-center relative overflow-hidden">
+
+  <!-- Subtle gold gradient overlay bottom -->
+  <div class="absolute inset-x-0 bottom-0 h-32 pointer-events-none"
+       style="background:linear-gradient(to top, rgba(10,17,40,0.6), transparent)"></div>
+
+  <div class="max-w-7xl mx-auto px-6 md:px-12 py-32 md:py-0 w-full">
+    <div class="max-w-2xl">
+
+      <!-- Badge -->
+      <div class="hero-badge mb-6 reveal">
+        <span style="font-size:0.85rem">✦</span>
+        RERA-Certified · Bhubaneswar's Finest
+      </div>
+
+      <!-- Headline -->
+      <h1 class="text-white text-4xl md:text-6xl lg:text-7xl leading-tight mb-4 reveal reveal-delay-1">
+        Discover<br/>
+        <span style="color:#D4AF37">Bhubaneswar's</span><br/>
+        Finest Homes
+      </h1>
+
+      <span class="gold-line reveal reveal-delay-2"></span>
+
+      <p class="text-white/70 text-lg md:text-xl mb-10 reveal reveal-delay-2" style="max-width:520px;line-height:1.7">
+        Premium properties curated by Bhubaneswar's most trusted real estate advisor — from luxury apartments to investment-grade commercial spaces.
+      </p>
+
+      <!-- CTAs -->
+      <div class="flex flex-wrap gap-4 mb-14 reveal reveal-delay-3">
+        <a href="https://wa.me/919876588888?text=Hi%20Rohan%2C%20I%20would%20like%20to%20explore%20properties%20with%20Aurum%20Realty."
+           target="_blank" rel="noopener" class="btn-gold">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.149-.172.198-.296.298-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.558 4.12 1.533 5.851L0 24l6.335-1.514A11.946 11.946 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.807 9.807 0 0 1-5.002-1.37l-.36-.214-3.724.889.934-3.608-.235-.372A9.797 9.797 0 0 1 2.182 12C2.182 6.576 6.576 2.182 12 2.182S21.818 6.576 21.818 12 17.424 21.818 12 21.818z"/></svg>
+          Schedule a Site Visit
+        </a>
+        <a href="#properties" class="btn-outline">
+          View Properties
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <!-- Trust badges -->
+      <div class="flex flex-wrap gap-4 reveal reveal-delay-4">
+        <div class="trust-badge">
+          <span class="text-2xl font-bold" style="font-family:'Playfair Display',serif;color:#D4AF37">200+</span>
+          <span class="text-white/60 text-xs">Happy Families</span>
+        </div>
+        <div class="trust-badge">
+          <span class="text-2xl font-bold" style="font-family:'Playfair Display',serif;color:#D4AF37">8+</span>
+          <span class="text-white/60 text-xs">Years Experience</span>
+        </div>
+        <div class="trust-badge">
+          <span class="text-2xl font-bold" style="font-family:'Playfair Display',serif;color:#D4AF37">92%</span>
+          <span class="text-white/60 text-xs">Referral Rate</span>
+        </div>
+        <div class="trust-badge">
+          <span class="text-xs font-semibold" style="color:#D4AF37">RERA</span>
+          <span class="text-white/60 text-xs">Certified</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Scroll hint -->
+  <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 reveal reveal-delay-5">
+    <span class="text-white/30 text-xs tracking-widest uppercase">Scroll</span>
+    <div class="w-px h-10" style="background:linear-gradient(to bottom,rgba(212,175,55,0.6),transparent)"></div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     SERVICES
+═══════════════════════════════════════ -->
+<section id="services" class="py-20 md:py-28" style="background:#fff">
+  <div class="max-w-7xl mx-auto px-6 md:px-12">
+
+    <div class="text-center mb-14 reveal">
+      <span class="section-label">What We Offer</span>
+      <h2 class="text-3xl md:text-5xl font-bold" style="color:#0A1128">
+        End-to-End Real Estate<br/>
+        <span style="color:#D4AF37">Services</span>
+      </h2>
+      <span class="gold-line mx-auto"></span>
+      <p class="text-gray-500 max-w-xl mx-auto" style="margin-top:-8px">
+        From your first site visit to the final documentation — Aurum Realty handles every step with precision and care.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      <!-- Card 1 -->
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-icon">🏙️</div>
+        <h3 class="text-xl font-semibold mb-2" style="color:#0A1128">Luxury Apartments</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">
+          Curated 3BHK and 4BHK apartments in Bhubaneswar's most sought-after neighbourhoods, with premium amenities and strong appreciation potential.
+        </p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-icon">🏡</div>
+        <h3 class="text-xl font-semibold mb-2" style="color:#0A1128">Villas & Bungalows</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">
+          Exclusive independent villas and duplex bungalows on private plots — ideal for families seeking space, privacy, and luxury in one address.
+        </p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="service-card reveal reveal-delay-3">
+        <div class="service-icon">🏢</div>
+        <h3 class="text-xl font-semibold mb-2" style="color:#0A1128">Commercial Properties</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">
+          Grade-A office spaces, retail units, and commercial plots in high-footfall zones — perfect for businesses and investors.
+        </p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-icon">✈️</div>
+        <h3 class="text-xl font-semibold mb-2" style="color:#0A1128">NRI Services</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">
+          Complete end-to-end support for NRIs — property search, virtual tours, legal due diligence, and power-of-attorney guidance, all remote-friendly.
+        </p>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-icon">📈</div>
+        <h3 class="text-xl font-semibold mb-2" style="color:#0A1128">Investment Advisory</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">
+          Data-driven insights on Bhubaneswar's micro-markets — identifying high-yield zones, rental income potential, and long-term appreciation corridors.
+        </p>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="service-card reveal reveal-delay-3">
+        <div class="service-icon">📋</div>
+        <h3 class="text-xl font-semibold mb-2" style="color:#0A1128">Legal & Documentation</h3>
+        <p class="text-gray-500 text-sm leading-relaxed">
+          Sale deed drafting, RERA compliance checks, registration assistance, and home loan liaison — stress-free paperwork from start to finish.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     FEATURED PROPERTIES
+═══════════════════════════════════════ -->
+<section id="properties" class="py-20 md:py-28" style="background:#F5EFE6">
+  <div class="max-w-7xl mx-auto px-6 md:px-12">
+
+    <div class="text-center mb-14 reveal">
+      <span class="section-label">Exclusive Listings</span>
+      <h2 class="text-3xl md:text-5xl font-bold" style="color:#0A1128">
+        Featured
+        <span style="color:#D4AF37">Properties</span>
+      </h2>
+      <span class="gold-line mx-auto"></span>
+      <p class="text-gray-500 max-w-xl mx-auto" style="margin-top:-8px">
+        Hand-picked from Bhubaneswar's finest new developments — each property personally vetted by Rohan.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+      <!-- Property 1 -->
+      <div class="property-card reveal reveal-delay-1">
+        <div class="relative overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80"
+               alt="The Utkal Residences luxury apartment interior" class="property-img" />
+          <span class="property-tag">Premium Apartment</span>
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-semibold mb-1" style="font-family:'Playfair Display',serif;color:#0A1128">The Utkal Residences</h3>
+          <p class="text-sm text-gray-400 mb-4">Jaydev Vihar, Bhubaneswar</p>
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <span class="text-2xl font-bold" style="color:#D4AF37;font-family:'Playfair Display',serif">₹2.85 Cr</span>
+              <span class="text-gray-400 text-xs ml-1">onwards</span>
+            </div>
+            <div class="flex gap-3 text-xs text-gray-500">
+              <span>🛏 4 BHK</span>
+              <span>📐 2,800 sqft</span>
+            </div>
+          </div>
+          <a href="https://wa.me/919876588888?text=Hi%20Rohan%2C%20I%27m%20interested%20in%20The%20Utkal%20Residences.%20Please%20share%20more%20details."
+             target="_blank" rel="noopener"
+             class="block text-center py-3 rounded-full text-sm font-semibold transition-all duration-300"
+             style="background:rgba(10,17,40,0.06);color:#0A1128;border:1px solid rgba(10,17,40,0.12)"
+             onmouseover="this.style.background='#0A1128';this.style.color='#D4AF37'"
+             onmouseout="this.style.background='rgba(10,17,40,0.06)';this.style.color='#0A1128'">
+            Enquire on WhatsApp
+          </a>
+        </div>
+      </div>
+
+      <!-- Property 2 -->
+      <div class="property-card reveal reveal-delay-2">
+        <div class="relative overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?auto=format&fit=crop&w=800&q=80"
+               alt="Villa Serene luxury bungalow exterior" class="property-img" />
+          <span class="property-tag">Exclusive Villa</span>
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-semibold mb-1" style="font-family:'Playfair Display',serif;color:#0A1128">Villa Serene</h3>
+          <p class="text-sm text-gray-400 mb-4">Nandan Vihar, Bhubaneswar</p>
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <span class="text-2xl font-bold" style="color:#D4AF37;font-family:'Playfair Display',serif">₹4.5 Cr</span>
+              <span class="text-gray-400 text-xs ml-1">onwards</span>
+            </div>
+            <div class="flex gap-3 text-xs text-gray-500">
+              <span>🛏 5 BHK</span>
+              <span>📐 5,200 sqft</span>
+            </div>
+          </div>
+          <a href="https://wa.me/919876588888?text=Hi%20Rohan%2C%20I%27m%20interested%20in%20Villa%20Serene.%20Please%20share%20more%20details."
+             target="_blank" rel="noopener"
+             class="block text-center py-3 rounded-full text-sm font-semibold transition-all duration-300"
+             style="background:rgba(10,17,40,0.06);color:#0A1128;border:1px solid rgba(10,17,40,0.12)"
+             onmouseover="this.style.background='#0A1128';this.style.color='#D4AF37'"
+             onmouseout="this.style.background='rgba(10,17,40,0.06)';this.style.color='#0A1128'">
+            Enquire on WhatsApp
+          </a>
+        </div>
+      </div>
+
+      <!-- Property 3 -->
+      <div class="property-card reveal reveal-delay-3">
+        <div class="relative overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1486325212027-8081e485255e?auto=format&fit=crop&w=800&q=80"
+               alt="Aurum Commercial Tower modern office building" class="property-img" />
+          <span class="property-tag">Commercial</span>
+        </div>
+        <div class="p-6">
+          <h3 class="text-xl font-semibold mb-1" style="font-family:'Playfair Display',serif;color:#0A1128">Aurum Commercial Tower</h3>
+          <p class="text-sm text-gray-400 mb-4">Rasulgarh, Bhubaneswar</p>
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <span class="text-2xl font-bold" style="color:#D4AF37;font-family:'Playfair Display',serif">₹18,500</span>
+              <span class="text-gray-400 text-xs ml-1">/sqft</span>
+            </div>
+            <div class="flex gap-3 text-xs text-gray-500">
+              <span>🏢 Grade-A</span>
+              <span>📐 Flex sizes</span>
+            </div>
+          </div>
+          <a href="https://wa.me/919876588888?text=Hi%20Rohan%2C%20I%27m%20interested%20in%20Aurum%20Commercial%20Tower.%20Please%20share%20more%20details."
+             target="_blank" rel="noopener"
+             class="block text-center py-3 rounded-full text-sm font-semibold transition-all duration-300"
+             style="background:rgba(10,17,40,0.06);color:#0A1128;border:1px solid rgba(10,17,40,0.12)"
+             onmouseover="this.style.background='#0A1128';this.style.color='#D4AF37'"
+             onmouseout="this.style.background='rgba(10,17,40,0.06)';this.style.color='#0A1128'">
+            Enquire on WhatsApp
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- See all CTA -->
+    <div class="text-center mt-12 reveal">
+      <a href="https://wa.me/919876588888?text=Hi%20Rohan%2C%20I%27d%20like%20to%20see%20all%20available%20properties%20with%20Aurum%20Realty."
+         target="_blank" rel="noopener" class="btn-gold">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.149-.172.198-.296.298-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.558 4.12 1.533 5.851L0 24l6.335-1.514A11.946 11.946 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.807 9.807 0 0 1-5.002-1.37l-.36-.214-3.724.889.934-3.608-.235-.372A9.797 9.797 0 0 1 2.182 12C2.182 6.576 6.576 2.182 12 2.182S21.818 6.576 21.818 12 17.424 21.818 12 21.818z"/></svg>
+        View All Properties
+      </a>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     ABOUT / FOUNDER
+═══════════════════════════════════════ -->
+<section id="about" class="py-20 md:py-28" style="background:#fff">
+  <div class="max-w-7xl mx-auto px-6 md:px-12">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+
+      <!-- Left: photo + stats -->
+      <div class="relative reveal">
+        <!-- Main photo -->
+        <div class="relative rounded-3xl overflow-hidden" style="box-shadow:0 24px 64px rgba(10,17,40,0.15)">
+          <img src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=800&q=80"
+               alt="Rohan Mishra, Founder of Aurum Realty"
+               class="w-full object-cover" style="height:480px" />
+          <!-- Overlay badge -->
+          <div class="absolute bottom-6 left-6 right-6 p-5 rounded-2xl"
+               style="background:rgba(10,17,40,0.88);backdrop-filter:blur(12px);border:1px solid rgba(212,175,55,0.25)">
+            <p class="text-white font-semibold" style="font-family:'Playfair Display',serif">Rohan Mishra</p>
+            <p class="text-xs mt-1" style="color:#D4AF37">Founder & Principal Advisor · RERA Certified</p>
+          </div>
+        </div>
+
+        <!-- Gold accent square -->
+        <div class="absolute -top-4 -right-4 w-24 h-24 rounded-2xl -z-10"
+             style="background:linear-gradient(135deg,rgba(212,175,55,0.2),rgba(212,175,55,0.05));border:1px solid rgba(212,175,55,0.3)"></div>
+      </div>
+
+      <!-- Right: bio + stats -->
+      <div class="reveal reveal-delay-2">
+        <span class="section-label">Who We Are</span>
+        <h2 class="text-3xl md:text-4xl font-bold mb-4" style="color:#0A1128">
+          Bhubaneswar's Most<br/>
+          <span style="color:#D4AF37">Trusted Advisor</span>
+        </h2>
+        <span class="gold-line"></span>
+        <p class="text-gray-500 mb-4 leading-relaxed">
+          Rohan Mishra founded Aurum Realty with one conviction: property buying should be exciting, not stressful. With over 8 years navigating Bhubaneswar's luxury real estate market, he has helped 200+ families and investors secure properties that have consistently outperformed the market.
+        </p>
+        <p class="text-gray-500 mb-8 leading-relaxed">
+          A RERA-certified professional, Rohan combines deep local knowledge with meticulous due diligence — so you walk into every transaction with full clarity and zero surprises.
+        </p>
+
+        <!-- Stats grid -->
+        <div class="grid grid-cols-3 gap-4 mb-8">
+          <div class="stat-box">
+            <span class="text-3xl font-bold block" style="color:#D4AF37;font-family:'Playfair Display',serif">200+</span>
+            <span class="text-xs text-gray-500 mt-1 block">Happy Clients</span>
+          </div>
+          <div class="stat-box">
+            <span class="text-3xl font-bold block" style="color:#D4AF37;font-family:'Playfair Display',serif">8+</span>
+            <span class="text-xs text-gray-500 mt-1 block">Years Active</span>
+          </div>
+          <div class="stat-box">
+            <span class="text-3xl font-bold block" style="color:#D4AF37;font-family:'Playfair Display',serif">92%</span>
+            <span class="text-xs text-gray-500 mt-1 block">Referral Rate</span>
+          </div>
+        </div>
+
+        <a href="https://wa.me/919876588888?text=Hi%20Rohan%2C%20I%27d%20like%20to%20speak%20with%20you%20about%20a%20property."
+           target="_blank" rel="noopener" class="btn-gold">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.149-.172.198-.296.298-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.558 4.12 1.533 5.851L0 24l6.335-1.514A11.946 11.946 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.807 9.807 0 0 1-5.002-1.37l-.36-.214-3.724.889.934-3.608-.235-.372A9.797 9.797 0 0 1 2.182 12C2.182 6.576 6.576 2.182 12 2.182S21.818 6.576 21.818 12 17.424 21.818 12 21.818z"/></svg>
+          Talk to Rohan
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     TESTIMONIALS
+═══════════════════════════════════════ -->
+<section id="testimonials" style="background:#0A1128" class="py-20 md:py-28">
+  <div class="max-w-7xl mx-auto px-6 md:px-12">
+
+    <div class="text-center mb-14 reveal">
+      <span class="section-label">Client Stories</span>
+      <h2 class="text-3xl md:text-5xl font-bold text-white">
+        What Our Clients<br/>
+        <span style="color:#D4AF37">Are Saying</span>
+      </h2>
+      <span class="gold-line mx-auto"></span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- T1 -->
+      <div class="testimonial-card reveal reveal-delay-1">
+        <div class="flex gap-1 mb-4">
+          <span style="color:#D4AF37">★★★★★</span>
+        </div>
+        <p class="text-gray-600 text-sm leading-relaxed mb-6">
+          "Rohan made our first luxury home purchase completely stress-free. He knew exactly what we needed even before we did — and found us a 4BHK in Jaydev Vihar that was 20% under market rate. Couldn't recommend more."
+        </p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm"
+               style="background:linear-gradient(135deg,#D4AF37,#E8CC5A);color:#0A1128">AR</div>
+          <div>
+            <p class="font-semibold text-sm" style="color:#0A1128">Ankita R.</p>
+            <p class="text-xs text-gray-400">Homebuyer · Jaydev Vihar</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- T2 -->
+      <div class="testimonial-card reveal reveal-delay-2">
+        <div class="flex gap-1 mb-4">
+          <span style="color:#D4AF37">★★★★★</span>
+        </div>
+        <p class="text-gray-600 text-sm leading-relaxed mb-6">
+          "As an NRI, I was skeptical about buying property remotely. Rohan set up virtual tours, handled all due diligence, and kept me informed at every step. I signed the papers from London with complete confidence."
+        </p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm"
+               style="background:linear-gradient(135deg,#D4AF37,#E8CC5A);color:#0A1128">SP</div>
+          <div>
+            <p class="font-semibold text-sm" style="color:#0A1128">Dr. Sameer P.</p>
+            <p class="text-xs text-gray-400">NRI Investor · London</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- T3 -->
+      <div class="testimonial-card reveal reveal-delay-3">
+        <div class="flex gap-1 mb-4">
+          <span style="color:#D4AF37">★★★★★</span>
+        </div>
+        <p class="text-gray-600 text-sm leading-relaxed mb-6">
+          "I've transacted three commercial properties through Rohan in the past four years. His market intelligence is unmatched — two of those properties have already appreciated over 35%. Aurum Realty is my go-to for all investments."
+        </p>
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm"
+               style="background:linear-gradient(135deg,#D4AF37,#E8CC5A);color:#0A1128">MK</div>
+          <div>
+            <p class="font-semibold text-sm" style="color:#0A1128">Manoj K.</p>
+            <p class="text-xs text-gray-400">Commercial Investor · Bhubaneswar</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     CONTACT
+═══════════════════════════════════════ -->
+<section id="contact" class="py-20 md:py-28" style="background:#FAF7F2">
+  <div class="max-w-7xl mx-auto px-6 md:px-12">
+
+    <div class="text-center mb-14 reveal">
+      <span class="section-label">Get in Touch</span>
+      <h2 class="text-3xl md:text-5xl font-bold" style="color:#0A1128">
+        Let's Find Your
+        <span style="color:#D4AF37">Dream Property</span>
+      </h2>
+      <span class="gold-line mx-auto"></span>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+
+      <!-- Left: Contact info -->
+      <div class="reveal">
+        <div class="rounded-3xl p-8 md:p-10" style="background:#0A1128;border:1px solid rgba(212,175,55,0.15)">
+
+          <h3 class="text-2xl font-bold text-white mb-6" style="font-family:'Playfair Display',serif">
+            Speak to Rohan <span style="color:#D4AF37">Directly</span>
+          </h3>
+
+          <div class="space-y-5 mb-8">
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
+                   style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.2)">📍</div>
+              <div>
+                <p class="text-white font-medium text-sm">Address</p>
+                <p class="text-white/60 text-sm mt-1">Jaydev Vihar, Bhubaneswar,<br/>Odisha — 751013</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
+                   style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.2)">🕐</div>
+              <div>
+                <p class="text-white font-medium text-sm">Office Hours</p>
+                <p class="text-white/60 text-sm mt-1">Mon – Sat: 10:00 AM – 7:00 PM<br/>Sun: By Appointment Only</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-4">
+              <div class="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
+                   style="background:rgba(212,175,55,0.1);border:1px solid rgba(212,175,55,0.2)">📱</div>
+              <div>
+                <p class="text-white font-medium text-sm">WhatsApp</p>
+                <p class="text-white/60 text-sm mt-1">+91 98765 88888</p>
+              </div>
+            </div>
+          </div>
+
+          <a href="https://wa.me/919876588888?text=Hi%20Rohan%2C%20I%20would%20like%20to%20explore%20properties%20with%20Aurum%20Realty."
+             target="_blank" rel="noopener" class="btn-gold w-full justify-center">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.521.149-.172.198-.296.298-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.558 4.12 1.533 5.851L0 24l6.335-1.514A11.946 11.946 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.807 9.807 0 0 1-5.002-1.37l-.36-.214-3.724.889.934-3.608-.235-.372A9.797 9.797 0 0 1 2.182 12C2.182 6.576 6.576 2.182 12 2.182S21.818 6.576 21.818 12 17.424 21.818 12 21.818z"/></svg>
+            Message Rohan on WhatsApp
+          </a>
+
+        </div>
+      </div>
+
+      <!-- Right: Google Map -->
+      <div class="reveal reveal-delay-2">
+        <div class="map-container" style="height:400px;box-shadow:0 16px 48px rgba(10,17,40,0.1)">
+          <iframe
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3741.6776474987726!2d85.82156731493897!3d20.296059986384893!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a190900fb1d0a77%3A0x9cc7e1e6ff2b7e13!2sJaydev%20Vihar%2C%20Bhubaneswar%2C%20Odisha!5e0!3m2!1sen!2sin!4v1622900000000!5m2!1sen!2sin"
+            width="100%" height="100%" style="border:0" allowfullscreen="" loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Aurum Realty location — Jaydev Vihar, Bhubaneswar">
+          </iframe>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════ -->
+<footer style="background:#070D1E;border-top:1px solid rgba(212,175,55,0.1)">
+  <div class="max-w-7xl mx-auto px-6 md:px-12 py-12">
+    <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+
+      <!-- Logo -->
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg flex items-center justify-center text-base font-bold"
+             style="background:linear-gradient(135deg,#D4AF37,#E8CC5A);color:#0A1128;font-family:'Playfair Display',serif">
+          A
+        </div>
+        <span style="font-family:'Playfair Display',serif;color:#fff;font-size:1.05rem;font-weight:600">
+          Aurum <span style="color:#D4AF37">Realty</span>
+        </span>
+      </div>
+
+      <!-- Middle: quick links -->
+      <div class="flex flex-wrap gap-6 text-sm" style="color:rgba(255,255,255,0.4)">
+        <a href="#services" class="hover:text-gold transition-colors" style="color:rgba(255,255,255,0.4)">Services</a>
+        <a href="#properties" class="hover:text-gold transition-colors" style="color:rgba(255,255,255,0.4)">Properties</a>
+        <a href="#about" class="hover:text-gold transition-colors" style="color:rgba(255,255,255,0.4)">About</a>
+        <a href="#contact" class="hover:text-gold transition-colors" style="color:rgba(255,255,255,0.4)">Contact</a>
+      </div>
+
+      <!-- Right: credit -->
+      <p class="text-xs" style="color:rgba(255,255,255,0.25)">
+        Crafted by <a href="#" style="color:rgba(212,175,55,0.6);text-decoration:none">NoirFlow ⚡</a>
+      </p>
+
+    </div>
+
+    <div class="border-t mt-8 pt-6 text-center" style="border-color:rgba(255,255,255,0.05)">
+      <p class="text-xs" style="color:rgba(255,255,255,0.2)">
+        © 2026 Aurum Realty · Jaydev Vihar, Bhubaneswar · RERA Certified · All rights reserved.
+      </p>
+    </div>
+  </div>
+</footer>
+
+
+<!-- ═══════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════ -->
+<script>
+  // ── Nav scroll effect ──
+  const nav = document.getElementById('main-nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 60);
+  }, { passive: true });
+
+  // ── Scroll reveal ──
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ── Smooth scroll for nav links ──
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+      const target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
