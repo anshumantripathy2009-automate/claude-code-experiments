@@ -29,7 +29,7 @@ You're on **Care Pro** (₹1,999/mo starting [date]):
 
 ## How to Request Updates
 
-WhatsApp me at +91 [phone] with:
+WhatsApp me at +91 7749034669 with:
 - What you want changed
 - Any new content/images
 
@@ -57,6 +57,6 @@ Your domain expires [date + 1 year]. GoDaddy will email you 30 days before. Rene
 ---
 
 *Crafted with ⚡ by NoirFlow*
-*Anshuman Tripathy | anshuman@noirflow | +91 [phone]*
+*Anshuman Tripathy | anshumantripathy2009@gmail.com | +91 7749034669
 
 ---
