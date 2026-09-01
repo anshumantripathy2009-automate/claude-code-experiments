@@ -1,0 +1,17 @@
+{
+  "name": "whatsapp-dental-receptionist",
+  "version": "1.0.0",
+  "description": "AI WhatsApp receptionist for dental clinics, powered by Google Gemini (free tier).",
+  "main": "api/webhook.js",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
