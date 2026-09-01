@@ -3,7 +3,14 @@
 An AI receptionist that chats with patients over WhatsApp, in a warm Hinglish
 tone, and collects their **name, service, and preferred date/time** — then
 outputs a structured booking your team can drop straight into a calendar or
-CRM. Powered by Google Gemini's free tier (`gemini-2.0-flash-exp`).
+CRM. Powered by Google Gemini's free tier (`gemini-3.5-flash`).
+
+> **Model note:** this uses `gemini-3.5-flash`, Google's current stable
+> flash model as of September 2026. The earlier `gemini-2.0-flash-exp`
+> preview model was retired by Google on June 1, 2026 — if you fork this
+> project later and Gemini errors start showing up in your logs, check
+> [Google's model list](https://ai.google.dev/gemini-api/docs/models) for
+> the current stable model name and update `MODEL_NAME` in `src/ai.js`.
 
 ## What it does
 

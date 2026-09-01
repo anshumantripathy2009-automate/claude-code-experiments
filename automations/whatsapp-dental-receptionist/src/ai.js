@@ -3,7 +3,7 @@ const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { getConversation, addMessage, setBooking } = require('./conversation-store');
 
-const MODEL_NAME = 'gemini-2.0-flash-exp';
+const MODEL_NAME = 'gemini-3.5-flash';
 const BOOKING_BLOCK_REGEX = /```booking\s*([\s\S]*?)```/i;
 
 let cachedSystemPrompt = null;
@@ -67,7 +67,7 @@ async function generateReply(phone, userMessage) {
   try {
     result = await chat.sendMessage(userMessage);
   } catch (err) {
-    console.error('[ai] Gemini API call failed:', err.message);
+    console.error('[ai] Gemini API call failed:', err);
     throw new Error('Sorry, the receptionist is unavailable right now. Please try again shortly.');
   }
 
