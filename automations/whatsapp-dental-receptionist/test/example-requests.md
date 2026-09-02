@@ -66,7 +66,9 @@ Expect a confirmation reply, and the server console should log something like:
 ```
 
 The `booking` field will also be present in the JSON response body once the
-model has collected all three fields.
+model has collected all three fields, along with `"bookingLogged": true`
+if it was successfully appended to your Google Sheet (`false` if Sheets
+isn't configured or the append failed — check the server logs).
 
 ## 5. All-in-one message (single turn)
 

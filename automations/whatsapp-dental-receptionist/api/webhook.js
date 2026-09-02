@@ -22,8 +22,8 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { reply, booking } = await generateReply(from, message);
-    return res.status(200).json({ reply, booking: booking || undefined });
+    const { reply, booking, bookingLogged } = await generateReply(from, message);
+    return res.status(200).json({ reply, booking: booking || undefined, bookingLogged });
   } catch (err) {
     console.error('[webhook] Error handling message:', err);
     return res.status(500).json({ error: err.message || 'Internal server error.' });

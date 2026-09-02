@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { getConversation, addMessage, setBooking } = require('./conversation-store');
+const { appendBooking } = require('./sheets');
 
 const MODEL_NAME = 'gemini-3.5-flash';
 const BOOKING_BLOCK_REGEX = /```booking\s*([\s\S]*?)```/i;
@@ -76,13 +77,24 @@ async function generateReply(phone, userMessage) {
 
   const { cleanReply, booking } = extractBooking(rawReply);
 
+  // The model only emits the ```booking block once name, service, and
+  // date/time are all collected — so a non-null booking IS "bookingComplete".
+  let bookingLogged = false;
   if (booking) {
     setBooking(phone, booking);
     console.log(`\n✅ New booking collected for ${phone}:`);
     console.log(JSON.stringify(booking, null, 2));
+
+    bookingLogged = await appendBooking({
+      phoneNumber: phone,
+      patientName: booking.name,
+      service: booking.service,
+      preferredDate: booking.preferred_date,
+      preferredTime: booking.preferred_time,
+    });
   }
 
-  return { reply: cleanReply, booking };
+  return { reply: cleanReply, booking, bookingLogged };
 }
 
 module.exports = { generateReply };
