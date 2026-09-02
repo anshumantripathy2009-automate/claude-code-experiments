@@ -18,8 +18,9 @@ checks. Powered by Google Gemini's free tier (`gemini-3.5-flash`).
 - Your WhatsApp provider (Twilio, Meta Cloud API, WATI, etc.) forwards the
   message to this app's `/webhook` endpoint.
 - Gemini, primed with a receptionist system prompt, replies naturally,
-  remembers the conversation per phone number, and asks for whatever's
-  missing (name → service → date/time).
+  remembers the conversation per phone number (persisted in Supabase, so it
+  survives across serverless invocations), and asks for whatever's missing
+  (name → service → date/time).
 - Once all three are collected, it replies with a confirmation, logs the
   structured booking JSON to the console, and appends a row to your Google
   Sheet (timestamp, phone, name, service, date, time, status "Pending").
@@ -87,7 +88,50 @@ logs the error server-side and reports `"bookingLogged": false` in the
 webhook response, so nothing is lost, but the booking won't be on the sheet
 until you fix the config.
 
-### 5. Run locally
+### 5. Supabase setup (persistent conversation memory)
+
+Vercel serverless functions spin up a fresh instance per request, so
+without a real database the receptionist forgets the patient after every
+single message — this is what makes multi-turn bookings (name → service →
+date/time across several texts) actually work.
+
+1. Create a project at [supabase.com](https://supabase.com) (the free tier
+   is plenty for a single clinic).
+2. Open the **SQL Editor** and run:
+
+   ```sql
+   create table conversations (
+     id uuid default gen_random_uuid() primary key,
+     phone_number text not null,
+     messages jsonb not null default '[]'::jsonb,
+     client_slug text not null default 'smile-dental',
+     created_at timestamp with time zone default now(),
+     updated_at timestamp with time zone default now()
+   );
+   create index conversations_phone_client_idx on conversations(phone_number, client_slug);
+   ```
+
+3. Go to **Project Settings → Data API** and copy the **Project URL** →
+   `SUPABASE_URL`.
+4. Go to **Project Settings → API Keys** and copy the **`service_role`**
+   secret key (not the `anon`/public key — the service role key bypasses
+   Row Level Security, which is what lets this server-side code read and
+   write any patient's row; never expose it in client-side code) →
+   `SUPABASE_SERVICE_ROLE_KEY`.
+5. Add both to `.env`:
+
+   ```
+   SUPABASE_URL=https://your-project-ref.supabase.co
+   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key_here
+   ```
+
+If Supabase isn't configured (or a call fails), the receptionist still
+replies — it just falls back to treating every message as the start of a
+new conversation, and logs a warning server-side. Fine for a quick local
+test, but you'll want this wired up before a real demo with multi-message
+bookings.
+
+### 6. Run locally
 
 ```bash
 npx vercel dev
@@ -95,7 +139,7 @@ npx vercel dev
 
 This serves the endpoint at `http://localhost:3000/webhook`.
 
-### 6. Test it (no WhatsApp account needed)
+### 7. Test it (no WhatsApp account needed)
 
 Open [Hoppscotch](https://hoppscotch.io) and send a `POST` request to
 `http://localhost:3000/webhook` with a JSON body like:
@@ -110,20 +154,22 @@ Open [Hoppscotch](https://hoppscotch.io) and send a `POST` request to
 See [`test/example-requests.md`](./test/example-requests.md) for a full
 sample conversation, including the point where the booking JSON is logged
 to your terminal and (if configured) appended to your Google Sheet — check
-the response's `"bookingLogged"` field to confirm.
+the response's `"bookingLogged"` field to confirm. Send the same `from`
+number again after restarting `vercel dev` to confirm memory actually
+persisted (it should remember the name/service already given).
 
-### 7. Deploy to Vercel
+### 8. Deploy to Vercel
 
 ```bash
 npx vercel
 ```
 
 Then add `GEMINI_API_KEY`, `GOOGLE_SHEETS_SPREADSHEET_ID`,
-`GOOGLE_SERVICE_ACCOUNT_EMAIL`, and `GOOGLE_PRIVATE_KEY` as environment
-variables in your Vercel project settings (Project → Settings →
-Environment Variables), and redeploy.
+`GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY`, `SUPABASE_URL`, and
+`SUPABASE_SERVICE_ROLE_KEY` as environment variables in your Vercel project
+settings (Project → Settings → Environment Variables), and redeploy.
 
-### 8. Connect a real WhatsApp number (next step, not included here)
+### 9. Connect a real WhatsApp number (next step, not included here)
 
 Point your WhatsApp Business API provider's inbound-message webhook at
 `https://<your-project>.vercel.app/webhook`, mapping their payload's sender
@@ -136,17 +182,20 @@ wiring (Twilio/Meta/WATI) is a quick add-on — see "Upsells" below.
 api/webhook.js              → Vercel serverless entrypoint (POST /webhook)
 src/ai.js                   → Talks to Gemini, manages system prompt, parses booking JSON
 src/sheets.js               → Appends completed bookings to Google Sheets
-src/conversation-store.js   → In-memory per-phone-number chat history
+src/conversation-store.js   → Supabase-backed per-phone-number chat history
+src/supabase-client.js      → Shared Supabase client (service role)
 src/prompts/receptionist-prompt.md → The receptionist's personality & rules
 ```
 
-**Note on memory:** conversation history is stored in-memory (a plain JS
-object), which is fine for demos and low-traffic use, but resets on every
-serverless cold start / redeploy. Completed bookings survive this, though —
-they're written straight to your Google Sheet as soon as they're collected.
-For production conversation history, swap `src/conversation-store.js` for
-Supabase (already in the default stack) — same function signatures, just
-backed by a table instead of an object.
+**Note on memory:** conversation history lives in the `conversations` table
+in Supabase, keyed by `(phone_number, client_slug)` — not in-memory —
+because Vercel serverless functions spin up a fresh instance per request
+and would otherwise forget the patient after every message. Each turn
+trims the stored history to the last 20 messages, so a long back-and-forth
+doesn't grow the row (or the Gemini prompt) without bound. If Supabase is
+unreachable, calls fail soft (empty history on read, a skipped write with a
+logged error) rather than breaking the reply to the patient — see
+"Supabase setup" above.
 
 ## Sales pitch (paste into a DM/proposal)
 
@@ -178,9 +227,9 @@ it running, not as a custom software project.
 
 ## Cheapest viable v1 (what's shipped here)
 
-- Conversation history is in-memory only — good enough for a live demo or
-  single-clinic pilot. Completed bookings, though, are already durable:
-  they're written straight to the client's Google Sheet.
+- Conversation history and completed bookings are both durable — chat
+  history lives in Supabase, bookings are written straight to the client's
+  Google Sheet.
 - No WhatsApp provider wiring yet — testable via plain HTTP (Hoppscotch)
   today, provider webhook mapping is a follow-up task once a client is
   confirmed.
@@ -190,8 +239,8 @@ it running, not as a custom software project.
 ## Upsells / add-ons
 
 - Real WhatsApp Business API wiring (Twilio/Meta Cloud API/WATI)
-- Supabase-backed persistent conversation history (bookings already land in
-  Sheets; this covers the chat log too)
+- Multi-tenant `client_slug` support — one deployment serving several clinics
+  (the `conversations` table already has the column for it)
 - Auto-sync confirmed bookings from the Sheet to Google Calendar / clinic CRM
 - SMS/email fallback confirmation to the patient
 - Multi-language support (pure Hindi, English, regional languages)

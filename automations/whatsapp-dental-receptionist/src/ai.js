@@ -1,11 +1,15 @@
 const fs = require('fs');
 const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-const { getConversation, addMessage, setBooking } = require('./conversation-store');
+const { getConversation, addMessage } = require('./conversation-store');
 const { appendBooking } = require('./sheets');
 
 const MODEL_NAME = 'gemini-3.5-flash';
 const BOOKING_BLOCK_REGEX = /```booking\s*([\s\S]*?)```/i;
+
+// Hardcoded until multi-tenant support lands — every conversation currently
+// belongs to this one clinic.
+const CLIENT_SLUG = 'smile-dental';
 
 let cachedSystemPrompt = null;
 
@@ -47,8 +51,7 @@ function extractBooking(replyText) {
 }
 
 async function generateReply(phone, userMessage) {
-  const convo = getConversation(phone);
-  addMessage(phone, 'user', userMessage);
+  const priorMessages = await getConversation(phone, CLIENT_SLUG);
 
   const genAI = getClient();
   const model = genAI.getGenerativeModel({
@@ -56,8 +59,7 @@ async function generateReply(phone, userMessage) {
     systemInstruction: loadSystemPrompt(),
   });
 
-  // Everything except the user message we just appended becomes prior history.
-  const priorHistory = convo.history.slice(0, -1).map((m) => ({
+  const priorHistory = priorMessages.map((m) => ({
     role: m.role === 'assistant' ? 'model' : 'user',
     parts: [{ text: m.text }],
   }));
@@ -73,7 +75,8 @@ async function generateReply(phone, userMessage) {
   }
 
   const rawReply = result.response.text();
-  addMessage(phone, 'assistant', rawReply);
+  await addMessage(phone, { role: 'user', text: userMessage }, CLIENT_SLUG);
+  await addMessage(phone, { role: 'assistant', text: rawReply }, CLIENT_SLUG);
 
   const { cleanReply, booking } = extractBooking(rawReply);
 
@@ -81,7 +84,6 @@ async function generateReply(phone, userMessage) {
   // date/time are all collected — so a non-null booking IS "bookingComplete".
   let bookingLogged = false;
   if (booking) {
-    setBooking(phone, booking);
     console.log(`\n✅ New booking collected for ${phone}:`);
     console.log(JSON.stringify(booking, null, 2));
 
