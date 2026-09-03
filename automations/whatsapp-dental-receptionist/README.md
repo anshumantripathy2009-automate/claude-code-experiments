@@ -22,11 +22,12 @@ front desk already checks. Powered by Google Gemini's free tier
   logic — same prompt, same memory, same Sheets logging.
 - Gemini, primed with a receptionist system prompt, replies naturally,
   remembers the conversation per phone number (persisted in Supabase, so it
-  survives across serverless invocations), and asks for whatever's missing
-  (name → service → date/time).
-- Once all three are collected, it replies with a confirmation, logs the
+  survives across serverless invocations), and asks for whatever's missing,
+  one piece at a time (name → service → date → time).
+- The moment all four are collected, Riya **confirms the booking herself** —
+  no "the team will get back to you" — restates the details back, logs the
   structured booking JSON to the console, and appends a row to your Google
-  Sheet (timestamp, phone, name, service, date, time, status "Pending").
+  Sheet (timestamp, phone, name, service, date, time, status "Confirmed").
 
 ## Who it's for
 
