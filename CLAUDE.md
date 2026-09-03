@@ -87,3 +87,11 @@ For every automation, briefly answer:
 - AI agents (sales, support, ops)
 - Client acquisition systems
 - Productized service packaging
+
+## Sales Demos
+- **Riya voice demo** (`/demos/riya-voice/`) — a single-file, mobile-first
+  page where a prospect has a live spoken conversation with Riya, NoirFlow's
+  AI sales assistant (Web Speech API in the browser + a Gemini proxy
+  function). Send the deployed link directly to prospects; also includes an
+  always-visible "Book a call" button. See `/docs/sales-os/riya-voice-demo.md`
+  for setup and local-vs-Vercel testing instructions.

@@ -1,0 +1,16 @@
+{
+  "name": "riya-voice-demo",
+  "version": "1.0.0",
+  "description": "Voice demo of Riya, NoirFlow's AI sales assistant — static page + a thin Gemini proxy function.",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
