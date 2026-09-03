@@ -1,298 +1,183 @@
-# WhatsApp AI Dental Receptionist
+# NoirFlow AI Receptionist — Dental Clinic Edition
 
-An AI receptionist that chats with patients over WhatsApp (or Telegram), in
-a warm Hinglish tone, and collects their **name, service, and preferred
-date/time** — then auto-logs the booking as a row in a Google Sheet your
-front desk already checks. Powered by Google Gemini's free tier
-(`gemini-3.5-flash`).
+Production-ready AI receptionist that handles patient inquiries 24/7, books appointments via natural conversation, and logs everything to a Google Sheet.
 
-> **Model note:** this uses `gemini-3.5-flash`, Google's current stable
-> flash model as of September 2026. The earlier `gemini-2.0-flash-exp`
-> preview model was retired by Google on June 1, 2026 — if you fork this
-> project later and Gemini errors start showing up in your logs, check
-> [Google's model list](https://ai.google.dev/gemini-api/docs/models) for
-> the current stable model name and update `MODEL_NAME` in `src/ai.js`.
+## What This Does
 
-## What it does
+- Patient messages the clinic on Telegram (later migratable to WhatsApp)
+- AI named Riya responds in warm Hinglish
+- Collects name, service, date, time
+- Confirms booking with authority
+- Auto-logs booking to clinic's Google Sheet
+- Remembers full conversation history via Supabase
 
-- Patient messages the clinic's WhatsApp number (or its Telegram bot).
-- Your WhatsApp provider (Twilio, Meta Cloud API, WATI, etc.) forwards the
-  message to this app's `/webhook` endpoint; Telegram posts directly to
-  `/api/telegram-webhook`. Both endpoints call the exact same receptionist
-  logic — same prompt, same memory, same Sheets logging.
-- Gemini, primed with a receptionist system prompt, replies naturally,
-  remembers the conversation per phone number (persisted in Supabase, so it
-  survives across serverless invocations), and asks for whatever's missing,
-  one piece at a time (name → service → date → time).
-- The moment all four are collected, Riya **confirms the booking herself** —
-  no "the team will get back to you" — restates the details back, logs the
-  structured booking JSON to the console, and appends a row to your Google
-  Sheet (timestamp, phone, name, service, date, time, status "Confirmed").
+## Tech Stack
 
-## Who it's for
+| Layer | Tool | Purpose | Cost |
+|---|---|---|---|
+| AI Brain | Google Gemini 3.5 Flash | Natural conversation + intent extraction | Free tier |
+| Compute | Vercel Serverless Functions | Runs the agent 24/7 | Free tier |
+| Memory | Supabase Postgres | Persistent conversation history | Free tier |
+| Storage | Google Sheets API | Booking log clinic owner can view | Free |
+| Messaging | Telegram Bot API | Chat interface for patients | Free |
+| Development | Claude Code on mobile | Code writing + version control | Claude Pro |
+| Repo | GitHub | Version control + auto-deploy trigger | Free |
 
-Solo dentists and small dental clinics (1-3 chairs) who currently handle
-WhatsApp booking enquiries by hand and lose leads outside office hours.
+**Total monthly cost per client:** approximately ₹0–100, well within free tiers.
 
-## Setup
+**Recommended NoirFlow pricing:** ₹15,000 setup + ₹3,999/month Care Plan.
 
-### 1. Get a free Gemini API key
+## Setup Guide for NoirFlow Team
 
-Go to [aistudio.google.com/app/apikey](https://aistudio.google.com/app/apikey),
-create a key, and copy it.
+**Prerequisites:** phone with browser (no laptop needed), Claude Pro subscription, Google account, ~2 hours of focused work.
 
-### 2. Install dependencies
+### Step 1: Gemini API Key (2 minutes)
 
-```bash
-cd automations/whatsapp-dental-receptionist
-npm install
+Go to [aistudio.google.com](https://aistudio.google.com), sign in with Google, create API key, copy it, save to secure notes.
+
+### Step 2: Google Cloud Service Account for Sheets (10 minutes)
+
+Go to [console.cloud.google.com](https://console.cloud.google.com), create new project named `noirflow` with the client slug appended. Navigate to **APIs and Services → Library**, and enable **Google Sheets API**. Then go to **APIs and Services → Credentials → Create Credentials**, choose **Service Account**. Name it `noirflow-sheets-writer`, skip roles, click Done. Click the service account, go to the **Keys** tab, **Add Key → JSON → Create**. A JSON file downloads.
+
+Extract two values from it: `client_email` and `private_key`. Preserve the `\n` literal characters in the private key exactly as they appear.
+
+### Step 3: Client's Google Sheet (5 minutes)
+
+Create a new Google Sheet titled with the client name and "Live Bookings". In row 1, add headers: `Timestamp`, `Phone Number`, `Patient Name`, `Service`, `Preferred Date`, `Preferred Time`, `Status`, `Notes`. Rename the bottom tab to exactly `Sheet1` (capital S).
+
+Click **Share**, paste the service account email as **Editor**. Copy the Sheet ID from the URL — the long string between `/d/` and `/edit`.
+
+### Step 4: Supabase Project (15 minutes)
+
+Go to [supabase.com](https://supabase.com) and create a **New project**. Name it `noirflow-agents` or client-specific. Choose region **Mumbai** for India. Save the database password.
+
+Go to **SQL Editor → New query**, paste and run this SQL:
+
+```sql
+create table conversations (
+  id uuid default gen_random_uuid() primary key,
+  phone_number text not null,
+  messages jsonb not null default '[]'::jsonb,
+  client_slug text not null default 'smile-dental',
+  created_at timestamp with time zone default now(),
+  updated_at timestamp with time zone default now()
+);
+create index conversations_phone_client_idx on conversations(phone_number, client_slug);
+alter table conversations
+  add constraint conversations_phone_client_unique
+  unique (phone_number, client_slug);
 ```
 
-### 3. Configure environment variables
+Then go to **Project Settings → API**, and copy the **Project URL** and the **`service_role`** secret key. **Do not use the `anon` key.**
 
-```bash
-cp .env.example .env
-```
+### Step 5: Telegram Bot (5 minutes)
 
-Edit `.env` and paste your key:
+Open Telegram, search for **BotFather** with the verified badge. Send `/newbot`. Give it a name like "Client Name AI Receptionist". Choose a username ending in `bot`, like `ClientNameAI_bot`. Copy the bot token from the response.
 
-```
-GEMINI_API_KEY=your_actual_key_here
-```
+### Step 6: Vercel Deployment (15 minutes)
 
-### 4. Google Sheets setup (bookings auto-log here)
+Go to [vercel.com](https://vercel.com), click **New Project**, import from GitHub. Set **Root Directory** to `automations/whatsapp-dental-receptionist`. **Framework Preset:** Other.
 
-1. Create a Google Sheet (any name). Add header row `Timestamp | Phone | Name | Service | Preferred Date | Preferred Time | Status | Notes`
-   in row 1 of `Sheet1` — bookings get appended below it, in `Sheet1!A:H`.
-2. Copy the spreadsheet ID from its URL:
-   `https://docs.google.com/spreadsheets/d/<THIS_PART>/edit` →
-   `GOOGLE_SHEETS_SPREADSHEET_ID`.
-3. In [Google Cloud Console](https://console.cloud.google.com/), create (or
-   reuse) a project, enable the **Google Sheets API**, then create a
-   **Service Account** (IAM & Admin → Service Accounts).
-4. Create a JSON key for that service account and download it. From the
-   JSON: copy `client_email` → `GOOGLE_SERVICE_ACCOUNT_EMAIL`, and
-   `private_key` → `GOOGLE_PRIVATE_KEY` (keep it wrapped in quotes with the
-   `\n` sequences intact — the app converts them to real newlines at
-   runtime).
-5. Open the Google Sheet, click **Share**, and share it with the service
-   account's email (`...@...iam.gserviceaccount.com`) as an **Editor**.
-   Without this step, every append call fails with a permissions error.
-6. Add all three values to `.env`:
+Add these environment variables and mark all as **Sensitive**:
+
+| Variable | Source |
+|---|---|
+| `GEMINI_API_KEY` | Step 1 |
+| `GOOGLE_SHEETS_SPREADSHEET_ID` | Step 3 |
+| `GOOGLE_SERVICE_ACCOUNT_EMAIL` | Step 2 |
+| `GOOGLE_PRIVATE_KEY` | Step 2 (`\n` preserved) |
+| `SUPABASE_URL` | Step 4 |
+| `SUPABASE_SERVICE_ROLE_KEY` | Step 4 |
+| `TELEGRAM_BOT_TOKEN` | Step 5 |
+
+Add each variable to all three environments: **Production**, **Preview**, **Development**. Click **Deploy**. Copy the production URL when ready.
+
+### Step 7: Connect Telegram to Vercel (2 minutes)
+
+Open in your phone browser this URL after replacing placeholders with your bot token and Vercel URL:
 
 ```
-GOOGLE_SHEETS_SPREADSHEET_ID=your_spreadsheet_id_here
-GOOGLE_SERVICE_ACCOUNT_EMAIL=your-service-account@your-project.iam.gserviceaccount.com
-GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_KEY_HERE\n-----END PRIVATE KEY-----\n"
+https://api.telegram.org/bot<BOT_TOKEN>/setWebhook?url=<VERCEL_URL>/api/telegram-webhook
 ```
 
-If Sheets logging fails (missing env vars, sharing not set up, API not
-enabled), the receptionist still replies to the patient normally — it just
-logs the error server-side and reports `"bookingLogged": false` in the
-webhook response, so nothing is lost, but the booking won't be on the sheet
-until you fix the config.
+Expected response is a JSON with `ok: true` and description "Webhook was set".
 
-### 5. Supabase setup (persistent conversation memory)
+### Step 8: End-to-End Test (10 minutes)
 
-Vercel serverless functions spin up a fresh instance per request, so
-without a real database the receptionist forgets the patient after every
-single message — this is what makes multi-turn bookings (name → service →
-date/time across several texts) actually work.
+Open Telegram, search your bot username. Send `/start`. Then send a message like:
 
-1. Create a project at [supabase.com](https://supabase.com) (the free tier
-   is plenty for a single clinic).
-2. Open the **SQL Editor** and run:
+> Hi, I want teeth cleaning tomorrow at 4pm, my name is Test Patient.
 
-   ```sql
-   create table conversations (
-     id uuid default gen_random_uuid() primary key,
-     phone_number text not null,
-     messages jsonb not null default '[]'::jsonb,
-     client_slug text not null default 'smile-dental',
-     created_at timestamp with time zone default now(),
-     updated_at timestamp with time zone default now()
-   );
-   create index conversations_phone_client_idx on conversations(phone_number, client_slug);
-   ```
+Riya should confirm the booking with authority. Check the Google Sheet — a new row should appear. Check the Supabase `conversations` table — a new row with message history should be there.
 
-3. Go to **Project Settings → Data API** and copy the **Project URL** →
-   `SUPABASE_URL`.
-4. Go to **Project Settings → API Keys** and copy the **`service_role`**
-   secret key (not the `anon`/public key — the service role key bypasses
-   Row Level Security, which is what lets this server-side code read and
-   write any patient's row; never expose it in client-side code) →
-   `SUPABASE_SERVICE_ROLE_KEY`.
-5. Add both to `.env`:
+### Step 9: Customize for the Client (30 minutes)
 
-   ```
-   SUPABASE_URL=https://your-project-ref.supabase.co
-   SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key_here
-   ```
+Update `src/prompts/receptionist-prompt.md` with the client's clinic name, services offered with prices if applicable, working hours, location with Google Maps link, and special positioning like family-friendly, luxury, or budget. Push to GitHub and Vercel auto-deploys the update.
 
-If Supabase isn't configured (or a call fails), the receptionist still
-replies — it just falls back to treating every message as the start of a
-new conversation, and logs a warning server-side. Fine for a quick local
-test, but you'll want this wired up before a real demo with multi-message
-bookings.
+## Architecture Flow
 
-### 6. Run locally
+1. Patient sends a message on Telegram.
+2. This triggers the **Telegram Bot API** webhook.
+3. Which calls the Vercel serverless function at `/api/telegram-webhook`.
+4. Which loads conversation history from Supabase using `phone_number` and `client_slug`.
+5. Then sends context + the new message to **Gemini 3.5 Flash**.
+6. Gemini responds in Hinglish and extracts a booking JSON when complete.
+7. The updated conversation is saved back to Supabase.
+8. If `bookingComplete` is `true`, a row is appended to the Google Sheet.
+9. Finally, the AI reply is sent back to the patient on Telegram.
 
-```bash
-npx vercel dev
-```
-
-This serves the endpoint at `http://localhost:3000/webhook`.
-
-### 7. Test it (no WhatsApp account needed)
-
-Open [Hoppscotch](https://hoppscotch.io) and send a `POST` request to
-`http://localhost:3000/webhook` with a JSON body like:
-
-```json
-{
-  "from": "+919876543210",
-  "message": "Hi"
-}
-```
-
-See [`test/example-requests.md`](./test/example-requests.md) for a full
-sample conversation, including the point where the booking JSON is logged
-to your terminal and (if configured) appended to your Google Sheet — check
-the response's `"bookingLogged"` field to confirm. Send the same `from`
-number again after restarting `vercel dev` to confirm memory actually
-persisted (it should remember the name/service already given).
-
-### 8. Deploy to Vercel
-
-```bash
-npx vercel
-```
-
-Then add `GEMINI_API_KEY`, `GOOGLE_SHEETS_SPREADSHEET_ID`,
-`GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_PRIVATE_KEY`, `SUPABASE_URL`, and
-`SUPABASE_SERVICE_ROLE_KEY` as environment variables in your Vercel project
-settings (Project → Settings → Environment Variables), and redeploy.
-
-### 9. Connect a real WhatsApp number (next step, not included here)
-
-Point your WhatsApp Business API provider's inbound-message webhook at
-`https://<your-project>.vercel.app/webhook`, mapping their payload's sender
-number and text into `{ "from": ..., "message": ... }`. Provider-specific
-wiring (Twilio/Meta/WATI) is a quick add-on — see "Upsells" below.
-
-### 10. Telegram setup (optional — demoable in minutes, no WhatsApp Business approval needed)
-
-The same receptionist can run as a Telegram bot via `/api/telegram-webhook`
-— handy for demos, since WhatsApp Business API access takes provider
-approval but a Telegram bot is live in under 5 minutes.
-
-1. In Telegram, open a chat with [@BotFather](https://t.me/BotFather) and
-   send `/newbot`. Follow the prompts (choose a name and a unique
-   `...bot`-suffixed username).
-2. BotFather replies with an API token like
-   `123456789:AAExampleTokenNotReal`. Add it to `.env`:
-
-   ```
-   TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
-   ```
-
-3. Deploy to Vercel first (step 8) so you have a live HTTPS URL — Telegram
-   webhooks won't accept `localhost`.
-4. Add the same `TELEGRAM_BOT_TOKEN` to your Vercel project's environment
-   variables and redeploy.
-5. Register the webhook with Telegram (replace both placeholders):
-
-   ```bash
-   curl "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook?url=<VERCEL_URL>/api/telegram-webhook"
-   ```
-
-   A successful response looks like
-   `{"ok":true,"result":true,"description":"Webhook was set"}`.
-6. Open your bot in Telegram (the `t.me/<your_bot_username>` link
-   BotFather gave you) and send "Hi" — same receptionist, same memory,
-   same booking flow, just a different channel. Chats are stored in
-   Supabase with phone numbers prefixed `tg:` (e.g. `tg:123456789`) so they
-   never collide with real WhatsApp numbers.
-7. To stop the bot or point it elsewhere, clear the webhook with:
-
-   ```bash
-   curl "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/deleteWebhook"
-   ```
-
-## How the pieces fit together
+## File Structure
 
 ```
-api/webhook.js               → Vercel serverless entrypoint (POST /webhook) — WhatsApp channel
-api/telegram-webhook.js      → Vercel serverless entrypoint (POST /api/telegram-webhook) — Telegram channel
-src/ai.js                    → Talks to Gemini, manages system prompt, parses booking JSON
-src/sheets.js                → Appends completed bookings to Google Sheets
-src/conversation-store.js    → Supabase-backed per-phone-number chat history
-src/supabase-client.js       → Shared Supabase client (service role)
-src/prompts/receptionist-prompt.md → The receptionist's personality & rules
+automations/whatsapp-dental-receptionist/
+├── api/
+│   ├── webhook.js              # Generic JSON webhook for testing
+│   └── telegram-webhook.js     # Telegram-specific handling
+├── src/
+│   ├── ai.js                   # Gemini integration + booking extraction
+│   ├── supabase-client.js      # Database connection
+│   ├── conversation-store.js   # Memory functions
+│   ├── sheets.js               # Google Sheets logging
+│   └── prompts/
+│       └── receptionist-prompt.md  # Riya's personality
+├── package.json
+├── vercel.json
+├── .env.example
+└── README.md
 ```
 
-Both entrypoints are thin adapters that translate their channel's message
-format into a `(phone, userMessage)` call to the shared `generateReply()`
-in `src/ai.js`, then translate the reply back out. Adding another channel
-later (SMS, Instagram DM, etc.) means writing one more adapter like these,
-not touching the AI logic.
+## Migrating from Telegram to Real WhatsApp
 
-**Note on memory:** conversation history lives in the `conversations` table
-in Supabase, keyed by `(phone_number, client_slug)` — not in-memory —
-because Vercel serverless functions spin up a fresh instance per request
-and would otherwise forget the patient after every message. Each turn
-trims the stored history to the last 20 messages, so a long back-and-forth
-doesn't grow the row (or the Gemini prompt) without bound. If Supabase is
-unreachable, calls fail soft (empty history on read, a skipped write with a
-logged error) rather than breaking the reply to the patient — see
-"Supabase setup" above.
+Once a client closes, migrate to WhatsApp using one of these options:
 
-## Sales pitch (paste into a DM/proposal)
+| Option | Cost | Setup | Number |
+|---|---|---|---|
+| Meta WhatsApp Cloud API | Free for 1,000 conversations/month | 7–14 days KYC | Real Indian number |
+| Twilio Sandbox | Free | 10 minutes | US number only |
+| AiSensy | ₹999/month+ | 20 minutes | Real Indian number |
 
-> Most dental clinics lose bookings because nobody's free to answer WhatsApp
-> between patients or after hours. This AI receptionist replies instantly,
-> in the tone your patients already text in, collects everything your front
-> desk needs (name, service, preferred time), and hands you a ready-to-book
-> lead — 24/7, for less than the cost of one missed appointment.
+Migration is a ~2-hour job. Swap the webhook endpoint. Same backend code works.
 
-## Suggested pricing
+## Troubleshooting Common Errors
 
-- **Setup:** ₹8,000–₹15,000 one-time (branding the prompt to their clinic,
-  connecting their WhatsApp number, basic testing with their team)
-- **Retainer:** ₹1,500–₹3,000/month (hosting, monitoring, prompt tweaks,
-  Gemini API usage — stays on the free tier for most single-clinic volumes)
+| Error | Fix |
+|---|---|
+| `Unable to parse range Sheet1!A:H` | Rename Google Sheet tab to exactly `Sheet1` (capital S). |
+| `ON CONFLICT specification` error | Missing `UNIQUE` constraint on the Supabase `conversations` table. |
+| Model not found from Gemini | Update to `gemini-3.5-flash` — `2.0` retired in June 2026. |
+| Private key errors on Vercel | Ensure `\n` characters are preserved as literals, not converted to line breaks. |
+| Booking never triggers Sheets write | Check if the AI is marking `bookingComplete` as `true` in the prompt. |
+| `Method not allowed` on Vercel URL | This is correct — `/api/webhook` only accepts `POST` requests; browsers send `GET`. |
 
-Reasoning: this is a thin, fast-to-build wrapper — price it as a productized
-service with a low setup fee and a small retainer to cover your time keeping
-it running, not as a custom software project.
+## Client Pricing Guidance for NoirFlow Sales
 
-## Demo script (90 seconds)
+- **Setup fee:** ₹15,000–₹25,000, based on customization depth.
+- **Care Plan:** ₹3,999–₹5,999/month.
+- **Delivery timeline:** 3–7 days per clinic.
+- **Client ROI framing:** one recovered missed patient covers the entire year of Care Plan.
 
-1. Open WhatsApp (or the Telegram bot, if WhatsApp Business isn't wired up
-   yet — same brain, zero setup lag), send "Hi".
-2. Show the instant, warm Hinglish reply.
-3. Send name → service → date/time in three quick messages.
-4. Flip to the Google Sheet — the booking row appears the moment the
-   conversation completes, no manual entry: "that's what your front desk
-   sees, live."
+## Credits
 
-## Cheapest viable v1 (what's shipped here)
+Built by **NoirFlow**, an AI automation agency based in Bhubaneswar, India.
 
-- Conversation history and completed bookings are both durable — chat
-  history lives in Supabase, bookings are written straight to the client's
-  Google Sheet.
-- No WhatsApp provider wiring yet — testable via plain HTTP (Hoppscotch)
-  today, provider webhook mapping is a follow-up task once a client is
-  confirmed.
-- Single clinic's services/hours baked into the prompt — fine for one
-  client at a time; multi-tenant config is an upsell.
-
-## Upsells / add-ons
-
-- Real WhatsApp Business API wiring (Twilio/Meta Cloud API/WATI)
-- Multi-tenant `client_slug` support — one deployment serving several clinics
-  (the `conversations` table already has the column for it)
-- Auto-sync confirmed bookings from the Sheet to Google Calendar / clinic CRM
-- SMS/email fallback confirmation to the patient
-- Multi-language support (pure Hindi, English, regional languages)
-- Admin dashboard to see all pending bookings
+Founders: **Anshuman Tripathy** and **Somyaranjan Sahoo**.
