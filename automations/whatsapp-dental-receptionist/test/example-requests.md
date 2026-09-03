@@ -53,7 +53,9 @@ Expect it to ask for a preferred date and time.
 }
 ```
 
-Expect a confirmation reply, and the server console should log something like:
+Expect Riya to **confirm the booking herself** in the reply text (e.g. "aapka
+appointment CONFIRMED hai ✅"), not defer to "the team will confirm" — and
+the server console should log something like:
 
 ```json
 {
@@ -61,14 +63,15 @@ Expect a confirmation reply, and the server console should log something like:
   "service": "Teeth cleaning",
   "preferred_date": "Kal (tomorrow)",
   "preferred_time": "5 PM",
-  "status": "pending_confirmation"
+  "status": "confirmed"
 }
 ```
 
 The `booking` field will also be present in the JSON response body once the
-model has collected all three fields, along with `"bookingLogged": true`
-if it was successfully appended to your Google Sheet (`false` if Sheets
-isn't configured or the append failed — check the server logs).
+model has collected all four fields (name, service, date, time) and
+confirmed, along with `"bookingLogged": true` if it was successfully
+appended to your Google Sheet (`false` if Sheets isn't configured or the
+append failed — check the server logs).
 
 ## 5. All-in-one message (single turn)
 

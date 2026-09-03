@@ -42,7 +42,7 @@ async function appendBooking(bookingData) {
       bookingData.service || '',
       bookingData.preferredDate || '',
       bookingData.preferredTime || '',
-      'Pending',
+      'Confirmed',
       '',
     ];
 

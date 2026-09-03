@@ -5,7 +5,7 @@ const { getConversation, addMessage } = require('./conversation-store');
 const { appendBooking } = require('./sheets');
 
 const MODEL_NAME = 'gemini-3.5-flash';
-const BOOKING_BLOCK_REGEX = /```booking\s*([\s\S]*?)```/i;
+const BOOKING_BLOCK_REGEX = /```json\s*([\s\S]*?)```/i;
 
 // Hardcoded until multi-tenant support lands — every conversation currently
 // belongs to this one clinic.
@@ -31,8 +31,11 @@ function getClient() {
   return new GoogleGenerativeAI(apiKey);
 }
 
-// Pulls the ```booking {...} ``` block out of a reply, if present, and
-// returns the reply text with that block stripped out.
+// Pulls the ```json { "booking": {...}, "bookingComplete": true } ``` block
+// out of a reply, if present, and returns the reply text with that block
+// stripped out. Riya confirms bookings herself now (see the system prompt),
+// so `bookingComplete: true` is what actually signals a completed booking —
+// not just the presence of a json block.
 function extractBooking(replyText) {
   const match = replyText.match(BOOKING_BLOCK_REGEX);
   if (!match) {
@@ -41,7 +44,10 @@ function extractBooking(replyText) {
 
   let booking = null;
   try {
-    booking = JSON.parse(match[1].trim());
+    const parsed = JSON.parse(match[1].trim());
+    if (parsed && parsed.bookingComplete === true && parsed.booking) {
+      booking = parsed.booking;
+    }
   } catch (err) {
     console.error('[ai] Failed to parse booking JSON from model reply:', err.message);
   }
@@ -80,8 +86,8 @@ async function generateReply(phone, userMessage) {
 
   const { cleanReply, booking } = extractBooking(rawReply);
 
-  // The model only emits the ```booking block once name, service, and
-  // date/time are all collected — so a non-null booking IS "bookingComplete".
+  // extractBooking() already checked bookingComplete === true, so a non-null
+  // booking here means Riya has confirmed the appointment herself.
   let bookingLogged = false;
   if (booking) {
     console.log(`\n✅ New booking collected for ${phone}:`);
