@@ -1,9 +1,10 @@
 # WhatsApp AI Dental Receptionist
 
-An AI receptionist that chats with patients over WhatsApp, in a warm Hinglish
-tone, and collects their **name, service, and preferred date/time** — then
-auto-logs the booking as a row in a Google Sheet your front desk already
-checks. Powered by Google Gemini's free tier (`gemini-3.5-flash`).
+An AI receptionist that chats with patients over WhatsApp (or Telegram), in
+a warm Hinglish tone, and collects their **name, service, and preferred
+date/time** — then auto-logs the booking as a row in a Google Sheet your
+front desk already checks. Powered by Google Gemini's free tier
+(`gemini-3.5-flash`).
 
 > **Model note:** this uses `gemini-3.5-flash`, Google's current stable
 > flash model as of September 2026. The earlier `gemini-2.0-flash-exp`
@@ -14,9 +15,11 @@ checks. Powered by Google Gemini's free tier (`gemini-3.5-flash`).
 
 ## What it does
 
-- Patient messages the clinic's WhatsApp number.
+- Patient messages the clinic's WhatsApp number (or its Telegram bot).
 - Your WhatsApp provider (Twilio, Meta Cloud API, WATI, etc.) forwards the
-  message to this app's `/webhook` endpoint.
+  message to this app's `/webhook` endpoint; Telegram posts directly to
+  `/api/telegram-webhook`. Both endpoints call the exact same receptionist
+  logic — same prompt, same memory, same Sheets logging.
 - Gemini, primed with a receptionist system prompt, replies naturally,
   remembers the conversation per phone number (persisted in Supabase, so it
   survives across serverless invocations), and asks for whatever's missing
@@ -176,16 +179,62 @@ Point your WhatsApp Business API provider's inbound-message webhook at
 number and text into `{ "from": ..., "message": ... }`. Provider-specific
 wiring (Twilio/Meta/WATI) is a quick add-on — see "Upsells" below.
 
+### 10. Telegram setup (optional — demoable in minutes, no WhatsApp Business approval needed)
+
+The same receptionist can run as a Telegram bot via `/api/telegram-webhook`
+— handy for demos, since WhatsApp Business API access takes provider
+approval but a Telegram bot is live in under 5 minutes.
+
+1. In Telegram, open a chat with [@BotFather](https://t.me/BotFather) and
+   send `/newbot`. Follow the prompts (choose a name and a unique
+   `...bot`-suffixed username).
+2. BotFather replies with an API token like
+   `123456789:AAExampleTokenNotReal`. Add it to `.env`:
+
+   ```
+   TELEGRAM_BOT_TOKEN=your_telegram_bot_token_here
+   ```
+
+3. Deploy to Vercel first (step 8) so you have a live HTTPS URL — Telegram
+   webhooks won't accept `localhost`.
+4. Add the same `TELEGRAM_BOT_TOKEN` to your Vercel project's environment
+   variables and redeploy.
+5. Register the webhook with Telegram (replace both placeholders):
+
+   ```bash
+   curl "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook?url=<VERCEL_URL>/api/telegram-webhook"
+   ```
+
+   A successful response looks like
+   `{"ok":true,"result":true,"description":"Webhook was set"}`.
+6. Open your bot in Telegram (the `t.me/<your_bot_username>` link
+   BotFather gave you) and send "Hi" — same receptionist, same memory,
+   same booking flow, just a different channel. Chats are stored in
+   Supabase with phone numbers prefixed `tg:` (e.g. `tg:123456789`) so they
+   never collide with real WhatsApp numbers.
+7. To stop the bot or point it elsewhere, clear the webhook with:
+
+   ```bash
+   curl "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/deleteWebhook"
+   ```
+
 ## How the pieces fit together
 
 ```
-api/webhook.js              → Vercel serverless entrypoint (POST /webhook)
-src/ai.js                   → Talks to Gemini, manages system prompt, parses booking JSON
-src/sheets.js               → Appends completed bookings to Google Sheets
-src/conversation-store.js   → Supabase-backed per-phone-number chat history
-src/supabase-client.js      → Shared Supabase client (service role)
+api/webhook.js               → Vercel serverless entrypoint (POST /webhook) — WhatsApp channel
+api/telegram-webhook.js      → Vercel serverless entrypoint (POST /api/telegram-webhook) — Telegram channel
+src/ai.js                    → Talks to Gemini, manages system prompt, parses booking JSON
+src/sheets.js                → Appends completed bookings to Google Sheets
+src/conversation-store.js    → Supabase-backed per-phone-number chat history
+src/supabase-client.js       → Shared Supabase client (service role)
 src/prompts/receptionist-prompt.md → The receptionist's personality & rules
 ```
+
+Both entrypoints are thin adapters that translate their channel's message
+format into a `(phone, userMessage)` call to the shared `generateReply()`
+in `src/ai.js`, then translate the reply back out. Adding another channel
+later (SMS, Instagram DM, etc.) means writing one more adapter like these,
+not touching the AI logic.
 
 **Note on memory:** conversation history lives in the `conversations` table
 in Supabase, keyed by `(phone_number, client_slug)` — not in-memory —
@@ -218,7 +267,8 @@ it running, not as a custom software project.
 
 ## Demo script (90 seconds)
 
-1. Open WhatsApp (or Hoppscotch if no live number yet), send "Hi".
+1. Open WhatsApp (or the Telegram bot, if WhatsApp Business isn't wired up
+   yet — same brain, zero setup lag), send "Hi".
 2. Show the instant, warm Hinglish reply.
 3. Send name → service → date/time in three quick messages.
 4. Flip to the Google Sheet — the booking row appears the moment the
