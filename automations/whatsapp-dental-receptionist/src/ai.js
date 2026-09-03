@@ -33,24 +33,38 @@ function getClient() {
 
 // Pulls the ```json { "booking": {...}, "bookingComplete": true } ``` block
 // out of a reply, if present, and returns the reply text with that block
-// stripped out. Riya confirms bookings herself now (see the system prompt),
-// so `bookingComplete: true` is what actually signals a completed booking —
-// not just the presence of a json block.
+// stripped out. Riya confirms bookings herself now (see the system prompt).
+// Treated as complete when EITHER top-level `bookingComplete: true` OR the
+// nested `booking.status === "confirmed"` is set — the model should always
+// send both together, but this stays flexible in case a reply only sets one.
 function extractBooking(replyText) {
   const match = replyText.match(BOOKING_BLOCK_REGEX);
   if (!match) {
+    console.log('[ai] extractBooking: no json block found in reply — no booking to extract.');
     return { cleanReply: replyText.trim(), booking: null };
   }
 
-  let booking = null;
+  let parsed = null;
   try {
-    const parsed = JSON.parse(match[1].trim());
-    if (parsed && parsed.bookingComplete === true && parsed.booking) {
-      booking = parsed.booking;
-    }
+    parsed = JSON.parse(match[1].trim());
   } catch (err) {
     console.error('[ai] Failed to parse booking JSON from model reply:', err.message);
   }
+
+  const isComplete = Boolean(
+    parsed &&
+      parsed.booking &&
+      (parsed.bookingComplete === true || parsed.booking.status === 'confirmed')
+  );
+  const booking = isComplete ? parsed.booking : null;
+
+  console.log('[ai] extractBooking result:', {
+    parsedOk: parsed !== null,
+    bookingComplete: parsed ? parsed.bookingComplete : undefined,
+    status: parsed && parsed.booking ? parsed.booking.status : undefined,
+    bookingExtracted: booking !== null,
+    booking,
+  });
 
   const cleanReply = replyText.replace(BOOKING_BLOCK_REGEX, '').trim();
   return { cleanReply, booking };
@@ -86,11 +100,12 @@ async function generateReply(phone, userMessage) {
 
   const { cleanReply, booking } = extractBooking(rawReply);
 
-  // extractBooking() already checked bookingComplete === true, so a non-null
-  // booking here means Riya has confirmed the appointment herself.
+  // extractBooking() already checked bookingComplete === true / status ===
+  // "confirmed", so a non-null booking here means Riya has confirmed the
+  // appointment herself and this should get written to Sheets.
   let bookingLogged = false;
   if (booking) {
-    console.log(`\n✅ New booking collected for ${phone}:`);
+    console.log(`\n✅ New booking collected for ${phone} — triggering Sheets write:`);
     console.log(JSON.stringify(booking, null, 2));
 
     bookingLogged = await appendBooking({
@@ -100,6 +115,10 @@ async function generateReply(phone, userMessage) {
       preferredDate: booking.preferred_date,
       preferredTime: booking.preferred_time,
     });
+
+    console.log(`[ai] Sheets write ${bookingLogged ? 'succeeded' : 'failed'} for ${phone}.`);
+  } else {
+    console.log(`[ai] No completed booking detected for ${phone} — Sheets write skipped.`);
   }
 
   return { reply: cleanReply, booking, bookingLogged };
