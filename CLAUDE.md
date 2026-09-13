@@ -95,3 +95,6 @@ For every automation, briefly answer:
   function). Send the deployed link directly to prospects; also includes an
   always-visible "Book a call" button. See `/docs/sales-os/riya-voice-demo.md`
   for setup and local-vs-Vercel testing instructions.
+- **Smart Clinic Dashboard** demo at `/demos/smart-clinic-dashboard/` —
+  sales weapon showing full clinic AI infrastructure vision, not just
+  websites.
