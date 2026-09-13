@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Smart Clinic Dashboard — NoirFlow AI Demo</title>
+<meta name="description" content="A demo of an AI-powered clinic operations dashboard by NoirFlow." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root { --accent: #a855f7; }
+  html, body {
+    background: #0a0a0a;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: #262626; border-radius: 9999px; }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6); }
+    50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(74, 222, 128, 0); }
+  }
+  .ai-active-dot { animation: pulse-dot 2s ease-in-out infinite; }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in {
+    opacity: 0;
+    animation: fade-in-up 0.5s ease-out forwards;
+  }
+
+  .glow-card {
+    box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.15), 0 0 40px -12px rgba(168, 85, 247, 0.35);
+  }
+
+  @keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+    30% { transform: translateY(-3px); opacity: 1; }
+  }
+  .typing-dot { animation: typing-bounce 1.2s ease-in-out infinite; }
+  .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+</style>
+</head>
+<body class="bg-[#0a0a0a] text-neutral-200 min-h-screen">
+<noscript>
+  <div class="p-6 text-center text-white">This demo requires JavaScript to be enabled.</div>
+</noscript>
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
+
+  <!-- Top Nav -->
+  <header class="flex items-center justify-between py-4 sm:py-5 border-b border-neutral-800/80 sticky top-0 bg-[#0a0a0a]/90 backdrop-blur z-20">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-purple-500/15 border border-purple-500/30 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4Z"/><path d="M8 14a6 6 0 0 0 8 0"/><path d="M12 20v-2"/></svg>
+      </div>
+      <span class="font-semibold text-sm sm:text-base text-white tracking-tight">Smile Dental Care</span>
+    </div>
+    <div class="flex items-center gap-3 sm:gap-4">
+      <div class="hidden sm:flex items-center gap-1.5 text-xs text-neutral-400 border border-neutral-800 rounded-full px-2.5 py-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-green-400 ai-active-dot"></span>
+        AI Assistant: Active
+      </div>
+      <button class="text-neutral-400 hover:text-white transition-colors relative" aria-label="Notifications">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+        <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-purple-500"></span>
+      </button>
+      <button class="text-neutral-400 hover:text-white transition-colors" aria-label="Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+      </button>
+      <div class="hidden sm:block w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 text-white text-xs font-semibold flex items-center justify-center">RS</div>
+      <span class="hidden md:inline text-sm text-neutral-300">Dr. Rajesh Sharma</span>
+    </div>
+  </header>
+
+  <!-- Welcome Bar -->
+  <section class="pt-6 sm:pt-8 pb-2 fade-in" style="animation-delay: 0.05s;">
+    <h1 class="text-xl sm:text-2xl font-bold text-white">Good afternoon, Dr. Sharma 👋</h1>
+    <div class="flex flex-wrap items-center justify-between gap-2 mt-1">
+      <p class="text-sm text-neutral-400">Here's what your AI assistant handled today</p>
+      <p id="live-clock" class="text-xs text-neutral-500 font-mono"></p>
+    </div>
+  </section>
+
+  <!-- KPI Cards -->
+  <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4 fade-in" style="animation-delay: 0.1s;">
+    <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4">
+      <p class="text-xs text-neutral-500 mb-1.5">Today's Appointments</p>
+      <p class="text-2xl sm:text-3xl font-bold text-white">12</p>
+    </div>
+    <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4">
+      <p class="text-xs text-neutral-500 mb-1.5">AI Bookings (24h)</p>
+      <div class="flex items-baseline gap-2">
+        <p class="text-2xl sm:text-3xl font-bold text-white">7</p>
+        <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-500/15 text-green-400">+40%</span>
+      </div>
+    </div>
+    <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4">
+      <p class="text-xs text-neutral-500 mb-1.5">Pending Confirmations</p>
+      <p class="text-2xl sm:text-3xl font-bold text-white">3</p>
+    </div>
+    <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4">
+      <p class="text-xs text-neutral-500 mb-1.5">Revenue Today</p>
+      <p class="text-2xl sm:text-3xl font-bold text-white">₹18,500</p>
+    </div>
+  </section>
+
+  <!-- AI Daily Summary -->
+  <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 0.15s;">
+    <div class="rounded-xl border border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-neutral-900/50 p-4 sm:p-5 glow-card">
+      <div class="flex items-center gap-2 mb-2.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/></svg>
+        <h2 class="text-sm font-semibold text-white">AI Daily Summary</h2>
+      </div>
+      <p class="text-sm text-neutral-300 leading-relaxed">
+        Good afternoon Dr. Sharma. Today you have <span class="text-white font-medium">12 appointments</span>, including 2 implant consultations (high value). 3 patients haven't confirmed — I've sent WhatsApp reminders. Yesterday I booked <span class="text-white font-medium">7 new appointments</span> while you were with patients. Your no-show rate this week: <span class="text-green-400 font-medium">8%</span> (down from 15% last month).
+      </p>
+    </div>
+  </section>
+
+  <!-- Live Conversations -->
+  <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 0.2s;">
+    <h2 class="text-sm font-semibold text-white mb-3">Live Conversations</h2>
+    <div class="grid sm:grid-cols-3 gap-3">
+      <!-- Convo 1 -->
+      <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-300">PM</div>
+            <span class="text-sm font-medium text-white">Priya Mohanty</span>
+          </div>
+          <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-500/15 text-green-400 whitespace-nowrap">Booked ✓</span>
+        </div>
+        <p class="text-xs text-neutral-400 line-clamp-2">"Perfect, see you Thursday at 4 PM for the cleaning!"</p>
+        <p class="text-[11px] text-neutral-600 mt-2">2 min ago</p>
+      </div>
+      <!-- Convo 2 -->
+      <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-300">RP</div>
+            <span class="text-sm font-medium text-white">Rakesh Patra</span>
+          </div>
+          <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 whitespace-nowrap">In progress...</span>
+        </div>
+        <div class="flex items-center gap-1 h-4">
+          <span class="w-1.5 h-1.5 rounded-full bg-neutral-500 typing-dot"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-neutral-500 typing-dot"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-neutral-500 typing-dot"></span>
+        </div>
+        <p class="text-[11px] text-neutral-600 mt-2">15 min ago</p>
+      </div>
+      <!-- Convo 3 -->
+      <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-300">AD</div>
+            <span class="text-sm font-medium text-white">Anjali Das</span>
+          </div>
+          <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 whitespace-nowrap">Confirmed ✓</span>
+        </div>
+        <p class="text-xs text-neutral-400 line-clamp-2">"Yes, confirming my RCT appointment tomorrow at 11 AM."</p>
+        <p class="text-[11px] text-neutral-600 mt-2">1h ago</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Today's Schedule -->
+  <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 0.25s;">
+    <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4 sm:p-5">
+      <h2 class="text-sm font-semibold text-white mb-3">Today's Schedule</h2>
+      <div class="divide-y divide-neutral-800/80">
+        <div class="flex items-center justify-between py-2.5">
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-green-400 shrink-0"></span>
+            <span class="text-xs text-neutral-500 w-14 shrink-0">9:00 AM</span>
+            <span class="text-sm text-white">Priya Mohanty</span>
+          </div>
+          <span class="text-xs text-neutral-400">Cleaning</span>
+        </div>
+        <div class="flex items-center justify-between py-2.5">
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-green-400 shrink-0"></span>
+            <span class="text-xs text-neutral-500 w-14 shrink-0">10:00 AM</span>
+            <span class="text-sm text-white">Suresh Nair</span>
+          </div>
+          <span class="text-xs text-neutral-400">RCT</span>
+        </div>
+        <div class="flex items-center justify-between py-2.5">
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-purple-400 shrink-0"></span>
+            <span class="text-xs text-neutral-500 w-14 shrink-0">11:00 AM</span>
+            <span class="text-sm text-white">Anjali Das</span>
+          </div>
+          <span class="text-xs text-neutral-400">RCT Follow-up</span>
+        </div>
+        <div class="flex items-center justify-between py-2.5">
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-yellow-400 shrink-0"></span>
+            <span class="text-xs text-neutral-500 w-14 shrink-0">12:30 PM</span>
+            <span class="text-sm text-white">Vikram Reddy</span>
+          </div>
+          <span class="text-xs text-neutral-400">Implant Consultation</span>
+        </div>
+        <div class="flex items-center justify-between py-2.5">
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-green-400 shrink-0"></span>
+            <span class="text-xs text-neutral-500 w-14 shrink-0">2:00 PM</span>
+            <span class="text-sm text-white">Meera Iyer</span>
+          </div>
+          <span class="text-xs text-neutral-400">Veneer Fitting</span>
+        </div>
+        <div class="flex items-center justify-between py-2.5">
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-yellow-400 shrink-0"></span>
+            <span class="text-xs text-neutral-500 w-14 shrink-0">3:15 PM</span>
+            <span class="text-sm text-white">Rakesh Patra</span>
+          </div>
+          <span class="text-xs text-neutral-400">Cleaning</span>
+        </div>
+        <div class="flex items-center justify-between py-2.5">
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-purple-400 shrink-0"></span>
+            <span class="text-xs text-neutral-500 w-14 shrink-0">4:00 PM</span>
+            <span class="text-sm text-white">Deepak Joshi</span>
+          </div>
+          <span class="text-xs text-neutral-400">Implant Consultation</span>
+        </div>
+        <div class="flex items-center justify-between py-2.5">
+          <div class="flex items-center gap-3">
+            <span class="w-2 h-2 rounded-full bg-green-400 shrink-0"></span>
+            <span class="text-xs text-neutral-500 w-14 shrink-0">5:30 PM</span>
+            <span class="text-sm text-white">Kavita Menon</span>
+          </div>
+          <span class="text-xs text-neutral-400">Cleaning</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- AI Insights -->
+  <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 0.3s;">
+    <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4 sm:p-5">
+      <div class="flex items-center gap-2 mb-3.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+        <h2 class="text-sm font-semibold text-white">AI Insights</h2>
+      </div>
+      <div class="space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 py-2.5 border-b border-neutral-800/80">
+          <p class="text-sm text-neutral-300">3 patients from Aug haven't returned for follow-up cleaning</p>
+          <button class="shrink-0 text-xs font-medium px-3 py-1.5 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition-colors">Send reactivation campaign</button>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 py-2.5 border-b border-neutral-800/80">
+          <p class="text-sm text-neutral-300">You could add 2 more slots on Tuesdays based on demand patterns</p>
+          <button class="shrink-0 text-xs font-medium px-3 py-1.5 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition-colors">Optimize schedule</button>
+        </div>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 py-2.5">
+          <p class="text-sm text-neutral-300">Dr. Anjali is fully booked this week — consider adding her Sunday hours</p>
+          <button class="shrink-0 text-xs font-medium px-3 py-1.5 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition-colors">Notify Dr. Anjali</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="mt-8 sm:mt-10 pt-5 border-t border-neutral-800/80 text-center">
+    <p class="text-xs text-neutral-600">
+      Powered by <a href="https://noirflow.ai" class="text-neutral-400 hover:text-purple-400 transition-colors font-medium">NoirFlow AI</a> · Demo mode
+    </p>
+  </footer>
+
+</div>
+
+<script>
+  function updateClock() {
+    const el = document.getElementById('live-clock');
+    if (!el) return;
+    const now = new Date();
+    el.textContent = now.toLocaleString('en-IN', {
+      weekday: 'short', year: 'numeric', month: 'short', day: 'numeric',
+      hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
+    });
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+</script>
+
+</body>
+</html>
