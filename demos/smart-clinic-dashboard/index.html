@@ -5,25 +5,43 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 <title>Intelligence Dashboard — NoirFlow AI Demo</title>
 <meta name="description" content="A demo of an AI-powered operations dashboard by NoirFlow." />
+<script>
+  (function () {
+    try {
+      var theme = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (theme === 'dark' || (!theme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { darkMode: 'class' };
+</script>
 <style>
   html, body {
     background: #ffffff;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
+  html.dark, html.dark body { background: #0a0a0a; }
   ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 9999px; }
+  html.dark ::-webkit-scrollbar-thumb { background: #262626; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
   @keyframes fade-in-up {
-    from { opacity: 0; transform: translateY(6px); }
+    from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
   }
   .fade-in {
     opacity: 0;
-    animation: fade-in-up 0.4s ease-out forwards;
+    animation: fade-in-up 0.45s ease-out forwards;
   }
 
   @keyframes typing-bounce {
@@ -34,95 +52,120 @@
   .typing-dot:nth-child(2) { animation-delay: 0.15s; }
   .typing-dot:nth-child(3) { animation-delay: 0.3s; }
 
-  #modal-content { transition: opacity 150ms ease-out, transform 150ms ease-out; transform: translateY(4px); }
+  @keyframes status-pulse {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+  .status-pulse { animation: status-pulse 2s ease-in-out infinite; }
+
+  #modal-content {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 300ms ease-out, transform 300ms ease-out;
+  }
   #modal-content.modal-open { opacity: 1; transform: translateY(0); }
 
-  .toast { transition: transform 300ms ease-out, opacity 300ms ease-out; }
+  .toast {
+    transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 300ms ease-out;
+  }
+
+  .tab-panel { transition: opacity 150ms ease-out; }
+
+  #tab-indicator { transition: transform 250ms ease, width 250ms ease; }
+
+  #tooltip { transition: opacity 120ms ease-out; }
 </style>
 </head>
-<body class="bg-white text-neutral-900 min-h-screen">
+<body class="bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 min-h-screen transition-colors duration-300">
 <noscript>
   <div class="p-6 text-center">This demo requires JavaScript to be enabled.</div>
 </noscript>
+
+<!-- Shared tooltip -->
+<div id="tooltip" role="tooltip" class="hidden fixed z-[200] pointer-events-none px-2.5 py-1.5 rounded-md bg-neutral-900 dark:bg-neutral-700 text-white text-xs font-medium shadow-lg max-w-[220px]"></div>
 
 <!-- Toasts -->
 <div id="toast-container" class="fixed bottom-4 right-4 z-[100] flex flex-col gap-2 items-end"></div>
 
 <!-- Modal -->
-<div id="modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm p-4" onclick="if(event.target===this) closeModal();">
-  <div id="modal-content" class="bg-white rounded-[10px] border border-gray-200 shadow-lg max-w-[500px] w-full max-h-[85vh] overflow-y-auto opacity-0" role="dialog" aria-modal="true"></div>
+<div id="modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm p-4" onclick="if(event.target===this) closeModal();">
+  <div id="modal-content" class="bg-white dark:bg-neutral-900 rounded-[10px] border border-gray-200 dark:border-neutral-800 shadow-lg max-w-[500px] w-full max-h-[85vh] overflow-y-auto" role="dialog" aria-modal="true"></div>
 </div>
 
 <!-- Top Nav -->
-<header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-200">
+<header class="sticky top-0 z-30 bg-white/95 dark:bg-neutral-950/95 backdrop-blur border-b border-gray-200 dark:border-neutral-800 transition-colors duration-300">
   <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
     <div class="flex items-center gap-2 relative" data-dropdown>
-      <div class="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4Z"/><path d="M8 14a6 6 0 0 0 8 0"/><path d="M12 20v-2"/></svg>
+      <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4Z"/><path d="M8 14a6 6 0 0 0 8 0"/><path d="M12 20v-2"/></svg>
       </div>
       <button type="button" onclick="event.stopPropagation(); toggleDropdown('biz-panel')" class="flex items-center gap-1 group" aria-haspopup="true" aria-expanded="false">
-        <span id="biz-name" class="font-semibold text-sm sm:text-base text-neutral-900 tracking-tight">Smile Dental Care</span>
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        <span id="biz-name" class="font-semibold text-sm sm:text-base text-neutral-900 dark:text-neutral-50 tracking-tight">Smile Dental Care</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-gray-400 dark:text-neutral-500 group-hover:text-gray-600 dark:group-hover:text-neutral-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
       </button>
-      <div id="biz-panel" data-dropdown-panel class="hidden absolute left-0 top-11 w-64 bg-white border border-gray-200 rounded-[10px] shadow-lg py-1.5 z-40">
-        <p class="px-3 pt-1.5 pb-1 text-[11px] font-medium text-gray-400 uppercase tracking-wide">Switch example business</p>
-        <button data-biz-option="dental" onclick="switchBusiness('dental')" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-neutral-800 hover:bg-gray-50">
+      <div id="biz-panel" data-dropdown-panel class="hidden absolute left-0 top-11 w-64 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-[10px] shadow-lg py-1.5 z-40">
+        <p class="px-3 pt-1.5 pb-1 text-[11px] font-medium text-gray-400 dark:text-neutral-500 uppercase tracking-wide">Switch example business</p>
+        <button data-biz-option="dental" onclick="switchBusiness('dental')" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 hover:bg-gray-50 dark:hover:bg-neutral-800">
           <span>Smile Dental Care</span>
-          <svg data-check xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <svg data-check xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
         </button>
-        <button data-biz-option="gym" onclick="switchBusiness('gym')" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-neutral-800 hover:bg-gray-50">
+        <button data-biz-option="gym" onclick="switchBusiness('gym')" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 hover:bg-gray-50 dark:hover:bg-neutral-800">
           <span>FitZone Gym</span>
-          <svg data-check xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 opacity-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <svg data-check xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 opacity-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
         </button>
-        <button data-biz-option="realty" onclick="switchBusiness('realty')" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-neutral-800 hover:bg-gray-50">
+        <button data-biz-option="realty" onclick="switchBusiness('realty')" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-neutral-800 dark:text-neutral-200 hover:bg-gray-50 dark:hover:bg-neutral-800">
           <span>Aurum Realty</span>
-          <svg data-check xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 opacity-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          <svg data-check xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400 opacity-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
         </button>
       </div>
     </div>
 
     <div class="flex-1 max-w-xs hidden sm:block">
       <div class="relative group">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <input type="text" placeholder="Search patients, appointments..." class="peer w-full text-sm bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-12 py-2 text-neutral-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-300 transition-colors" />
-        <kbd class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-medium text-gray-400 bg-white border border-gray-200 rounded px-1.5 py-0.5 peer-focus:hidden">⌘K</kbd>
-        <div class="hidden peer-focus:block absolute left-0 top-full mt-1.5 text-xs text-gray-500 bg-white border border-gray-200 rounded-lg shadow-md px-2.5 py-1.5 whitespace-nowrap">Search coming soon</div>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400 dark:text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search patients, appointments..." class="peer w-full text-sm bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg pl-9 pr-12 py-2 text-neutral-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-300 dark:focus:border-indigo-500 transition-colors" />
+        <kbd class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-medium text-gray-400 dark:text-neutral-500 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded px-1.5 py-0.5 peer-focus:hidden">⌘K</kbd>
+        <div class="hidden peer-focus:block absolute left-0 top-full mt-1.5 text-xs text-gray-500 dark:text-neutral-300 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg shadow-md px-2.5 py-1.5 whitespace-nowrap">Search coming soon</div>
       </div>
     </div>
 
     <div class="flex items-center gap-1.5 sm:gap-2.5">
-      <div class="hidden md:flex items-center gap-1.5 text-xs text-gray-500 mr-1">
+      <div class="hidden md:flex items-center gap-1.5 text-xs text-gray-500 dark:text-neutral-400 mr-1 cursor-help" data-tooltip="Riya has been running for 47 days without downtime">
         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
         Live
       </div>
+      <button type="button" onclick="toggleTheme()" class="text-gray-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:bg-gray-50 dark:hover:bg-neutral-900 rounded-lg p-2 transition-all duration-200" aria-label="Toggle dark mode">
+        <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
       <div class="relative" data-dropdown>
-        <button type="button" onclick="event.stopPropagation(); toggleDropdown('notif-panel')" class="text-gray-500 hover:text-neutral-900 hover:bg-gray-50 rounded-lg p-2 transition-colors relative" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+        <button type="button" onclick="event.stopPropagation(); toggleDropdown('notif-panel')" class="text-gray-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:bg-gray-50 dark:hover:bg-neutral-900 rounded-lg p-2 transition-all duration-200 relative" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
           <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
         </button>
-        <div id="notif-panel" data-dropdown-panel class="hidden absolute right-0 top-11 w-72 bg-white border border-gray-200 rounded-[10px] shadow-lg py-1.5 z-40">
-          <p class="px-3 pt-1.5 pb-2 text-sm font-semibold text-neutral-900 border-b border-gray-100 mb-1">Notifications</p>
-          <button onclick="toggleDropdown('notif-panel')" class="w-full text-left flex gap-2.5 px-3 py-2.5 hover:bg-gray-50">
-            <span class="w-7 h-7 rounded-full bg-emerald-50 flex items-center justify-center shrink-0 mt-0.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        <div id="notif-panel" data-dropdown-panel class="hidden absolute right-0 top-11 w-72 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-[10px] shadow-lg py-1.5 z-40">
+          <p class="px-3 pt-1.5 pb-2 text-sm font-semibold text-neutral-900 dark:text-neutral-50 border-b border-gray-100 dark:border-neutral-800 mb-1">Notifications</p>
+          <button onclick="toggleDropdown('notif-panel')" class="w-full text-left flex gap-2.5 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800">
+            <span class="w-7 h-7 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
             </span>
-            <span class="text-sm text-neutral-700 leading-snug">3 patients confirmed via WhatsApp <span class="block text-xs text-gray-400 mt-0.5">5 min ago</span></span>
+            <span class="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">3 patients confirmed via WhatsApp <span class="block text-xs text-gray-400 dark:text-neutral-500 mt-0.5">5 min ago</span></span>
           </button>
-          <button onclick="toggleDropdown('notif-panel')" class="w-full text-left flex gap-2.5 px-3 py-2.5 hover:bg-gray-50">
-            <span class="w-7 h-7 rounded-full bg-indigo-50 flex items-center justify-center shrink-0 mt-0.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+          <button onclick="toggleDropdown('notif-panel')" class="w-full text-left flex gap-2.5 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800">
+            <span class="w-7 h-7 rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0 mt-0.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
             </span>
-            <span class="text-sm text-neutral-700 leading-snug">New booking from AI assistant <span class="block text-xs text-gray-400 mt-0.5">22 min ago</span></span>
+            <span class="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">New booking from AI assistant <span class="block text-xs text-gray-400 dark:text-neutral-500 mt-0.5">22 min ago</span></span>
           </button>
-          <button onclick="toggleDropdown('notif-panel')" class="w-full text-left flex gap-2.5 px-3 py-2.5 hover:bg-gray-50">
-            <span class="w-7 h-7 rounded-full bg-amber-50 flex items-center justify-center shrink-0 mt-0.5">
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          <button onclick="toggleDropdown('notif-panel')" class="w-full text-left flex gap-2.5 px-3 py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800">
+            <span class="w-7 h-7 rounded-full bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center shrink-0 mt-0.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
             </span>
-            <span class="text-sm text-neutral-700 leading-snug">Reminder: 2 unconfirmed appointments tomorrow <span class="block text-xs text-gray-400 mt-0.5">1 hr ago</span></span>
+            <span class="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">Reminder: 2 unconfirmed appointments tomorrow <span class="block text-xs text-gray-400 dark:text-neutral-500 mt-0.5">1 hr ago</span></span>
           </button>
         </div>
       </div>
-      <button type="button" onclick="openSettingsModal()" class="text-gray-500 hover:text-neutral-900 hover:bg-gray-50 rounded-lg p-2 transition-colors" aria-label="Settings">
+      <button type="button" onclick="openSettingsModal()" class="text-gray-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:bg-gray-50 dark:hover:bg-neutral-900 rounded-lg p-2 transition-all duration-200" aria-label="Settings">
         <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
       </button>
       <div id="user-avatar" class="w-8 h-8 rounded-full bg-indigo-600 text-white text-xs font-semibold flex items-center justify-center shrink-0"><span id="user-initials">RS</span></div>
@@ -130,48 +173,65 @@
   </div>
 </header>
 
+<!-- Tabs -->
+<nav class="sticky top-16 z-20 bg-white/95 dark:bg-neutral-950/95 backdrop-blur border-b border-gray-200 dark:border-neutral-800 transition-colors duration-300">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 relative">
+    <div class="flex gap-1 sm:gap-2 overflow-x-auto no-scrollbar">
+      <button data-tab="overview" onclick="switchTab('overview')" class="tab-btn relative shrink-0 px-3 sm:px-4 py-3 text-sm font-semibold text-neutral-900 dark:text-neutral-50 transition-colors">Overview</button>
+      <button data-tab="website" onclick="switchTab('website')" class="tab-btn relative shrink-0 px-3 sm:px-4 py-3 text-sm font-medium text-gray-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">Website</button>
+      <button data-tab="agents" onclick="switchTab('agents')" class="tab-btn relative shrink-0 px-3 sm:px-4 py-3 text-sm font-medium text-gray-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">AI Agents</button>
+      <button data-tab="automations" onclick="switchTab('automations')" class="tab-btn relative shrink-0 px-3 sm:px-4 py-3 text-sm font-medium text-gray-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">Automations</button>
+      <button data-tab="systems" onclick="switchTab('systems')" class="tab-btn relative shrink-0 px-3 sm:px-4 py-3 text-sm font-medium text-gray-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors">AI Systems</button>
+    </div>
+    <div id="tab-indicator" class="absolute bottom-0 h-0.5 bg-indigo-600 rounded-full" style="width:0;transform:translateX(0);"></div>
+  </div>
+</nav>
+
 <div class="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
 
+  <!-- ===================== OVERVIEW TAB ===================== -->
+  <div id="panel-overview" class="tab-panel">
+
   <!-- Welcome Bar -->
-  <section class="pt-6 sm:pt-8 pb-2 fade-in" style="animation-delay: 0.05s;">
-    <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 tracking-tight">Good afternoon, <span id="greeting-name">Dr. Sharma</span> 👋</h1>
+  <section class="pt-6 sm:pt-8 pb-2 fade-in" style="animation-delay: 0ms;">
+    <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">Good afternoon, <span id="greeting-name">Dr. Sharma</span> 👋</h1>
     <div class="flex flex-wrap items-center justify-between gap-2 mt-1">
-      <p class="text-sm text-gray-500">Here's what your AI assistant handled today</p>
-      <p id="live-clock" class="text-xs text-gray-400 font-mono"></p>
+      <p class="text-sm text-gray-500 dark:text-neutral-400">Here's what your AI assistant handled today</p>
+      <p id="live-clock" class="text-xs text-gray-400 dark:text-neutral-500 font-mono"></p>
     </div>
   </section>
 
   <!-- KPI Cards -->
-  <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4 fade-in" style="animation-delay: 0.1s;">
-    <button onclick="openKpiModal('kpi1')" class="text-left rounded-[10px] border border-gray-200 bg-white shadow-sm p-5 hover:shadow-md hover:border-gray-300 transition-all">
-      <p id="kpi1-label" class="text-xs font-medium text-gray-500 mb-2">Today's Appointments</p>
+  <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4">
+    <button onclick="openKpiModal('kpi1')" data-tooltip="-5% vs. last month" class="fade-in text-left rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 hover:border-gray-300 dark:hover:border-neutral-700 transition-all duration-200" style="animation-delay: 50ms;">
+      <p id="kpi1-label" class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Today's Appointments</p>
       <div class="flex items-end justify-between">
-        <p id="kpi1-value" class="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight">12</p>
-        <span class="flex items-center gap-0.5 text-xs font-semibold text-red-600 mb-1">
+        <p id="kpi1-value" class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="12">0</p>
+        <span class="flex items-center gap-0.5 text-xs font-semibold text-red-600 dark:text-red-400 mb-1">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M17 7 7 17"/></svg>
           -5%
         </span>
       </div>
     </button>
-    <button onclick="openKpiModal('kpi2')" class="text-left rounded-[10px] border border-gray-200 bg-white shadow-sm p-5 hover:shadow-md hover:border-gray-300 transition-all">
-      <p class="text-xs font-medium text-gray-500 mb-2">AI Bookings (24h)</p>
+    <button onclick="openKpiModal('kpi2')" data-tooltip="+40% vs. last month" class="fade-in text-left rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 hover:border-gray-300 dark:hover:border-neutral-700 transition-all duration-200" style="animation-delay: 100ms;">
+      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">AI Bookings (24h)</p>
       <div class="flex items-end justify-between">
-        <p class="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight">7</p>
-        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 mb-1">
+        <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="7">0</p>
+        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7V7"/><path d="m7 17 10-10"/></svg>
           +40%
         </span>
       </div>
     </button>
-    <button onclick="openKpiModal('kpi3')" class="text-left rounded-[10px] border border-gray-200 bg-white shadow-sm p-5 hover:shadow-md hover:border-gray-300 transition-all">
-      <p id="kpi3-label" class="text-xs font-medium text-gray-500 mb-2">Pending Confirmations</p>
-      <p id="kpi3-value" class="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight">3</p>
+    <button onclick="openKpiModal('kpi3')" data-tooltip="Steady vs. last month" class="fade-in text-left rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 hover:border-gray-300 dark:hover:border-neutral-700 transition-all duration-200" style="animation-delay: 150ms;">
+      <p id="kpi3-label" class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Pending Confirmations</p>
+      <p id="kpi3-value" class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="3">0</p>
     </button>
-    <button onclick="openKpiModal('kpi4')" class="text-left rounded-[10px] border border-gray-200 bg-white shadow-sm p-5 hover:shadow-md hover:border-gray-300 transition-all">
-      <p class="text-xs font-medium text-gray-500 mb-2">Revenue Today</p>
+    <button onclick="openKpiModal('kpi4')" data-tooltip="+12% vs. last month" class="fade-in text-left rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 hover:border-gray-300 dark:hover:border-neutral-700 transition-all duration-200" style="animation-delay: 200ms;">
+      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Revenue Today</p>
       <div class="flex items-end justify-between">
-        <p id="revenue-value" class="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight">₹18,500</p>
-        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 mb-1">
+        <p id="revenue-value" class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="18500" data-prefix="₹">₹0</p>
+        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7V7"/><path d="m7 17 10-10"/></svg>
           +12%
         </span>
@@ -180,195 +240,527 @@
   </section>
 
   <!-- AI Daily Summary -->
-  <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 0.15s;">
-    <div class="rounded-[10px] border border-gray-200 border-l-4 border-l-indigo-600 bg-white shadow-sm p-4 sm:p-5">
+  <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 250ms;">
+    <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 border-l-4 border-l-indigo-600 dark:border-l-indigo-500 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 transition-colors duration-300">
       <div class="flex items-center gap-2 mb-2.5">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/></svg>
-        <h2 class="text-sm font-semibold text-neutral-900 tracking-tight">AI Daily Summary</h2>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/></svg>
+        <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight">AI Daily Summary</h2>
       </div>
-      <p class="text-sm text-gray-600 leading-relaxed">
-        Good afternoon Dr. Sharma. Today you have <span class="text-neutral-900 font-medium">12 appointments</span>, including 2 implant consultations (high value). 3 patients haven't confirmed — I've sent WhatsApp reminders. Yesterday I booked <span class="text-neutral-900 font-medium">7 new appointments</span> while you were with patients. Your no-show rate this week: <span class="text-emerald-600 font-medium">8%</span> (down from 15% last month).
+      <p class="text-sm text-gray-600 dark:text-neutral-300 leading-relaxed">
+        Good afternoon Dr. Sharma. Today you have <span class="text-neutral-900 dark:text-neutral-50 font-medium">12 appointments</span>, including 2 implant consultations (high value). 3 patients haven't confirmed — I've sent WhatsApp reminders. Yesterday I booked <span class="text-neutral-900 dark:text-neutral-50 font-medium">7 new appointments</span> while you were with patients. Your no-show rate this week: <span class="text-emerald-600 dark:text-emerald-400 font-medium">8%</span> (down from 15% last month).
       </p>
     </div>
   </section>
 
   <!-- Live Conversations -->
-  <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 0.2s;">
-    <h2 class="text-sm font-semibold text-neutral-900 tracking-tight mb-3">Live Conversations</h2>
+  <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 300ms;">
+    <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-3">Live Conversations</h2>
     <div class="grid sm:grid-cols-3 gap-3">
       <!-- Convo 1 -->
-      <div class="rounded-[10px] border border-gray-200 bg-white shadow-sm p-4">
+      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
         <div class="flex items-center justify-between mb-2.5">
           <div class="flex items-center gap-2">
-            <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-semibold text-neutral-600">PM</div>
-            <span class="text-sm font-medium text-neutral-900">Priya Mohanty</span>
+            <div data-tooltip="Priya Mohanty · Last visit: Mar 3, 2026" class="w-7 h-7 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 cursor-help">PM</div>
+            <span class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Priya Mohanty</span>
           </div>
-          <button onclick="openTranscriptModal('priya')" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 whitespace-nowrap hover:bg-emerald-100 transition-colors">Booked ✓</button>
+          <button onclick="openTranscriptModal('priya')" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 whitespace-nowrap hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors">Booked ✓</button>
         </div>
-        <p class="text-xs text-gray-500 line-clamp-2">"Perfect, see you Thursday at 4 PM for the cleaning!"</p>
-        <p class="text-[11px] text-gray-400 mt-2.5">2 min ago</p>
+        <p class="text-xs text-gray-500 dark:text-neutral-400 line-clamp-2">"Perfect, see you Thursday at 4 PM for the cleaning!"</p>
+        <p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-2.5">2 min ago</p>
       </div>
       <!-- Convo 2 -->
-      <div class="rounded-[10px] border border-gray-200 bg-white shadow-sm p-4">
+      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
         <div class="flex items-center justify-between mb-2.5">
           <div class="flex items-center gap-2">
-            <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-semibold text-neutral-600">RP</div>
-            <span class="text-sm font-medium text-neutral-900">Rakesh Patra</span>
+            <div data-tooltip="Rakesh Patra · Last visit: Mar 10, 2026" class="w-7 h-7 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 cursor-help">RP</div>
+            <span class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Rakesh Patra</span>
           </div>
-          <button onclick="openTranscriptModal('rakesh')" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-100 whitespace-nowrap hover:bg-amber-100 transition-colors">In progress...</button>
+          <button onclick="openTranscriptModal('rakesh')" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-100 dark:border-amber-500/20 whitespace-nowrap hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-colors">In progress...</button>
         </div>
         <div class="flex items-center gap-1 h-4">
-          <span class="w-1.5 h-1.5 rounded-full bg-gray-400 typing-dot"></span>
-          <span class="w-1.5 h-1.5 rounded-full bg-gray-400 typing-dot"></span>
-          <span class="w-1.5 h-1.5 rounded-full bg-gray-400 typing-dot"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-neutral-500 typing-dot"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-neutral-500 typing-dot"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-neutral-500 typing-dot"></span>
         </div>
-        <p class="text-[11px] text-gray-400 mt-2.5">15 min ago</p>
+        <p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-2.5">15 min ago</p>
       </div>
       <!-- Convo 3 -->
-      <div class="rounded-[10px] border border-gray-200 bg-white shadow-sm p-4">
+      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
         <div class="flex items-center justify-between mb-2.5">
           <div class="flex items-center gap-2">
-            <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-semibold text-neutral-600">AD</div>
-            <span class="text-sm font-medium text-neutral-900">Anjali Das</span>
+            <div data-tooltip="Anjali Das · Last visit: Sep 5, 2026" class="w-7 h-7 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 cursor-help">AD</div>
+            <span class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Anjali Das</span>
           </div>
-          <button onclick="openTranscriptModal('anjali')" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 whitespace-nowrap hover:bg-indigo-100 transition-colors">Confirmed ✓</button>
+          <button onclick="openTranscriptModal('anjali')" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 whitespace-nowrap hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors">Confirmed ✓</button>
         </div>
-        <p class="text-xs text-gray-500 line-clamp-2">"Yes, confirming my RCT appointment tomorrow at 11 AM."</p>
-        <p class="text-[11px] text-gray-400 mt-2.5">1h ago</p>
+        <p class="text-xs text-gray-500 dark:text-neutral-400 line-clamp-2">"Yes, confirming my RCT appointment tomorrow at 11 AM."</p>
+        <p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-2.5">1h ago</p>
       </div>
     </div>
   </section>
 
   <!-- Today's Schedule -->
-  <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 0.25s;">
-    <div class="rounded-[10px] border border-gray-200 bg-white shadow-sm p-4 sm:p-5">
-      <h2 class="text-sm font-semibold text-neutral-900 tracking-tight mb-3">Today's Schedule</h2>
-      <div class="divide-y divide-gray-100">
-        <button onclick="openPatientModal('priya')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+  <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 350ms;">
+    <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 transition-colors duration-300">
+      <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-3">Today's Schedule</h2>
+      <div class="divide-y divide-gray-100 dark:divide-neutral-800">
+        <button onclick="openPatientModal('priya')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
           <div class="flex items-center gap-3 min-w-0">
             <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">9:00 AM</span>
-            <span class="text-sm text-neutral-900 truncate">Priya Mohanty</span>
+            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">9:00 AM</span>
+            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Priya Mohanty</span>
           </div>
-          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">Cleaning</span>
+          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">Cleaning</span>
         </button>
-        <button onclick="openPatientModal('suresh')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+        <button onclick="openPatientModal('suresh')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
           <div class="flex items-center gap-3 min-w-0">
             <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">10:00 AM</span>
-            <span class="text-sm text-neutral-900 truncate">Suresh Nair</span>
+            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">10:00 AM</span>
+            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Suresh Nair</span>
           </div>
-          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">RCT</span>
+          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">RCT</span>
         </button>
-        <button onclick="openPatientModal('anjali')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+        <button onclick="openPatientModal('anjali')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
           <div class="flex items-center gap-3 min-w-0">
             <span class="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
-            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">11:00 AM</span>
-            <span class="text-sm text-neutral-900 truncate">Anjali Das</span>
+            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">11:00 AM</span>
+            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Anjali Das</span>
           </div>
-          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">RCT Follow-up</span>
+          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">RCT Follow-up</span>
         </button>
-        <button onclick="openPatientModal('vikram')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+        <button onclick="openPatientModal('vikram')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
           <div class="flex items-center gap-3 min-w-0">
-            <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
-            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">12:30 PM</span>
-            <span class="text-sm text-neutral-900 truncate">Vikram Reddy</span>
+            <span class="w-2 h-2 rounded-full bg-amber-500 status-pulse shrink-0"></span>
+            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">12:30 PM</span>
+            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Vikram Reddy</span>
           </div>
-          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">Implant Consult</span>
+          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">Implant Consult</span>
         </button>
-        <button onclick="openPatientModal('meera')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+        <button onclick="openPatientModal('meera')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
           <div class="flex items-center gap-3 min-w-0">
             <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">2:00 PM</span>
-            <span class="text-sm text-neutral-900 truncate">Meera Iyer</span>
+            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">2:00 PM</span>
+            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Meera Iyer</span>
           </div>
-          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">Veneer Fitting</span>
+          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">Veneer Fitting</span>
         </button>
-        <button onclick="openPatientModal('rakesh')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+        <button onclick="openPatientModal('rakesh')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
           <div class="flex items-center gap-3 min-w-0">
-            <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
-            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">3:15 PM</span>
-            <span class="text-sm text-neutral-900 truncate">Rakesh Patra</span>
+            <span class="w-2 h-2 rounded-full bg-amber-500 status-pulse shrink-0"></span>
+            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">3:15 PM</span>
+            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Rakesh Patra</span>
           </div>
-          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">Cleaning</span>
+          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">Cleaning</span>
         </button>
-        <button onclick="openPatientModal('deepak')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+        <button onclick="openPatientModal('deepak')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
           <div class="flex items-center gap-3 min-w-0">
             <span class="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
-            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">4:00 PM</span>
-            <span class="text-sm text-neutral-900 truncate">Deepak Joshi</span>
+            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">4:00 PM</span>
+            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Deepak Joshi</span>
           </div>
-          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">Implant Consult</span>
+          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">Implant Consult</span>
         </button>
-        <button onclick="openPatientModal('kavita')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+        <button onclick="openPatientModal('kavita')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
           <div class="flex items-center gap-3 min-w-0">
             <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">5:30 PM</span>
-            <span class="text-sm text-neutral-900 truncate">Kavita Menon</span>
+            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">5:30 PM</span>
+            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Kavita Menon</span>
           </div>
-          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">Cleaning</span>
+          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">Cleaning</span>
         </button>
       </div>
     </div>
   </section>
 
   <!-- AI Insights -->
-  <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 0.3s;">
-    <h2 class="text-sm font-semibold text-neutral-900 tracking-tight mb-3">AI Insights</h2>
+  <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 400ms;">
+    <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-3">AI Insights</h2>
     <div class="space-y-3">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-[10px] border border-gray-200 bg-white shadow-sm p-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
         <div class="flex items-center gap-3 min-w-0">
-          <span class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+          <span class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
           </span>
-          <p class="text-sm text-neutral-700">3 patients from Aug haven't returned for follow-up cleaning</p>
+          <p class="text-sm text-neutral-700 dark:text-neutral-300">3 patients from Aug haven't returned for follow-up cleaning</p>
         </div>
-        <button onclick="showToast('Campaign queued for 3 patients')" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">Send reactivation campaign</button>
+        <button onclick="showToast('Campaign queued for 3 patients')" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-[1.02] transition-all duration-200">Send reactivation campaign</button>
       </div>
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-[10px] border border-gray-200 bg-white shadow-sm p-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
         <div class="flex items-center gap-3 min-w-0">
-          <span class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+          <span class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
           </span>
-          <p class="text-sm text-neutral-700">You could add 2 more slots on Tuesdays based on demand patterns</p>
+          <p class="text-sm text-neutral-700 dark:text-neutral-300">You could add 2 more slots on Tuesdays based on demand patterns</p>
         </div>
-        <button onclick="showToast('Optimization suggestions saved')" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">Optimize schedule</button>
+        <button onclick="showToast('Optimization suggestions saved')" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-[1.02] transition-all duration-200">Optimize schedule</button>
       </div>
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-[10px] border border-gray-200 bg-white shadow-sm p-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
         <div class="flex items-center gap-3 min-w-0">
-          <span class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           </span>
-          <p class="text-sm text-neutral-700">Dr. Anjali is fully booked this week — consider adding her Sunday hours</p>
+          <p class="text-sm text-neutral-700 dark:text-neutral-300">Dr. Anjali is fully booked this week — consider adding her Sunday hours</p>
         </div>
-        <button onclick="showToast('Message sent via WhatsApp')" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">Notify Dr. Anjali</button>
+        <button onclick="showToast('Message sent via WhatsApp')" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-[1.02] transition-all duration-200">Notify Dr. Anjali</button>
       </div>
     </div>
   </section>
 
-  <!-- CTA Banner -->
-  <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 0.35s;">
-    <div class="rounded-[10px] border border-indigo-200 bg-white p-6 sm:p-8 text-center">
-      <p class="text-sm sm:text-base text-neutral-700 max-w-xl mx-auto">
+  </div>
+  <!-- ===================== END OVERVIEW TAB ===================== -->
+
+  <!-- ===================== WEBSITE TAB ===================== -->
+  <div id="panel-website" class="tab-panel hidden opacity-0">
+
+  <section class="pt-6 sm:pt-8 pb-2">
+    <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">Website Performance</h1>
+    <p class="text-sm text-gray-500 dark:text-neutral-400 mt-1">How smiledental.in is converting visitors into patients</p>
+  </section>
+
+  <section class="mt-4">
+    <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:items-center transition-all duration-200 hover:shadow-md dark:hover:shadow-neutral-950/50">
+      <img src="https://placehold.co/240x150/eef2ff/4f46e5?text=smiledental.in" alt="smiledental.in website preview" class="rounded-lg border border-gray-200 dark:border-neutral-800 w-full sm:w-40 shrink-0" />
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">smiledental.in</p>
+        <p class="text-xs text-gray-500 dark:text-neutral-400 mt-1">Live · Built &amp; hosted by NoirFlow · SSL secured</p>
+        <a href="https://noirflow.ai" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-2 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">
+          View site
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4">
+    <div data-tooltip="+18% vs. last month" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
+      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Monthly Visitors</p>
+      <div class="flex items-end justify-between">
+        <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="3842">0</p>
+        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7V7"/><path d="m7 17 10-10"/></svg>
+          +18%
+        </span>
+      </div>
+    </div>
+    <div data-tooltip="-6% vs. last month" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
+      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Bounce Rate</p>
+      <div class="flex items-end justify-between">
+        <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="34" data-suffix="%">0%</p>
+        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M17 7 7 17"/></svg>
+          -6%
+        </span>
+      </div>
+    </div>
+    <div data-tooltip="+9s vs. last month" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
+      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Avg. Session</p>
+      <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">2m 14s</p>
+    </div>
+    <div data-tooltip="+14 vs. last month" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
+      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Conversions this month</p>
+      <div class="flex items-end justify-between">
+        <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="127">0</p>
+        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7V7"/><path d="m7 17 10-10"/></svg>
+          +14
+        </span>
+      </div>
+      <p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-1">bookings</p>
+    </div>
+  </section>
+
+  <section class="mt-4 sm:mt-6">
+    <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5">
+      <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-4">Traffic Sources</h2>
+      <div class="space-y-3">
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1">
+            <span class="text-neutral-700 dark:text-neutral-300 font-medium">Google Search</span>
+            <span class="text-gray-500 dark:text-neutral-400">58%</span>
+          </div>
+          <div class="h-2 rounded-full bg-gray-100 dark:bg-neutral-800 overflow-hidden">
+            <div class="h-full bg-indigo-600 rounded-full" style="width:58%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1">
+            <span class="text-neutral-700 dark:text-neutral-300 font-medium">Direct</span>
+            <span class="text-gray-500 dark:text-neutral-400">22%</span>
+          </div>
+          <div class="h-2 rounded-full bg-gray-100 dark:bg-neutral-800 overflow-hidden">
+            <div class="h-full bg-emerald-500 rounded-full" style="width:22%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1">
+            <span class="text-neutral-700 dark:text-neutral-300 font-medium">Instagram</span>
+            <span class="text-gray-500 dark:text-neutral-400">14%</span>
+          </div>
+          <div class="h-2 rounded-full bg-gray-100 dark:bg-neutral-800 overflow-hidden">
+            <div class="h-full bg-indigo-400 rounded-full" style="width:14%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between text-xs mb-1">
+            <span class="text-neutral-700 dark:text-neutral-300 font-medium">WhatsApp</span>
+            <span class="text-gray-500 dark:text-neutral-400">6%</span>
+          </div>
+          <div class="h-2 rounded-full bg-gray-100 dark:bg-neutral-800 overflow-hidden">
+            <div class="h-full bg-emerald-400 rounded-full" style="width:6%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid sm:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6">
+    <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5">
+      <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-3">Top Pages</h2>
+      <div class="divide-y divide-gray-100 dark:divide-neutral-800">
+        <div class="flex items-center justify-between py-2 text-sm">
+          <span class="text-neutral-700 dark:text-neutral-300">Home</span>
+          <span class="text-gray-500 dark:text-neutral-400 font-mono text-xs">1,240 views</span>
+        </div>
+        <div class="flex items-center justify-between py-2 text-sm">
+          <span class="text-neutral-700 dark:text-neutral-300">Services</span>
+          <span class="text-gray-500 dark:text-neutral-400 font-mono text-xs">890 views</span>
+        </div>
+        <div class="flex items-center justify-between py-2 text-sm">
+          <span class="text-neutral-700 dark:text-neutral-300">Book Appointment</span>
+          <span class="text-gray-500 dark:text-neutral-400 font-mono text-xs">720 views</span>
+        </div>
+        <div class="flex items-center justify-between py-2 text-sm">
+          <span class="text-neutral-700 dark:text-neutral-300">About Us</span>
+          <span class="text-gray-500 dark:text-neutral-400 font-mono text-xs">410 views</span>
+        </div>
+      </div>
+    </div>
+    <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5">
+      <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-3">Recent Actions</h2>
+      <div class="space-y-3">
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+          </span>
+          <p class="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">Priya booked cleaning via website <span class="block text-xs text-gray-400 dark:text-neutral-500 mt-0.5">12 min ago</span></p>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0 mt-0.5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="m4 4 8 8 8-8"/></svg>
+          </span>
+          <p class="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">Rakesh submitted contact form <span class="block text-xs text-gray-400 dark:text-neutral-500 mt-0.5">1h ago</span></p>
+        </div>
+        <div class="flex items-start gap-2.5">
+          <span class="w-6 h-6 rounded-full bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center shrink-0 mt-0.5">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/></svg>
+          </span>
+          <p class="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">Anjali downloaded price list <span class="block text-xs text-gray-400 dark:text-neutral-500 mt-0.5">3h ago</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  </div>
+  <!-- ===================== END WEBSITE TAB ===================== -->
+
+  <!-- ===================== AI AGENTS TAB ===================== -->
+  <div id="panel-agents" class="tab-panel hidden opacity-0">
+
+  <section class="pt-6 sm:pt-8 pb-2">
+    <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">AI Agents</h1>
+    <p class="text-sm text-gray-500 dark:text-neutral-400 mt-1">What your AI receptionist has been doing</p>
+  </section>
+
+  <section class="mt-4">
+    <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 flex items-center gap-3 transition-all duration-200 hover:shadow-md dark:hover:shadow-neutral-950/50">
+      <div class="w-11 h-11 rounded-full bg-indigo-600 text-white flex items-center justify-center text-base font-semibold shrink-0">R</div>
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Riya — Your AI Receptionist</p>
+        <p class="text-xs text-gray-500 dark:text-neutral-400 flex items-center gap-1.5 mt-0.5 cursor-help" data-tooltip="Riya has been running for 47 days without downtime">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          Active · Handling conversations 24/7
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4">
+    <div data-tooltip="+22% vs. last week" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
+      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Conversations Handled</p>
+      <div class="flex items-end justify-between">
+        <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="84">0</p>
+        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7V7"/><path d="m7 17 10-10"/></svg>
+          +22%
+        </span>
+      </div>
+      <p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-1">this week</p>
+    </div>
+    <div data-tooltip="+15% vs. last week" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
+      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Bookings Confirmed</p>
+      <div class="flex items-end justify-between">
+        <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="41">0</p>
+        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7V7"/><path d="m7 17 10-10"/></svg>
+          +15%
+        </span>
+      </div>
+      <p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-1">this week</p>
+    </div>
+    <div data-tooltip="-3s vs. last week" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
+      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Avg. Response Time</p>
+      <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight"><span data-count-to="12">0</span><span class="text-base font-semibold text-gray-400 dark:text-neutral-500"> sec</span></p>
+    </div>
+    <div data-tooltip="No change vs. last week" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
+      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Languages</p>
+      <p class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">Hindi + English</p>
+    </div>
+  </section>
+
+  <section class="mt-4 sm:mt-6">
+    <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-3">Recent Conversations</h2>
+    <div class="space-y-2.5">
+      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-3.5 flex items-center gap-3 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
+        <div data-tooltip="Priya Mohanty · Last visit: Mar 3, 2026" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 shrink-0 cursor-help">PM</div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Priya Mohanty</p>
+          <p class="text-xs text-gray-500 dark:text-neutral-400 truncate">"Can I book a cleaning this week?"</p>
+        </div>
+        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 shrink-0">Booked</span>
+        <span class="text-[11px] text-gray-400 dark:text-neutral-500 shrink-0 hidden sm:block">12 min ago</span>
+      </div>
+      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-3.5 flex items-center gap-3 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
+        <div data-tooltip="Suresh Nair · Last visit: Aug 21, 2025" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 shrink-0 cursor-help">SN</div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Suresh Nair</p>
+          <p class="text-xs text-gray-500 dark:text-neutral-400 truncate">"What's the cost of a root canal?"</p>
+        </div>
+        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 shrink-0">Info Given</span>
+        <span class="text-[11px] text-gray-400 dark:text-neutral-500 shrink-0 hidden sm:block">28 min ago</span>
+      </div>
+      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-3.5 flex items-center gap-3 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
+        <div data-tooltip="Deepak Joshi · New patient" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 shrink-0 cursor-help">DJ</div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Deepak Joshi</p>
+          <p class="text-xs text-gray-500 dark:text-neutral-400 truncate">"I have a complex insurance question..."</p>
+        </div>
+        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-neutral-300 border border-gray-200 dark:border-neutral-700 shrink-0 whitespace-nowrap">Transferred to Human</span>
+        <span class="text-[11px] text-gray-400 dark:text-neutral-500 shrink-0 hidden sm:block">45 min ago</span>
+      </div>
+      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-3.5 flex items-center gap-3 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
+        <div data-tooltip="Kavita Menon · Last visit: Mar 15, 2026" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 shrink-0 cursor-help">KM</div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Kavita Menon</p>
+          <p class="text-xs text-gray-500 dark:text-neutral-400 truncate">"Confirming my cleaning for 5:30 PM."</p>
+        </div>
+        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 shrink-0">Booked</span>
+        <span class="text-[11px] text-gray-400 dark:text-neutral-500 shrink-0 hidden sm:block">1h ago</span>
+      </div>
+      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-3.5 flex items-center gap-3 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
+        <div data-tooltip="Vikram Reddy · New patient" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 shrink-0 cursor-help">VR</div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Vikram Reddy</p>
+          <p class="text-xs text-gray-500 dark:text-neutral-400 truncate">"Do you have implant financing options?"</p>
+        </div>
+        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 shrink-0">Info Given</span>
+        <span class="text-[11px] text-gray-400 dark:text-neutral-500 shrink-0 hidden sm:block">2h ago</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="mt-4 sm:mt-6">
+    <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 border-l-4 border-l-indigo-600 dark:border-l-indigo-500 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 transition-colors duration-300">
+      <div class="flex items-center gap-2 mb-2.5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/></svg>
+        <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight">What Riya Handled Today</h2>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-neutral-300 leading-relaxed">
+        Booked <span class="text-neutral-900 dark:text-neutral-50 font-medium">7 appointments</span>, answered <span class="text-neutral-900 dark:text-neutral-50 font-medium">23 pricing questions</span>, sent <span class="text-neutral-900 dark:text-neutral-50 font-medium">12 confirmation reminders</span>, transferred 2 complex cases to Dr. Sharma.
+      </p>
+    </div>
+  </section>
+
+  <section class="mt-4 sm:mt-6">
+    <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 flex items-center gap-3">
+      <span class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/></svg>
+      </span>
+      <p class="text-sm text-neutral-700 dark:text-neutral-300"><span class="font-medium text-neutral-900 dark:text-neutral-50">Learning Insights:</span> Riya has learned 14 new question patterns this week from patient conversations.</p>
+    </div>
+  </section>
+
+  </div>
+  <!-- ===================== END AI AGENTS TAB ===================== -->
+
+  <!-- ===================== AUTOMATIONS TAB (coming soon) ===================== -->
+  <div id="panel-automations" class="tab-panel hidden opacity-0">
+    <div class="flex flex-col items-center justify-center text-center py-20 sm:py-28">
+      <span class="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center mb-5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/></svg>
+      </span>
+      <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight">Automations coming soon</h2>
+      <p class="text-sm text-gray-500 dark:text-neutral-400 mt-2 max-w-sm">We're rolling out custom automations for review requests, appointment reminders, patient re-engagement, and more. Available in your next quarterly update.</p>
+      <button onclick="showToast('We will notify you when this launches')" class="mt-5 text-sm font-semibold px-4 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 hover:scale-[1.02] transition-all duration-200">Notify me when ready</button>
+    </div>
+  </div>
+  <!-- ===================== END AUTOMATIONS TAB ===================== -->
+
+  <!-- ===================== AI SYSTEMS TAB (coming soon) ===================== -->
+  <div id="panel-systems" class="tab-panel hidden opacity-0">
+    <div class="flex flex-col items-center justify-center text-center py-20 sm:py-28">
+      <span class="w-16 h-16 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center mb-5">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 2v2"/><path d="M15 2v2"/><path d="M9 20v2"/><path d="M15 20v2"/><path d="M2 9h2"/><path d="M2 15h2"/><path d="M20 9h2"/><path d="M20 15h2"/></svg>
+      </span>
+      <h2 class="text-lg font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight">AI Systems coming soon</h2>
+      <p class="text-sm text-gray-500 dark:text-neutral-400 mt-2 max-w-sm">Full digital infrastructure — CRM integration, advanced analytics, multi-agent orchestration, custom AI models trained on your business. Rolling out Q2 2027.</p>
+      <button onclick="showToast('You are on the waitlist')" class="mt-5 text-sm font-semibold px-4 py-2 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/20 hover:scale-[1.02] transition-all duration-200">Join waitlist</button>
+    </div>
+  </div>
+  <!-- ===================== END AI SYSTEMS TAB ===================== -->
+
+  <!-- CTA Banner (persistent across tabs) -->
+  <section class="mt-4 sm:mt-6">
+    <div class="rounded-[10px] border border-indigo-200 dark:border-indigo-500/30 bg-white dark:bg-neutral-900 p-6 sm:p-8 text-center transition-colors duration-300">
+      <p class="text-sm sm:text-base text-neutral-700 dark:text-neutral-300 max-w-xl mx-auto">
         This is a live demo of NoirFlow's Intelligence Dashboard. Want one for your business?
       </p>
-      <a href="https://noirflow.ai/book" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold px-4 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
+      <a href="https://noirflow.ai/book" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold px-4 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-[1.02] transition-all duration-200">
         Book a call
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
       </a>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="mt-8 sm:mt-10 pt-5 border-t border-gray-200 text-center">
-    <p class="text-xs text-gray-400">
-      Powered by <a href="https://noirflow.ai" class="text-gray-500 hover:text-indigo-600 transition-colors font-medium">NoirFlow AI</a> · Demo mode
-    </p>
-  </footer>
-
 </div>
 
+<!-- Footer -->
+<footer class="max-w-5xl mx-auto px-4 sm:px-6 pb-10">
+  <div class="mt-2 pt-5 border-t border-gray-200 dark:border-neutral-800 text-center transition-colors duration-300">
+    <p class="text-xs text-gray-400 dark:text-neutral-500">
+      Powered by <a href="https://noirflow.ai" class="text-gray-500 dark:text-neutral-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium">NoirFlow AI</a> · Demo mode
+    </p>
+  </div>
+</footer>
+
 <script>
+  // ---------- Right-click disabled (feels more app-like) ----------
+  document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+  // ---------- Dark mode ----------
+  function setTheme(theme) {
+    const isDark = theme === 'dark';
+    document.documentElement.classList.toggle('dark', isDark);
+    try { localStorage.setItem('theme', theme); } catch (e) {}
+    const sun = document.getElementById('icon-sun');
+    const moon = document.getElementById('icon-moon');
+    if (sun) sun.classList.toggle('hidden', isDark);
+    if (moon) moon.classList.toggle('hidden', !isDark);
+  }
+  function toggleTheme() {
+    setTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark');
+  }
+  setTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+
   // ---------- Live clock ----------
   function updateClock() {
     const el = document.getElementById('live-clock');
@@ -385,6 +777,106 @@
   // ---------- Shared icons ----------
   const ICON_X = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
   const ICON_CHECK = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+  // ---------- Tooltips ----------
+  function showTooltip(e) {
+    const el = e.currentTarget;
+    const text = el.getAttribute('data-tooltip');
+    if (!text) return;
+    const tip = document.getElementById('tooltip');
+    tip.textContent = text;
+    tip.classList.remove('hidden');
+    const rect = el.getBoundingClientRect();
+    const tipRect = tip.getBoundingClientRect();
+    let top = rect.top - tipRect.height - 8;
+    let left = rect.left + rect.width / 2 - tipRect.width / 2;
+    if (top < 4) top = rect.bottom + 8;
+    left = Math.max(4, Math.min(left, window.innerWidth - tipRect.width - 4));
+    tip.style.top = top + 'px';
+    tip.style.left = left + 'px';
+  }
+  function hideTooltip() {
+    document.getElementById('tooltip').classList.add('hidden');
+  }
+  function initTooltips() {
+    document.querySelectorAll('[data-tooltip]').forEach((el) => {
+      if (el.dataset.tooltipBound) return;
+      el.dataset.tooltipBound = '1';
+      el.addEventListener('mouseenter', showTooltip);
+      el.addEventListener('mouseleave', hideTooltip);
+      el.addEventListener('focus', showTooltip);
+      el.addEventListener('blur', hideTooltip);
+    });
+  }
+  initTooltips();
+
+  // ---------- Count-up KPI numbers ----------
+  const countUpDone = new WeakSet();
+  function animateCountUp(el) {
+    if (!el || countUpDone.has(el)) return;
+    const end = parseFloat(el.getAttribute('data-count-to'));
+    if (isNaN(end)) return;
+    countUpDone.add(el);
+    const prefix = el.getAttribute('data-prefix') || '';
+    const suffix = el.getAttribute('data-suffix') || '';
+    const duration = 800;
+    const start = performance.now();
+    function frame(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const val = Math.round(end * eased);
+      el.textContent = prefix + val.toLocaleString('en-IN') + suffix;
+      if (t < 1) requestAnimationFrame(frame);
+      else el.textContent = prefix + end.toLocaleString('en-IN') + suffix;
+    }
+    requestAnimationFrame(frame);
+  }
+  function animateCountUpsIn(container) {
+    if (!container) return;
+    container.querySelectorAll('[data-count-to]').forEach(animateCountUp);
+  }
+  setTimeout(() => animateCountUpsIn(document.getElementById('panel-overview')), 150);
+
+  // ---------- Tabs ----------
+  let currentTab = 'overview';
+  function updateTabIndicator(name) {
+    const btn = document.querySelector('.tab-btn[data-tab="' + name + '"]');
+    const indicator = document.getElementById('tab-indicator');
+    if (!btn || !indicator) return;
+    indicator.style.width = btn.offsetWidth + 'px';
+    indicator.style.transform = 'translateX(' + btn.offsetLeft + 'px)';
+  }
+  function updateTabButtonStyles(active) {
+    document.querySelectorAll('.tab-btn').forEach((btn) => {
+      const isActive = btn.dataset.tab === active;
+      btn.classList.toggle('text-neutral-900', isActive);
+      btn.classList.toggle('dark:text-neutral-50', isActive);
+      btn.classList.toggle('font-semibold', isActive);
+      btn.classList.toggle('font-medium', !isActive);
+      btn.classList.toggle('text-gray-500', !isActive);
+      btn.classList.toggle('dark:text-neutral-400', !isActive);
+    });
+  }
+  function switchTab(name) {
+    if (name === currentTab) return;
+    const current = document.getElementById('panel-' + currentTab);
+    const next = document.getElementById('panel-' + name);
+    if (!next) return;
+    current.classList.add('opacity-0');
+    setTimeout(() => {
+      current.classList.add('hidden');
+      next.classList.remove('hidden');
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        next.classList.remove('opacity-0');
+      }));
+      currentTab = name;
+      updateTabIndicator(name);
+      updateTabButtonStyles(name);
+      if (name === 'website' || name === 'agents') animateCountUpsIn(next);
+    }, 150);
+  }
+  window.addEventListener('load', () => updateTabIndicator('overview'));
+  window.addEventListener('resize', () => updateTabIndicator(currentTab));
 
   // ---------- Business switcher ----------
   const BUSINESSES = {
@@ -407,7 +899,6 @@
       revenueValue: '₹1,42,000',
     },
   };
-
   function switchBusiness(key) {
     const b = BUSINESSES[key];
     if (!b) return;
@@ -446,10 +937,10 @@
     lastFocused = document.activeElement;
     const overlay = document.getElementById('modal-overlay');
     const content = document.getElementById('modal-content');
+    content.classList.remove('modal-open');
     content.innerHTML = html;
     overlay.classList.remove('hidden');
     overlay.classList.add('flex');
-    content.classList.remove('modal-open');
     requestAnimationFrame(() => requestAnimationFrame(() => content.classList.add('modal-open')));
     const firstFocusable = content.querySelector('button, [href], input, select, textarea, [tabindex]');
     if (firstFocusable) firstFocusable.focus();
@@ -462,7 +953,7 @@
       overlay.classList.add('hidden');
       overlay.classList.remove('flex');
       if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
-    }, 150);
+    }, 300);
   }
   document.addEventListener('keydown', (e) => {
     const overlay = document.getElementById('modal-overlay');
@@ -519,19 +1010,19 @@
     const max = Math.max(...d.values.map((v) => v.value));
     const bars = d.values.map((v) => `
       <div class="flex flex-col items-center gap-1.5 flex-1">
-        <div class="w-full h-20 bg-indigo-50 rounded-t-[4px] flex items-end overflow-hidden">
+        <div class="w-full h-20 bg-indigo-50 dark:bg-indigo-500/10 rounded-t-[4px] flex items-end overflow-hidden">
           <div class="w-full bg-indigo-600 rounded-t-[4px]" style="height:${Math.round((v.value / max) * 100)}%"></div>
         </div>
-        <span class="text-[10px] text-gray-400 font-medium">${v.day}</span>
+        <span class="text-[10px] text-gray-400 dark:text-neutral-500 font-medium">${v.day}</span>
       </div>
     `).join('');
     openModal(`
       <div class="p-5">
         <div class="flex items-start justify-between mb-1">
-          <h3 class="text-base font-semibold text-neutral-900 tracking-tight">${d.title}</h3>
-          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 -mt-1 -mr-1 p-1 rounded-md hover:bg-gray-100" aria-label="Close">${ICON_X}</button>
+          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight">${d.title}</h3>
+          <button onclick="closeModal()" class="text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 -mt-1 -mr-1 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-800" aria-label="Close">${ICON_X}</button>
         </div>
-        <p class="text-sm text-gray-500 mb-5">${d.subtitle}</p>
+        <p class="text-sm text-gray-500 dark:text-neutral-400 mb-5">${d.subtitle}</p>
         <div class="flex items-end gap-2">${bars}</div>
       </div>
     `);
@@ -540,7 +1031,7 @@
   // ---------- Transcript modal ----------
   const TRANSCRIPTS = {
     priya: {
-      name: 'Priya Mohanty', initials: 'PM', status: 'Booked ✓', statusClass: 'bg-emerald-50 text-emerald-700 border border-emerald-100',
+      name: 'Priya Mohanty', initials: 'PM', status: 'Booked ✓', statusClass: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20',
       messages: [
         { from: 'patient', text: 'Hi, I need to book a cleaning sometime this week.', time: '11:42 AM' },
         { from: 'riya', text: 'Hi Priya! I have an opening Thursday at 4 PM, or Friday at 10 AM — which works better?', time: '11:42 AM' },
@@ -549,7 +1040,7 @@
       ],
     },
     rakesh: {
-      name: 'Rakesh Patra', initials: 'RP', status: 'In progress...', statusClass: 'bg-amber-50 text-amber-700 border border-amber-100',
+      name: 'Rakesh Patra', initials: 'RP', status: 'In progress...', statusClass: 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-100 dark:border-amber-500/20',
       messages: [
         { from: 'patient', text: 'I felt some sensitivity after my last cleaning, is that normal?', time: '2:58 PM' },
         { from: 'riya', text: 'Mild sensitivity for a day or two is common after a cleaning. If it lasts more than 3 days I\'ll get Dr. Sharma to take a quick look — want me to flag it for review?', time: '2:59 PM' },
@@ -557,7 +1048,7 @@
       ],
     },
     anjali: {
-      name: 'Anjali Das', initials: 'AD', status: 'Confirmed ✓', statusClass: 'bg-indigo-50 text-indigo-700 border border-indigo-100',
+      name: 'Anjali Das', initials: 'AD', status: 'Confirmed ✓', statusClass: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20',
       messages: [
         { from: 'riya', text: 'Hi Anjali, just confirming your RCT follow-up tomorrow at 11 AM with Dr. Sharma. Reply YES to confirm.', time: '10:15 AM' },
         { from: 'patient', text: 'Yes, confirming my RCT appointment tomorrow at 11 AM.', time: '10:20 AM' },
@@ -569,9 +1060,9 @@
     const t = TRANSCRIPTS[key];
     const bubbles = t.messages.map((m) => `
       <div class="flex ${m.from === 'riya' ? 'justify-end' : 'justify-start'}">
-        <div class="max-w-[80%] rounded-lg px-3 py-2 text-sm ${m.from === 'riya' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-neutral-900'}">
+        <div class="max-w-[80%] rounded-lg px-3 py-2 text-sm ${m.from === 'riya' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100'}">
           <p>${m.text}</p>
-          <div class="text-[10px] mt-1 ${m.from === 'riya' ? 'text-indigo-200' : 'text-gray-400'}">${m.time}</div>
+          <div class="text-[10px] mt-1 ${m.from === 'riya' ? 'text-indigo-200' : 'text-gray-400 dark:text-neutral-500'}">${m.time}</div>
         </div>
       </div>
     `).join('');
@@ -579,13 +1070,13 @@
       <div class="p-5">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold text-neutral-600 shrink-0">${t.initials}</div>
+            <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-semibold text-neutral-600 dark:text-neutral-300 shrink-0">${t.initials}</div>
             <div>
-              <p class="text-sm font-semibold text-neutral-900">${t.name}</p>
+              <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">${t.name}</p>
               <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${t.statusClass}">${t.status}</span>
             </div>
           </div>
-          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100" aria-label="Close">${ICON_X}</button>
+          <button onclick="closeModal()" class="text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-800" aria-label="Close">${ICON_X}</button>
         </div>
         <div class="space-y-2.5 max-h-80 overflow-y-auto pr-1">${bubbles}</div>
       </div>
@@ -609,18 +1100,18 @@
       <div class="p-5">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xs font-semibold text-indigo-700 shrink-0">${p.initials}</div>
+            <div class="w-9 h-9 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center text-xs font-semibold text-indigo-700 dark:text-indigo-400 shrink-0">${p.initials}</div>
             <div>
-              <p class="text-sm font-semibold text-neutral-900 tracking-tight">${p.name}</p>
-              <p class="text-xs text-gray-500">${p.time} · ${p.procedure}</p>
+              <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight">${p.name}</p>
+              <p class="text-xs text-gray-500 dark:text-neutral-400">${p.time} · ${p.procedure}</p>
             </div>
           </div>
-          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100" aria-label="Close">${ICON_X}</button>
+          <button onclick="closeModal()" class="text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-800" aria-label="Close">${ICON_X}</button>
         </div>
         <dl class="space-y-3.5 text-sm">
-          <div><dt class="text-xs font-medium text-gray-500 mb-0.5">Last Visit</dt><dd class="text-neutral-900">${p.lastVisit}</dd></div>
-          <div><dt class="text-xs font-medium text-gray-500 mb-0.5">Treatment History</dt><dd class="text-neutral-900">${p.history}</dd></div>
-          <div><dt class="text-xs font-medium text-gray-500 mb-0.5">Notes</dt><dd class="text-neutral-900">${p.notes}</dd></div>
+          <div><dt class="text-xs font-medium text-gray-500 dark:text-neutral-500 mb-0.5">Last Visit</dt><dd class="text-neutral-900 dark:text-neutral-100">${p.lastVisit}</dd></div>
+          <div><dt class="text-xs font-medium text-gray-500 dark:text-neutral-500 mb-0.5">Treatment History</dt><dd class="text-neutral-900 dark:text-neutral-100">${p.history}</dd></div>
+          <div><dt class="text-xs font-medium text-gray-500 dark:text-neutral-500 mb-0.5">Notes</dt><dd class="text-neutral-900 dark:text-neutral-100">${p.notes}</dd></div>
         </dl>
       </div>
     `);
@@ -630,10 +1121,10 @@
   function toggleRow(label, checked) {
     return `
       <div class="flex items-center justify-between">
-        <span class="text-sm text-neutral-700">${label}</span>
+        <span class="text-sm text-neutral-700 dark:text-neutral-300">${label}</span>
         <button type="button" aria-pressed="${checked}" aria-label="${label}"
-          onclick="const on=this.getAttribute('aria-pressed')!=='true'; this.setAttribute('aria-pressed', on); this.classList.toggle('bg-indigo-600', on); this.classList.toggle('bg-gray-200', !on); this.firstElementChild.classList.toggle('translate-x-4', on); this.firstElementChild.classList.toggle('translate-x-0.5', !on);"
-          class="w-9 h-5 rounded-full relative transition-colors shrink-0 ${checked ? 'bg-indigo-600' : 'bg-gray-200'}">
+          onclick="const on=this.getAttribute('aria-pressed')!=='true'; this.setAttribute('aria-pressed', on); this.classList.toggle('bg-indigo-600', on); this.classList.toggle('bg-gray-200', !on); this.classList.toggle('dark:bg-neutral-700', !on); this.firstElementChild.classList.toggle('translate-x-4', on); this.firstElementChild.classList.toggle('translate-x-0.5', !on);"
+          class="w-9 h-5 rounded-full relative transition-colors shrink-0 ${checked ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-neutral-700'}">
           <span class="absolute top-0.5 left-0 w-4 h-4 bg-white rounded-full shadow transition-transform ${checked ? 'translate-x-4' : 'translate-x-0.5'}"></span>
         </button>
       </div>
@@ -643,13 +1134,13 @@
     openModal(`
       <div class="p-5">
         <div class="flex items-center justify-between mb-4">
-          <h3 class="text-base font-semibold text-neutral-900 tracking-tight">Settings</h3>
-          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100" aria-label="Close">${ICON_X}</button>
+          <h3 class="text-base font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight">Settings</h3>
+          <button onclick="closeModal()" class="text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-800" aria-label="Close">${ICON_X}</button>
         </div>
         <div class="space-y-4">
           ${toggleRow('WhatsApp reminders', true)}
           ${toggleRow('Auto-confirm bookings', true)}
-          ${toggleRow('Dark mode', false)}
+          ${toggleRow('Dark mode', document.documentElement.classList.contains('dark'))}
           ${toggleRow('Weekly summary email', true)}
         </div>
       </div>
@@ -659,3 +1150,4 @@
 
 </body>
 </html>
+
