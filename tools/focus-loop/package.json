@@ -1,0 +1,16 @@
+{
+  "name": "focus-loop",
+  "version": "1.5.0",
+  "description": "Focus Loop — Anshuman's personal AI focus coach, classroom, and NoirFlow advisor. Static page + a thin Gemini proxy function.",
+  "scripts": {
+    "dev": "vercel dev"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
