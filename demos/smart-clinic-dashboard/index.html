@@ -202,42 +202,7 @@
   </section>
 
   <!-- KPI Cards -->
-  <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4">
-    <button onclick="openKpiModal('kpi1')" data-tooltip="-5% vs. last month" class="fade-in text-left rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 hover:border-gray-300 dark:hover:border-neutral-700 transition-all duration-200" style="animation-delay: 50ms;">
-      <p id="kpi1-label" class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Today's Appointments</p>
-      <div class="flex items-end justify-between">
-        <p id="kpi1-value" class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="12">0</p>
-        <span class="flex items-center gap-0.5 text-xs font-semibold text-red-600 dark:text-red-400 mb-1">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M17 7 7 17"/></svg>
-          -5%
-        </span>
-      </div>
-    </button>
-    <button onclick="openKpiModal('kpi2')" data-tooltip="+40% vs. last month" class="fade-in text-left rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 hover:border-gray-300 dark:hover:border-neutral-700 transition-all duration-200" style="animation-delay: 100ms;">
-      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">AI Bookings (24h)</p>
-      <div class="flex items-end justify-between">
-        <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="7">0</p>
-        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7V7"/><path d="m7 17 10-10"/></svg>
-          +40%
-        </span>
-      </div>
-    </button>
-    <button onclick="openKpiModal('kpi3')" data-tooltip="Steady vs. last month" class="fade-in text-left rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 hover:border-gray-300 dark:hover:border-neutral-700 transition-all duration-200" style="animation-delay: 150ms;">
-      <p id="kpi3-label" class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Pending Confirmations</p>
-      <p id="kpi3-value" class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="3">0</p>
-    </button>
-    <button onclick="openKpiModal('kpi4')" data-tooltip="+12% vs. last month" class="fade-in text-left rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 hover:border-gray-300 dark:hover:border-neutral-700 transition-all duration-200" style="animation-delay: 200ms;">
-      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Revenue Today</p>
-      <div class="flex items-end justify-between">
-        <p id="revenue-value" class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="18500" data-prefix="₹">₹0</p>
-        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7V7"/><path d="m7 17 10-10"/></svg>
-          +12%
-        </span>
-      </div>
-    </button>
-  </section>
+  <section id="ov-kpis" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4"></section>
 
   <!-- AI Daily Summary -->
   <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 250ms;">
@@ -246,164 +211,28 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/></svg>
         <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight">AI Daily Summary</h2>
       </div>
-      <p class="text-sm text-gray-600 dark:text-neutral-300 leading-relaxed">
-        Good afternoon Dr. Sharma. Today you have <span class="text-neutral-900 dark:text-neutral-50 font-medium">12 appointments</span>, including 2 implant consultations (high value). 3 patients haven't confirmed — I've sent WhatsApp reminders. Yesterday I booked <span class="text-neutral-900 dark:text-neutral-50 font-medium">7 new appointments</span> while you were with patients. Your no-show rate this week: <span class="text-emerald-600 dark:text-emerald-400 font-medium">8%</span> (down from 15% last month).
-      </p>
+      <p id="ov-summary" class="text-sm text-gray-600 dark:text-neutral-300 leading-relaxed"></p>
     </div>
   </section>
 
   <!-- Live Conversations -->
   <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 300ms;">
     <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-3">Live Conversations</h2>
-    <div class="grid sm:grid-cols-3 gap-3">
-      <!-- Convo 1 -->
-      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
-        <div class="flex items-center justify-between mb-2.5">
-          <div class="flex items-center gap-2">
-            <div data-tooltip="Priya Mohanty · Last visit: Mar 3, 2026" class="w-7 h-7 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 cursor-help">PM</div>
-            <span class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Priya Mohanty</span>
-          </div>
-          <button onclick="openTranscriptModal('priya')" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 whitespace-nowrap hover:bg-emerald-100 dark:hover:bg-emerald-500/20 transition-colors">Booked ✓</button>
-        </div>
-        <p class="text-xs text-gray-500 dark:text-neutral-400 line-clamp-2">"Perfect, see you Thursday at 4 PM for the cleaning!"</p>
-        <p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-2.5">2 min ago</p>
-      </div>
-      <!-- Convo 2 -->
-      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
-        <div class="flex items-center justify-between mb-2.5">
-          <div class="flex items-center gap-2">
-            <div data-tooltip="Rakesh Patra · Last visit: Mar 10, 2026" class="w-7 h-7 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 cursor-help">RP</div>
-            <span class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Rakesh Patra</span>
-          </div>
-          <button onclick="openTranscriptModal('rakesh')" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-100 dark:border-amber-500/20 whitespace-nowrap hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-colors">In progress...</button>
-        </div>
-        <div class="flex items-center gap-1 h-4">
-          <span class="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-neutral-500 typing-dot"></span>
-          <span class="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-neutral-500 typing-dot"></span>
-          <span class="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-neutral-500 typing-dot"></span>
-        </div>
-        <p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-2.5">15 min ago</p>
-      </div>
-      <!-- Convo 3 -->
-      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
-        <div class="flex items-center justify-between mb-2.5">
-          <div class="flex items-center gap-2">
-            <div data-tooltip="Anjali Das · Last visit: Sep 5, 2026" class="w-7 h-7 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 cursor-help">AD</div>
-            <span class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Anjali Das</span>
-          </div>
-          <button onclick="openTranscriptModal('anjali')" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 whitespace-nowrap hover:bg-indigo-100 dark:hover:bg-indigo-500/20 transition-colors">Confirmed ✓</button>
-        </div>
-        <p class="text-xs text-gray-500 dark:text-neutral-400 line-clamp-2">"Yes, confirming my RCT appointment tomorrow at 11 AM."</p>
-        <p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-2.5">1h ago</p>
-      </div>
-    </div>
+    <div id="ov-conversations" class="grid sm:grid-cols-3 gap-3"></div>
   </section>
 
   <!-- Today's Schedule -->
   <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 350ms;">
     <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 transition-colors duration-300">
       <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-3">Today's Schedule</h2>
-      <div class="divide-y divide-gray-100 dark:divide-neutral-800">
-        <button onclick="openPatientModal('priya')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">9:00 AM</span>
-            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Priya Mohanty</span>
-          </div>
-          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">Cleaning</span>
-        </button>
-        <button onclick="openPatientModal('suresh')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">10:00 AM</span>
-            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Suresh Nair</span>
-          </div>
-          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">RCT</span>
-        </button>
-        <button onclick="openPatientModal('anjali')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
-            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">11:00 AM</span>
-            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Anjali Das</span>
-          </div>
-          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">RCT Follow-up</span>
-        </button>
-        <button onclick="openPatientModal('vikram')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="w-2 h-2 rounded-full bg-amber-500 status-pulse shrink-0"></span>
-            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">12:30 PM</span>
-            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Vikram Reddy</span>
-          </div>
-          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">Implant Consult</span>
-        </button>
-        <button onclick="openPatientModal('meera')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">2:00 PM</span>
-            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Meera Iyer</span>
-          </div>
-          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">Veneer Fitting</span>
-        </button>
-        <button onclick="openPatientModal('rakesh')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="w-2 h-2 rounded-full bg-amber-500 status-pulse shrink-0"></span>
-            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">3:15 PM</span>
-            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Rakesh Patra</span>
-          </div>
-          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">Cleaning</span>
-        </button>
-        <button onclick="openPatientModal('deepak')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
-            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">4:00 PM</span>
-            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Deepak Joshi</span>
-          </div>
-          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">Implant Consult</span>
-        </button>
-        <button onclick="openPatientModal('kavita')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
-          <div class="flex items-center gap-3 min-w-0">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-            <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">5:30 PM</span>
-            <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">Kavita Menon</span>
-          </div>
-          <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">Cleaning</span>
-        </button>
-      </div>
+      <div id="ov-schedule" class="divide-y divide-gray-100 dark:divide-neutral-800"></div>
     </div>
   </section>
 
   <!-- AI Insights -->
   <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 400ms;">
     <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-3">AI Insights</h2>
-    <div class="space-y-3">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
-        <div class="flex items-center gap-3 min-w-0">
-          <span class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
-          </span>
-          <p class="text-sm text-neutral-700 dark:text-neutral-300">3 patients from Aug haven't returned for follow-up cleaning</p>
-        </div>
-        <button onclick="showToast('Campaign queued for 3 patients')" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-[1.02] transition-all duration-200">Send reactivation campaign</button>
-      </div>
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
-        <div class="flex items-center gap-3 min-w-0">
-          <span class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
-          </span>
-          <p class="text-sm text-neutral-700 dark:text-neutral-300">You could add 2 more slots on Tuesdays based on demand patterns</p>
-        </div>
-        <button onclick="showToast('Optimization suggestions saved')" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-[1.02] transition-all duration-200">Optimize schedule</button>
-      </div>
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
-        <div class="flex items-center gap-3 min-w-0">
-          <span class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </span>
-          <p class="text-sm text-neutral-700 dark:text-neutral-300">Dr. Anjali is fully booked this week — consider adding her Sunday hours</p>
-        </div>
-        <button onclick="showToast('Message sent via WhatsApp')" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-[1.02] transition-all duration-200">Notify Dr. Anjali</button>
-      </div>
-    </div>
+    <div id="ov-insights" class="space-y-3"></div>
   </section>
 
   </div>
@@ -414,149 +243,30 @@
 
   <section class="pt-6 sm:pt-8 pb-2">
     <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">Website Performance</h1>
-    <p class="text-sm text-gray-500 dark:text-neutral-400 mt-1">How smiledental.in is converting visitors into patients</p>
+    <p id="web-subtitle" class="text-sm text-gray-500 dark:text-neutral-400 mt-1"></p>
   </section>
 
   <section class="mt-4">
-    <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:items-center transition-all duration-200 hover:shadow-md dark:hover:shadow-neutral-950/50">
-      <img src="https://placehold.co/240x150/eef2ff/4f46e5?text=smiledental.in" alt="smiledental.in website preview" class="rounded-lg border border-gray-200 dark:border-neutral-800 w-full sm:w-40 shrink-0" />
-      <div class="min-w-0">
-        <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">smiledental.in</p>
-        <p class="text-xs text-gray-500 dark:text-neutral-400 mt-1">Live · Built &amp; hosted by NoirFlow · SSL secured</p>
-        <a href="https://noirflow.ai" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-2 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">
-          View site
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
-        </a>
-      </div>
-    </div>
+    <div id="web-preview" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:items-center transition-all duration-200 hover:shadow-md dark:hover:shadow-neutral-950/50"></div>
   </section>
 
-  <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4">
-    <div data-tooltip="+18% vs. last month" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
-      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Monthly Visitors</p>
-      <div class="flex items-end justify-between">
-        <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="3842">0</p>
-        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7V7"/><path d="m7 17 10-10"/></svg>
-          +18%
-        </span>
-      </div>
-    </div>
-    <div data-tooltip="-6% vs. last month" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
-      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Bounce Rate</p>
-      <div class="flex items-end justify-between">
-        <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="34" data-suffix="%">0%</p>
-        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M17 7 7 17"/></svg>
-          -6%
-        </span>
-      </div>
-    </div>
-    <div data-tooltip="+9s vs. last month" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
-      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Avg. Session</p>
-      <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">2m 14s</p>
-    </div>
-    <div data-tooltip="+14 vs. last month" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
-      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Conversions this month</p>
-      <div class="flex items-end justify-between">
-        <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="127">0</p>
-        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7V7"/><path d="m7 17 10-10"/></svg>
-          +14
-        </span>
-      </div>
-      <p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-1">bookings</p>
-    </div>
-  </section>
+  <section id="web-kpis" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4"></section>
 
   <section class="mt-4 sm:mt-6">
     <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5">
       <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-4">Traffic Sources</h2>
-      <div class="space-y-3">
-        <div>
-          <div class="flex items-center justify-between text-xs mb-1">
-            <span class="text-neutral-700 dark:text-neutral-300 font-medium">Google Search</span>
-            <span class="text-gray-500 dark:text-neutral-400">58%</span>
-          </div>
-          <div class="h-2 rounded-full bg-gray-100 dark:bg-neutral-800 overflow-hidden">
-            <div class="h-full bg-indigo-600 rounded-full" style="width:58%"></div>
-          </div>
-        </div>
-        <div>
-          <div class="flex items-center justify-between text-xs mb-1">
-            <span class="text-neutral-700 dark:text-neutral-300 font-medium">Direct</span>
-            <span class="text-gray-500 dark:text-neutral-400">22%</span>
-          </div>
-          <div class="h-2 rounded-full bg-gray-100 dark:bg-neutral-800 overflow-hidden">
-            <div class="h-full bg-emerald-500 rounded-full" style="width:22%"></div>
-          </div>
-        </div>
-        <div>
-          <div class="flex items-center justify-between text-xs mb-1">
-            <span class="text-neutral-700 dark:text-neutral-300 font-medium">Instagram</span>
-            <span class="text-gray-500 dark:text-neutral-400">14%</span>
-          </div>
-          <div class="h-2 rounded-full bg-gray-100 dark:bg-neutral-800 overflow-hidden">
-            <div class="h-full bg-indigo-400 rounded-full" style="width:14%"></div>
-          </div>
-        </div>
-        <div>
-          <div class="flex items-center justify-between text-xs mb-1">
-            <span class="text-neutral-700 dark:text-neutral-300 font-medium">WhatsApp</span>
-            <span class="text-gray-500 dark:text-neutral-400">6%</span>
-          </div>
-          <div class="h-2 rounded-full bg-gray-100 dark:bg-neutral-800 overflow-hidden">
-            <div class="h-full bg-emerald-400 rounded-full" style="width:6%"></div>
-          </div>
-        </div>
-      </div>
+      <div id="web-traffic" class="space-y-3"></div>
     </div>
   </section>
 
   <section class="grid sm:grid-cols-2 gap-3 sm:gap-4 mt-4 sm:mt-6">
     <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5">
       <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-3">Top Pages</h2>
-      <div class="divide-y divide-gray-100 dark:divide-neutral-800">
-        <div class="flex items-center justify-between py-2 text-sm">
-          <span class="text-neutral-700 dark:text-neutral-300">Home</span>
-          <span class="text-gray-500 dark:text-neutral-400 font-mono text-xs">1,240 views</span>
-        </div>
-        <div class="flex items-center justify-between py-2 text-sm">
-          <span class="text-neutral-700 dark:text-neutral-300">Services</span>
-          <span class="text-gray-500 dark:text-neutral-400 font-mono text-xs">890 views</span>
-        </div>
-        <div class="flex items-center justify-between py-2 text-sm">
-          <span class="text-neutral-700 dark:text-neutral-300">Book Appointment</span>
-          <span class="text-gray-500 dark:text-neutral-400 font-mono text-xs">720 views</span>
-        </div>
-        <div class="flex items-center justify-between py-2 text-sm">
-          <span class="text-neutral-700 dark:text-neutral-300">About Us</span>
-          <span class="text-gray-500 dark:text-neutral-400 font-mono text-xs">410 views</span>
-        </div>
-      </div>
+      <div id="web-toppages" class="divide-y divide-gray-100 dark:divide-neutral-800"></div>
     </div>
     <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5">
       <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-3">Recent Actions</h2>
-      <div class="space-y-3">
-        <div class="flex items-start gap-2.5">
-          <span class="w-6 h-6 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center shrink-0 mt-0.5">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-emerald-600 dark:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-          </span>
-          <p class="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">Priya booked cleaning via website <span class="block text-xs text-gray-400 dark:text-neutral-500 mt-0.5">12 min ago</span></p>
-        </div>
-        <div class="flex items-start gap-2.5">
-          <span class="w-6 h-6 rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0 mt-0.5">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="m4 4 8 8 8-8"/></svg>
-          </span>
-          <p class="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">Rakesh submitted contact form <span class="block text-xs text-gray-400 dark:text-neutral-500 mt-0.5">1h ago</span></p>
-        </div>
-        <div class="flex items-start gap-2.5">
-          <span class="w-6 h-6 rounded-full bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center shrink-0 mt-0.5">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/></svg>
-          </span>
-          <p class="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">Anjali downloaded price list <span class="block text-xs text-gray-400 dark:text-neutral-500 mt-0.5">3h ago</span></p>
-        </div>
-      </div>
+      <div id="web-actions" class="space-y-3"></div>
     </div>
   </section>
 
@@ -568,125 +278,26 @@
 
   <section class="pt-6 sm:pt-8 pb-2">
     <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">AI Agents</h1>
-    <p class="text-sm text-gray-500 dark:text-neutral-400 mt-1">What your AI receptionist has been doing</p>
+    <p id="agent-subtitle" class="text-sm text-gray-500 dark:text-neutral-400 mt-1"></p>
   </section>
 
   <section class="mt-4">
-    <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 flex items-center gap-3 transition-all duration-200 hover:shadow-md dark:hover:shadow-neutral-950/50">
-      <div class="w-11 h-11 rounded-full bg-indigo-600 text-white flex items-center justify-center text-base font-semibold shrink-0">R</div>
-      <div class="min-w-0">
-        <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">Riya — Your AI Receptionist</p>
-        <p class="text-xs text-gray-500 dark:text-neutral-400 flex items-center gap-1.5 mt-0.5 cursor-help" data-tooltip="Riya has been running for 47 days without downtime">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-          Active · Handling conversations 24/7
-        </p>
-      </div>
-    </div>
+    <div id="agent-header" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 flex items-center gap-3 transition-all duration-200 hover:shadow-md dark:hover:shadow-neutral-950/50"></div>
   </section>
 
-  <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4">
-    <div data-tooltip="+22% vs. last week" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
-      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Conversations Handled</p>
-      <div class="flex items-end justify-between">
-        <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="84">0</p>
-        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7V7"/><path d="m7 17 10-10"/></svg>
-          +22%
-        </span>
-      </div>
-      <p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-1">this week</p>
-    </div>
-    <div data-tooltip="+15% vs. last week" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
-      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Bookings Confirmed</p>
-      <div class="flex items-end justify-between">
-        <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="41">0</p>
-        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7V7"/><path d="m7 17 10-10"/></svg>
-          +15%
-        </span>
-      </div>
-      <p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-1">this week</p>
-    </div>
-    <div data-tooltip="-3s vs. last week" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
-      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Avg. Response Time</p>
-      <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight"><span data-count-to="12">0</span><span class="text-base font-semibold text-gray-400 dark:text-neutral-500"> sec</span></p>
-    </div>
-    <div data-tooltip="No change vs. last week" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200 cursor-help">
-      <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">Languages</p>
-      <p class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">Hindi + English</p>
-    </div>
-  </section>
+  <section id="agent-kpis" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4"></section>
 
   <section class="mt-4 sm:mt-6">
     <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-3">Recent Conversations</h2>
-    <div class="space-y-2.5">
-      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-3.5 flex items-center gap-3 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
-        <div data-tooltip="Priya Mohanty · Last visit: Mar 3, 2026" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 shrink-0 cursor-help">PM</div>
-        <div class="min-w-0 flex-1">
-          <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Priya Mohanty</p>
-          <p class="text-xs text-gray-500 dark:text-neutral-400 truncate">"Can I book a cleaning this week?"</p>
-        </div>
-        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 shrink-0">Booked</span>
-        <span class="text-[11px] text-gray-400 dark:text-neutral-500 shrink-0 hidden sm:block">12 min ago</span>
-      </div>
-      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-3.5 flex items-center gap-3 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
-        <div data-tooltip="Suresh Nair · Last visit: Aug 21, 2025" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 shrink-0 cursor-help">SN</div>
-        <div class="min-w-0 flex-1">
-          <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Suresh Nair</p>
-          <p class="text-xs text-gray-500 dark:text-neutral-400 truncate">"What's the cost of a root canal?"</p>
-        </div>
-        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 shrink-0">Info Given</span>
-        <span class="text-[11px] text-gray-400 dark:text-neutral-500 shrink-0 hidden sm:block">28 min ago</span>
-      </div>
-      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-3.5 flex items-center gap-3 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
-        <div data-tooltip="Deepak Joshi · New patient" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 shrink-0 cursor-help">DJ</div>
-        <div class="min-w-0 flex-1">
-          <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Deepak Joshi</p>
-          <p class="text-xs text-gray-500 dark:text-neutral-400 truncate">"I have a complex insurance question..."</p>
-        </div>
-        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-neutral-300 border border-gray-200 dark:border-neutral-700 shrink-0 whitespace-nowrap">Transferred to Human</span>
-        <span class="text-[11px] text-gray-400 dark:text-neutral-500 shrink-0 hidden sm:block">45 min ago</span>
-      </div>
-      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-3.5 flex items-center gap-3 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
-        <div data-tooltip="Kavita Menon · Last visit: Mar 15, 2026" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 shrink-0 cursor-help">KM</div>
-        <div class="min-w-0 flex-1">
-          <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Kavita Menon</p>
-          <p class="text-xs text-gray-500 dark:text-neutral-400 truncate">"Confirming my cleaning for 5:30 PM."</p>
-        </div>
-        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 shrink-0">Booked</span>
-        <span class="text-[11px] text-gray-400 dark:text-neutral-500 shrink-0 hidden sm:block">1h ago</span>
-      </div>
-      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-3.5 flex items-center gap-3 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
-        <div data-tooltip="Vikram Reddy · New patient" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 shrink-0 cursor-help">VR</div>
-        <div class="min-w-0 flex-1">
-          <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">Vikram Reddy</p>
-          <p class="text-xs text-gray-500 dark:text-neutral-400 truncate">"Do you have implant financing options?"</p>
-        </div>
-        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 shrink-0">Info Given</span>
-        <span class="text-[11px] text-gray-400 dark:text-neutral-500 shrink-0 hidden sm:block">2h ago</span>
-      </div>
-    </div>
+    <div id="agent-conversations" class="space-y-2.5"></div>
   </section>
 
   <section class="mt-4 sm:mt-6">
-    <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 border-l-4 border-l-indigo-600 dark:border-l-indigo-500 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 transition-colors duration-300">
-      <div class="flex items-center gap-2 mb-2.5">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/></svg>
-        <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight">What Riya Handled Today</h2>
-      </div>
-      <p class="text-sm text-gray-600 dark:text-neutral-300 leading-relaxed">
-        Booked <span class="text-neutral-900 dark:text-neutral-50 font-medium">7 appointments</span>, answered <span class="text-neutral-900 dark:text-neutral-50 font-medium">23 pricing questions</span>, sent <span class="text-neutral-900 dark:text-neutral-50 font-medium">12 confirmation reminders</span>, transferred 2 complex cases to Dr. Sharma.
-      </p>
-    </div>
+    <div id="agent-summary" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 border-l-4 border-l-indigo-600 dark:border-l-indigo-500 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 transition-colors duration-300"></div>
   </section>
 
   <section class="mt-4 sm:mt-6">
-    <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 flex items-center gap-3">
-      <span class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/></svg>
-      </span>
-      <p class="text-sm text-neutral-700 dark:text-neutral-300"><span class="font-medium text-neutral-900 dark:text-neutral-50">Learning Insights:</span> Riya has learned 14 new question patterns this week from patient conversations.</p>
-    </div>
+    <div id="agent-learning" class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 flex items-center gap-3"></div>
   </section>
 
   </div>
@@ -835,7 +446,6 @@
     if (!container) return;
     container.querySelectorAll('[data-count-to]').forEach(animateCountUp);
   }
-  setTimeout(() => animateCountUpsIn(document.getElementById('panel-overview')), 150);
 
   // ---------- Tabs ----------
   let currentTab = 'overview';
@@ -872,44 +482,526 @@
       currentTab = name;
       updateTabIndicator(name);
       updateTabButtonStyles(name);
-      if (name === 'website' || name === 'agents') animateCountUpsIn(next);
     }, 150);
   }
   window.addEventListener('load', () => updateTabIndicator('overview'));
   window.addEventListener('resize', () => updateTabIndicator(currentTab));
 
-  // ---------- Business switcher ----------
-  const BUSINESSES = {
+  // ---------- Shared icon fragments (reused across rendered cards) ----------
+  const ICON_TREND_UP = '<svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7V7"/><path d="m7 17 10-10"/></svg>';
+  const ICON_TREND_DOWN = '<svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M17 7 7 17"/></svg>';
+  const ICONS = {
+    sparkle: '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/></svg>',
+    calendar: '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>',
+    user: '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+  };
+  const ACTION_ICONS = {
+    check: { svg: '<svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>', bg: 'bg-emerald-50 dark:bg-emerald-500/10', color: 'text-emerald-600 dark:text-emerald-400' },
+    mail: { svg: '<svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v16H4z"/><path d="m4 4 8 8 8-8"/></svg>', bg: 'bg-indigo-50 dark:bg-indigo-500/10', color: 'text-indigo-600 dark:text-indigo-400' },
+    download: { svg: '<svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="m7 10 5 5 5-5"/><path d="M4 21h16"/></svg>', bg: 'bg-amber-50 dark:bg-amber-500/10', color: 'text-amber-600 dark:text-amber-400' },
+  };
+  const STATUS_BADGE = {
+    booked: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/20',
+    progress: 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-100 dark:border-amber-500/20 hover:bg-amber-100 dark:hover:bg-amber-500/20',
+    confirmed: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 hover:bg-indigo-100 dark:hover:bg-indigo-500/20',
+    info: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20',
+    transferred: 'bg-gray-100 dark:bg-neutral-800 text-gray-600 dark:text-neutral-300 border border-gray-200 dark:border-neutral-700',
+  };
+  const DOT_COLOR = { emerald: 'bg-emerald-500', amber: 'bg-amber-500', indigo: 'bg-indigo-500' };
+
+  function makeWeekSeries(final) {
+    const mult = [0.85, 0.95, 1.05, 0.9, 1.1, 0.8, 1.0];
+    return mult.map((m) => Math.max(0, Math.round(final * m)));
+  }
+
+  // ---------- Business data ----------
+  const BUSINESS_DATA = {
     dental: {
-      name: 'Smile Dental Care', initials: 'RS', greetingName: 'Dr. Sharma',
-      kpi1Label: "Today's Appointments", kpi1Value: '12',
-      kpi3Label: 'Pending Confirmations', kpi3Value: '3',
-      revenueValue: '₹18,500',
-    },
-    gym: {
-      name: 'FitZone Gym', initials: 'AM', greetingName: 'Arjun',
-      kpi1Label: "Today's Classes", kpi1Value: '9',
-      kpi3Label: 'Pending Renewals', kpi3Value: '5',
-      revenueValue: '₹24,200',
+      name: 'Smile Dental Care', initials: 'RS', greetingName: 'Dr. Sharma', agentUptime: '47 days',
+      overview: {
+        kpis: [
+          { label: "Today's Appointments", value: 12, trendDir: 'down', trendPct: '-5%', tooltip: '-5% vs. last month' },
+          { label: 'AI Bookings (24h)', value: 7, trendDir: 'up', trendPct: '+40%', tooltip: '+40% vs. last month' },
+          { label: 'Pending Confirmations', value: 3, tooltip: 'Steady vs. last month' },
+          { label: 'Revenue Today', value: 18500, prefix: '₹', trendDir: 'up', trendPct: '+12%', tooltip: '+12% vs. last month' },
+        ],
+        kpiCharts: {
+          kpi1: { title: "Today's Appointments", subtitle: 'Appointments booked, last 7 days', values: [10, 14, 11, 15, 13, 9, 12] },
+          kpi2: { title: 'AI Bookings (24h)', subtitle: 'Bookings the AI assistant closed without staff involvement', values: [3, 5, 4, 6, 5, 2, 7] },
+          kpi3: { title: 'Pending Confirmations', subtitle: 'Patients yet to confirm, reminders sent automatically', values: [5, 4, 6, 3, 4, 2, 3] },
+          kpi4: { title: 'Revenue Today', subtitle: 'Revenue collected, last 7 days (₹ thousands)', values: [14, 19, 12, 22, 17, 9, 18.5] },
+        },
+        summaryHtml: 'Good afternoon Dr. Sharma. Today you have <span class="text-neutral-900 dark:text-neutral-50 font-medium">12 appointments</span>, including 2 implant consultations (high value). 3 patients haven\'t confirmed — I\'ve sent WhatsApp reminders. Yesterday I booked <span class="text-neutral-900 dark:text-neutral-50 font-medium">7 new appointments</span> while you were with patients. Your no-show rate this week: <span class="text-emerald-600 dark:text-emerald-400 font-medium">8%</span> (down from 15% last month).',
+        conversations: [
+          { key: 'priya', initials: 'PM', name: 'Priya Mohanty', message: '"Perfect, see you Thursday at 4 PM for the cleaning!"', statusLabel: 'Booked ✓', statusKey: 'booked', time: '2 min ago', tooltip: 'Priya Mohanty · Last visit: Mar 3, 2026',
+            transcript: [
+              { from: 'patient', text: 'Hi, I need to book a cleaning sometime this week.', time: '11:42 AM' },
+              { from: 'riya', text: 'Hi Priya! I have an opening Thursday at 4 PM, or Friday at 10 AM — which works better?', time: '11:42 AM' },
+              { from: 'patient', text: 'Thursday 4 PM works great.', time: '11:44 AM' },
+              { from: 'riya', text: 'Perfect, see you Thursday at 4 PM for the cleaning! I\'ll send a reminder the day before.', time: '11:44 AM' },
+            ] },
+          { key: 'rakesh', initials: 'RP', name: 'Rakesh Patra', message: null, statusLabel: 'In progress...', statusKey: 'progress', time: '15 min ago', tooltip: 'Rakesh Patra · Last visit: Mar 10, 2026',
+            transcript: [
+              { from: 'patient', text: 'I felt some sensitivity after my last cleaning, is that normal?', time: '2:58 PM' },
+              { from: 'riya', text: 'Mild sensitivity for a day or two is common after a cleaning. If it lasts more than 3 days I\'ll get Dr. Sharma to take a quick look — want me to flag it for review?', time: '2:59 PM' },
+              { from: 'patient', text: 'Yes please, and can I also move my 3:15 appointment tomorrow?', time: '3:01 PM' },
+            ] },
+          { key: 'anjali', initials: 'AD', name: 'Anjali Das', message: '"Yes, confirming my RCT appointment tomorrow at 11 AM."', statusLabel: 'Confirmed ✓', statusKey: 'confirmed', time: '1h ago', tooltip: 'Anjali Das · Last visit: Sep 5, 2026',
+            transcript: [
+              { from: 'riya', text: 'Hi Anjali, just confirming your RCT follow-up tomorrow at 11 AM with Dr. Sharma. Reply YES to confirm.', time: '10:15 AM' },
+              { from: 'patient', text: 'Yes, confirming my RCT appointment tomorrow at 11 AM.', time: '10:20 AM' },
+              { from: 'riya', text: 'Great, you\'re all set! See you then.', time: '10:20 AM' },
+            ] },
+        ],
+        schedule: [
+          { key: 'priya', time: '9:00 AM', name: 'Priya Mohanty', service: 'Cleaning', dot: 'emerald', modal: { rows: [['Last Visit', 'Mar 3, 2026'], ['Treatment History', 'Routine cleaning (x4), one cavity filling in 2024.'], ['Notes', 'Prefers morning slots. No known allergies.']] } },
+          { key: 'suresh', time: '10:00 AM', name: 'Suresh Nair', service: 'RCT', dot: 'emerald', modal: { rows: [['Last Visit', 'Aug 21, 2025'], ['Treatment History', 'Root canal started on lower molar, session 2 of 3.'], ['Notes', 'Mildly anxious — talk through each step before starting.']] } },
+          { key: 'anjali', time: '11:00 AM', name: 'Anjali Das', service: 'RCT Follow-up', dot: 'indigo', modal: { rows: [['Last Visit', 'Sep 5, 2026'], ['Treatment History', 'RCT completed last month, healing well.'], ['Notes', 'Confirmed via WhatsApp this morning.']] } },
+          { key: 'vikram', time: '12:30 PM', name: 'Vikram Reddy', service: 'Implant Consult', dot: 'amber', pulse: true, modal: { rows: [['Last Visit', 'New patient'], ['Treatment History', 'Referred by Priya Mohanty. No prior records on file.'], ['Notes', 'High-value consult — bring implant pricing sheet.']] } },
+          { key: 'meera', time: '2:00 PM', name: 'Meera Iyer', service: 'Veneer Fitting', dot: 'emerald', modal: { rows: [['Last Visit', 'Jul 30, 2026'], ['Treatment History', 'Veneer impressions taken 2 weeks ago, ready for fitting.'], ['Notes', 'Wants shade matched to front incisors.']] } },
+          { key: 'rakesh', time: '3:15 PM', name: 'Rakesh Patra', service: 'Cleaning', dot: 'amber', pulse: true, modal: { rows: [['Last Visit', 'Mar 10, 2026'], ['Treatment History', 'Routine cleaning, mild gum sensitivity noted last visit.'], ['Notes', 'Reported sensitivity after last cleaning — check in.']] } },
+          { key: 'deepak', time: '4:00 PM', name: 'Deepak Joshi', service: 'Implant Consult', dot: 'indigo', modal: { rows: [['Last Visit', 'New patient'], ['Treatment History', 'Inquired online about implant costs last week.'], ['Notes', 'Price-sensitive — walk through financing options.']] } },
+          { key: 'kavita', time: '5:30 PM', name: 'Kavita Menon', service: 'Cleaning', dot: 'emerald', modal: { rows: [['Last Visit', 'Mar 15, 2026'], ['Treatment History', 'Routine cleaning every 6 months, excellent oral hygiene.'], ['Notes', 'Usually books next appointment on the spot.']] } },
+        ],
+        insights: [
+          { icon: 'sparkle', text: "3 patients from Aug haven't returned for follow-up cleaning", buttonLabel: 'Send reactivation campaign', toastMessage: 'Campaign queued for 3 patients' },
+          { icon: 'calendar', text: 'You could add 2 more slots on Tuesdays based on demand patterns', buttonLabel: 'Optimize schedule', toastMessage: 'Optimization suggestions saved' },
+          { icon: 'user', text: 'Dr. Anjali is fully booked this week — consider adding her Sunday hours', buttonLabel: 'Notify Dr. Anjali', toastMessage: 'Message sent via WhatsApp' },
+        ],
+      },
+      website: {
+        domain: 'smiledental.in', noun: 'patients',
+        kpis: [
+          { label: 'Monthly Visitors', value: 3842, trendDir: 'up', trendPct: '+18%', tooltip: '+18% vs. last month' },
+          { label: 'Bounce Rate', value: 34, suffix: '%', trendDir: 'down', trendPct: '-6%', tooltip: '-6% vs. last month' },
+          { label: 'Avg. Session', staticValue: '2m 14s', tooltip: '+9s vs. last month' },
+          { label: 'Conversions this month', value: 127, trendDir: 'up', trendPct: '+14', tooltip: '+14 vs. last month', subLabel: 'bookings' },
+        ],
+        traffic: [
+          { label: 'Google Search', pct: 58, color: 'bg-indigo-600' },
+          { label: 'Direct', pct: 22, color: 'bg-emerald-500' },
+          { label: 'Instagram', pct: 14, color: 'bg-indigo-400' },
+          { label: 'WhatsApp', pct: 6, color: 'bg-emerald-400' },
+        ],
+        topPages: [ ['Home', 1240], ['Services', 890], ['Book Appointment', 720], ['About Us', 410] ],
+        actions: [
+          { type: 'check', text: 'Priya booked cleaning via website', time: '12 min ago' },
+          { type: 'mail', text: 'Rakesh submitted contact form', time: '1h ago' },
+          { type: 'download', text: 'Anjali downloaded price list', time: '3h ago' },
+        ],
+      },
+      agents: {
+        agentName: 'Riya', agentInitial: 'R', statusText: 'Active · Handling conversations 24/7',
+        kpis: [
+          { label: 'Conversations Handled', value: 84, trendDir: 'up', trendPct: '+22%', tooltip: '+22% vs. last week', subLabel: 'this week' },
+          { label: 'Bookings Confirmed', value: 41, trendDir: 'up', trendPct: '+15%', tooltip: '+15% vs. last week', subLabel: 'this week' },
+          { label: 'Avg. Response Time', value: 12, suffix: ' sec', tooltip: '-3s vs. last week' },
+          { label: 'Languages', staticValue: 'Hindi + English', tooltip: 'No change vs. last week' },
+        ],
+        conversations: [
+          { initials: 'PM', name: 'Priya Mohanty', message: '"Can I book a cleaning this week?"', statusLabel: 'Booked', statusKey: 'booked', time: '12 min ago', tooltip: 'Priya Mohanty · Last visit: Mar 3, 2026' },
+          { initials: 'SN', name: 'Suresh Nair', message: '"What\'s the cost of a root canal?"', statusLabel: 'Info Given', statusKey: 'info', time: '28 min ago', tooltip: 'Suresh Nair · Last visit: Aug 21, 2025' },
+          { initials: 'DJ', name: 'Deepak Joshi', message: '"I have a complex insurance question..."', statusLabel: 'Transferred to Human', statusKey: 'transferred', time: '45 min ago', tooltip: 'Deepak Joshi · New patient' },
+          { initials: 'KM', name: 'Kavita Menon', message: '"Confirming my cleaning for 5:30 PM."', statusLabel: 'Booked', statusKey: 'booked', time: '1h ago', tooltip: 'Kavita Menon · Last visit: Mar 15, 2026' },
+          { initials: 'VR', name: 'Vikram Reddy', message: '"Do you have implant financing options?"', statusLabel: 'Info Given', statusKey: 'info', time: '2h ago', tooltip: 'Vikram Reddy · New patient' },
+        ],
+        summaryHtml: 'Booked <span class="text-neutral-900 dark:text-neutral-50 font-medium">7 appointments</span>, answered <span class="text-neutral-900 dark:text-neutral-50 font-medium">23 pricing questions</span>, sent <span class="text-neutral-900 dark:text-neutral-50 font-medium">12 confirmation reminders</span>, transferred 2 complex cases to Dr. Sharma.',
+        learningText: 'Riya has learned 14 new question patterns this week from patient conversations.',
+      },
     },
     realty: {
-      name: 'Aurum Realty', initials: 'KI', greetingName: 'Kavya',
-      kpi1Label: "Today's Viewings", kpi1Value: '6',
-      kpi3Label: 'Pending Follow-ups', kpi3Value: '2',
-      revenueValue: '₹1,42,000',
+      name: 'Aurum Realty', initials: 'RK', greetingName: 'Mr. Kapoor', agentUptime: '32 days',
+      overview: {
+        kpis: [
+          { label: "Today's Property Viewings", value: 8 },
+          { label: 'AI Inquiries (24h)', value: 12 },
+          { label: 'Pending Site Visits', value: 4 },
+          { label: 'New Leads Value', staticValue: '₹4.2 Cr', tooltip: 'New leads valued this month' },
+        ],
+        kpiCharts: {
+          kpi1: { title: "Today's Property Viewings", subtitle: 'Viewings scheduled, last 7 days', values: makeWeekSeries(8) },
+          kpi2: { title: 'AI Inquiries (24h)', subtitle: 'Inquiries the AI assistant qualified without staff involvement', values: makeWeekSeries(12) },
+          kpi3: { title: 'Pending Site Visits', subtitle: 'Leads yet to confirm, reminders sent automatically', values: makeWeekSeries(4) },
+          kpi4: { title: 'New Leads Value', subtitle: 'New lead value generated, last 7 days (₹ lakh)', values: [38, 42, 35, 50, 44, 30, 42] },
+        },
+        summaryHtml: 'Good afternoon Mr. Kapoor. Today you have <span class="text-neutral-900 dark:text-neutral-50 font-medium">8 property viewings</span> scheduled including 2 premium properties (Sky Villa, Forest Edge). 4 leads haven\'t confirmed — I\'ve sent WhatsApp reminders. Yesterday I qualified <span class="text-neutral-900 dark:text-neutral-50 font-medium">12 new leads</span> while you were with clients. High-intent lead conversion this week: <span class="text-emerald-600 dark:text-emerald-400 font-medium">34%</span> (up from 22% last month).',
+        conversations: [
+          { key: 'rahul', initials: 'RM', name: 'Rahul Menon', message: '"Interested in 3BHK sea-facing."', statusLabel: 'Site Visit Booked ✓', statusKey: 'booked', time: '4 min ago', tooltip: 'Rahul Menon · New lead this week',
+            transcript: [
+              { from: 'patient', text: 'Interested in a 3BHK sea-facing apartment — do you have anything available?', time: '9:12 AM' },
+              { from: 'riya', text: 'Hi Rahul! Sky Villa has a 3BHK sea-facing unit available. Want me to book a viewing?', time: '9:13 AM' },
+              { from: 'patient', text: 'Yes, this Saturday works.', time: '9:15 AM' },
+              { from: 'riya', text: 'Booked! Sky Villa tour confirmed for Saturday at 10 AM.', time: '9:15 AM' },
+            ] },
+          { key: 'kavita', initials: 'KS', name: 'Kavita Sharma', message: null, statusLabel: 'In progress...', statusKey: 'progress', time: '18 min ago', tooltip: 'Kavita Sharma · New lead this week',
+            transcript: [
+              { from: 'patient', text: "What's the price of the Forest Edge villa?", time: '2:40 PM' },
+              { from: 'riya', text: 'Forest Edge starts at ₹3.8 Cr for the 4BHK unit. Would you like the full price sheet?', time: '2:41 PM' },
+              { from: 'patient', text: 'Yes, and does it include parking?', time: '2:43 PM' },
+            ] },
+          { key: 'amit', initials: 'AB', name: 'Amit Bansal', message: '"Confirming site visit tomorrow 11 AM."', statusLabel: 'Confirmed ✓', statusKey: 'confirmed', time: '1h ago', tooltip: 'Amit Bansal · Repeat client since Jan 2025',
+            transcript: [
+              { from: 'riya', text: 'Hi Amit, confirming your site visit tomorrow at 11 AM for the Ocean View property. Reply YES to confirm.', time: '11:02 AM' },
+              { from: 'patient', text: 'Confirming site visit tomorrow 11 AM.', time: '11:05 AM' },
+              { from: 'riya', text: 'Great, see you then!', time: '11:05 AM' },
+            ] },
+        ],
+        schedule: [
+          { key: 'rahul', time: '10:00 AM', name: 'Rahul Menon', service: 'Sky Villa Tour', dot: 'emerald', modal: { rows: [['Client Since', 'New lead (this week)'], ['Property Interest History', 'First-time buyer, referred via Instagram ad.'], ['Notes', 'High urgency — relocating next month.']] } },
+          { key: 'priyar', time: '11:30 AM', name: 'Priya Reddy', service: 'Forest Edge Tour', dot: 'emerald', modal: { rows: [['Client Since', 'Feb 2026'], ['Property Interest History', 'Viewed 2 properties previously, still deciding.'], ['Notes', 'Prefers gated community with sea view.']] } },
+          { key: 'amit', time: '1:00 PM', name: 'Amit Bansal', service: 'Repeat Client Meeting', dot: 'indigo', modal: { rows: [['Client Since', 'Jan 2025 (repeat client)'], ['Property Interest History', 'Purchased a 2BHK last year, exploring investment property.'], ['Notes', 'Cash buyer — fast closing possible.']] } },
+          { key: 'kavita', time: '3:00 PM', name: 'Kavita Sharma', service: 'Ocean View Tour', dot: 'amber', pulse: true, modal: { rows: [['Client Since', 'New lead (this week)'], ['Property Interest History', 'Inquired about Forest Edge pricing via website.'], ['Notes', 'Price-sensitive — considering EMI options.']] } },
+          { key: 'deepak', time: '4:30 PM', name: 'Deepak Iyer', service: 'Investment Consultation', dot: 'amber', pulse: true, modal: { rows: [['Client Since', 'New lead'], ['Property Interest History', 'Exploring investment properties for rental yield.'], ['Notes', 'Wants ROI projections before committing.']] } },
+          { key: 'nisha', time: '6:00 PM', name: 'Nisha Patel', service: 'Final Walkthrough', dot: 'indigo', modal: { rows: [['Client Since', 'Mar 2026'], ['Property Interest History', 'Final walkthrough before possession — 3BHK Sky Villa.'], ['Notes', 'Bringing interior designer to walkthrough.']] } },
+        ],
+        insights: [
+          { icon: 'sparkle', text: "8 leads from last month haven't been re-contacted — reactivation suggested", buttonLabel: 'Send reactivation campaign', toastMessage: 'Campaign queued for 8 leads' },
+          { icon: 'calendar', text: 'Weekend site visits get 2.3x higher conversion — consider Sunday openings', buttonLabel: 'Optimize schedule', toastMessage: 'Optimization suggestions saved' },
+          { icon: 'user', text: 'Sky Villa listing has 3x page views but only 1 booking — price positioning may be off', buttonLabel: 'Review Sky Villa pricing', toastMessage: 'Pricing review sent to Mr. Kapoor' },
+        ],
+      },
+      website: {
+        domain: 'aurumrealty.in', noun: 'qualified leads',
+        kpis: [
+          { label: 'Monthly Visitors', value: 5120, trendDir: 'up', trendPct: '+32%', tooltip: '+32% vs. last month' },
+          { label: 'Bounce Rate', value: 41, suffix: '%', trendDir: 'down', trendPct: '-9%', tooltip: '-9% vs. last month' },
+          { label: 'Avg. Session', staticValue: '4m 08s' },
+          { label: 'Conversions this month', value: 47, subLabel: 'qualified leads' },
+        ],
+        traffic: [
+          { label: 'Google Search', pct: 62, color: 'bg-indigo-600' },
+          { label: 'Instagram', pct: 21, color: 'bg-emerald-500' },
+          { label: 'Direct', pct: 12, color: 'bg-indigo-400' },
+          { label: 'WhatsApp', pct: 5, color: 'bg-emerald-400' },
+        ],
+        topPages: [ ['Home', 2140], ['Properties', 1890], ['Sky Villa', 1205], ['Contact', 680] ],
+        actions: [
+          { type: 'check', text: 'Rahul submitted lead form for Sky Villa', time: '8 min ago' },
+          { type: 'download', text: 'Kavita downloaded floor plans', time: '45 min ago' },
+          { type: 'check', text: 'Amit booked site visit', time: '2h ago' },
+        ],
+      },
+      agents: {
+        agentName: 'Arya', agentInitial: 'A', statusText: 'Active · Qualifying leads 24/7',
+        kpis: [
+          { label: 'Leads Qualified', value: 48, subLabel: 'this week' },
+          { label: 'Site Visits Booked', value: 22, subLabel: 'this week' },
+          { label: 'Avg. Response Time', value: 8, suffix: ' sec' },
+          { label: 'Languages', staticValue: 'Hindi + English' },
+        ],
+        conversations: [
+          { initials: 'PR', name: 'Priya Reddy', message: '"Do you have any 2BHK options in Whitefield?"', statusLabel: 'Info Given', statusKey: 'info', time: '10 min ago', tooltip: 'Priya Reddy · Client since Feb 2026' },
+          { initials: 'KS', name: 'Kavita Sharma', message: '"What\'s the price of Forest Edge villa?"', statusLabel: 'Info Given', statusKey: 'info', time: '25 min ago', tooltip: 'Kavita Sharma · New lead this week' },
+          { initials: 'DI', name: 'Deepak Iyer', message: '"Can you explain the home loan partnership options?"', statusLabel: 'Info Given', statusKey: 'info', time: '40 min ago', tooltip: 'Deepak Iyer · New lead' },
+          { initials: 'NP', name: 'Nisha Patel', message: '"Can I get a virtual tour link for Sky Villa?"', statusLabel: 'Booked', statusKey: 'booked', time: '1h ago', tooltip: 'Nisha Patel · Client since Mar 2026' },
+          { initials: 'AB', name: 'Amit Bansal', message: "\"I'd like to negotiate the price before confirming.\"", statusLabel: 'Transferred to Human', statusKey: 'transferred', time: '2h ago', tooltip: 'Amit Bansal · Repeat client since Jan 2025' },
+        ],
+        summaryHtml: 'Qualified <span class="text-neutral-900 dark:text-neutral-50 font-medium">12 new leads</span>, answered <span class="text-neutral-900 dark:text-neutral-50 font-medium">18 pricing questions</span>, sent <span class="text-neutral-900 dark:text-neutral-50 font-medium">8 property brochures</span>, booked 5 site visits, transferred 2 negotiation cases to Mr. Kapoor.',
+        learningText: 'Arya has learned 9 new buyer objection patterns this week.',
+      },
+    },
+    gym: {
+      name: 'FitZone Gym', initials: 'KM', greetingName: 'Karan', agentUptime: '21 days',
+      overview: {
+        kpis: [
+          { label: "Today's Sessions", value: 34 },
+          { label: 'AI Sign-ups (24h)', value: 9 },
+          { label: 'Pending Trial Bookings', value: 6 },
+          { label: 'Revenue Today', value: 42000, prefix: '₹' },
+        ],
+        kpiCharts: {
+          kpi1: { title: "Today's Sessions", subtitle: 'Sessions scheduled, last 7 days', values: makeWeekSeries(34) },
+          kpi2: { title: 'AI Sign-ups (24h)', subtitle: 'Sign-ups the AI assistant closed without staff involvement', values: makeWeekSeries(9) },
+          kpi3: { title: 'Pending Trial Bookings', subtitle: 'Trials yet to confirm, reminders sent automatically', values: makeWeekSeries(6) },
+          kpi4: { title: 'Revenue Today', subtitle: 'Revenue collected, last 7 days (₹ thousands)', values: [38, 45, 30, 50, 40, 25, 42] },
+        },
+        summaryHtml: 'Good afternoon Karan. Today you have <span class="text-neutral-900 dark:text-neutral-50 font-medium">34 training sessions</span> scheduled, including 5 personal training slots. 6 trial members haven\'t confirmed — I\'ve sent WhatsApp reminders. Yesterday I signed up <span class="text-neutral-900 dark:text-neutral-50 font-medium">9 new members</span> while you were on the floor. Trial-to-membership conversion this week: <span class="text-emerald-600 dark:text-emerald-400 font-medium">41%</span> (up from 28% last month).',
+        conversations: [
+          { key: 'rohit', initials: 'RS', name: 'Rohit Sharma', message: '"Book my free trial for tomorrow morning."', statusLabel: 'Booked ✓', statusKey: 'booked', time: '3 min ago', tooltip: 'Rohit Sharma · New lead this week',
+            transcript: [
+              { from: 'patient', text: 'Hi, can I book a free trial for tomorrow morning?', time: '6:02 PM' },
+              { from: 'riya', text: 'Hi Rohit! We have trial slots at 7 AM and 10 AM tomorrow — which works?', time: '6:03 PM' },
+              { from: 'patient', text: '10 AM works great.', time: '6:04 PM' },
+              { from: 'riya', text: 'Booked! See you tomorrow at 10 AM for your free trial.', time: '6:04 PM' },
+            ] },
+          { key: 'neha', initials: 'NK', name: 'Neha Kapoor', message: null, statusLabel: 'In progress...', statusKey: 'progress', time: '22 min ago', tooltip: 'Neha Kapoor · New lead this week',
+            transcript: [
+              { from: 'patient', text: 'What are your monthly membership plans?', time: '5:40 PM' },
+              { from: 'riya', text: 'We have three plans: Basic (₹1,500/mo), Pro (₹2,500/mo with PT sessions), and Elite (₹4,000/mo all-access). Want the full breakdown?', time: '5:41 PM' },
+              { from: 'patient', text: 'Yes, and does Pro include group classes?', time: '5:43 PM' },
+            ] },
+          { key: 'vikramj', initials: 'VJ', name: 'Vikram Joshi', message: '"Confirming PT session at 6 AM."', statusLabel: 'Confirmed ✓', statusKey: 'confirmed', time: '1h ago', tooltip: 'Vikram Joshi · Member since Jan 2025',
+            transcript: [
+              { from: 'riya', text: 'Hi Vikram, confirming your PT session tomorrow at 6 AM. Reply YES to confirm.', time: '4:15 PM' },
+              { from: 'patient', text: 'Confirming PT session at 6 AM.', time: '4:20 PM' },
+              { from: 'riya', text: 'Perfect, see you at 6 AM!', time: '4:20 PM' },
+            ] },
+        ],
+        schedule: [
+          { key: 'vikramj', time: '6:00 AM', name: 'Vikram Joshi', service: 'Personal Training', dot: 'emerald', modal: { rows: [['Member Since', 'Jan 2025'], ['Session History', '12-week PT program, week 8 of 12.'], ['Notes', 'Focused on strength training — avoid heavy shoulder press (old injury).']] } },
+          { key: 'yoga', time: '8:00 AM', name: 'Morning Yoga Batch', service: 'Group Class (12 members)', dot: 'indigo', modal: { rows: [['Class Type', 'All-levels Hatha Yoga, 45 min'], ['Typical Attendance', '10-14 members typically'], ['Notes', 'Popular with the 30+ demographic — consider a second weekly slot.']] } },
+          { key: 'rohit', time: '10:00 AM', name: 'Rohit Sharma', service: 'Free Trial', dot: 'amber', pulse: true, modal: { rows: [['Lead Source', 'Instagram ad'], ['Interest', 'Weight loss + strength training'], ['Notes', 'First gym membership — nervous, ease him in gently.']] } },
+          { key: 'hiit', time: '5:00 PM', name: 'Evening HIIT', service: 'Group Class (18 members)', dot: 'indigo', modal: { rows: [['Class Type', 'High-Intensity Interval Training, 40 min'], ['Typical Attendance', '16-20 members typically'], ['Notes', 'Highest-energy class of the day — trainer rotation recommended.']] } },
+          { key: 'neha', time: '6:30 PM', name: 'Neha Kapoor', service: 'Consultation', dot: 'amber', pulse: true, modal: { rows: [['Member Since', 'New lead (this week)'], ['Interest', 'Comparing Pro vs Elite plans'], ['Notes', 'Undecided on PT add-on — needs a follow-up call.']] } },
+          { key: 'crossfit', time: '8:00 PM', name: 'CrossFit Batch', service: 'Group Class (14 members)', dot: 'indigo', modal: { rows: [['Class Type', 'CrossFit-style circuit, 50 min'], ['Typical Attendance', '12-16 members typically'], ['Notes', 'Requires certified CrossFit trainer — Karan usually leads this one.']] } },
+        ],
+        insights: [
+          { icon: 'sparkle', text: "12 members haven't checked in for 14+ days — churn risk detected", buttonLabel: 'Send reactivation campaign', toastMessage: 'Campaign queued for 12 members' },
+          { icon: 'calendar', text: 'Peak hour is 6-8 PM — consider adding a second trainer', buttonLabel: 'Optimize schedule', toastMessage: 'Optimization suggestions saved' },
+          { icon: 'user', text: 'Trial-to-paid conversion drops after Day 3 — automated follow-up suggested', buttonLabel: 'Enable auto follow-up', toastMessage: 'Automated follow-up sequence enabled' },
+        ],
+      },
+      website: {
+        domain: 'fitzonegym.in', noun: 'members',
+        kpis: [
+          { label: 'Monthly Visitors', value: 2890, trendDir: 'up', trendPct: '+24%', tooltip: '+24% vs. last month' },
+          { label: 'Bounce Rate', value: 38, suffix: '%', trendDir: 'down', trendPct: '-4%', tooltip: '-4% vs. last month' },
+          { label: 'Avg. Session', staticValue: '1m 52s' },
+          { label: 'Conversions this month', value: 68, subLabel: 'trial bookings' },
+        ],
+        traffic: [
+          { label: 'Instagram', pct: 44, color: 'bg-indigo-600' },
+          { label: 'Google Search', pct: 32, color: 'bg-emerald-500' },
+          { label: 'WhatsApp', pct: 14, color: 'bg-indigo-400' },
+          { label: 'Direct', pct: 10, color: 'bg-emerald-400' },
+        ],
+        topPages: [ ['Home', 1510], ['Membership Plans', 940], ['Book Trial', 720], ['Classes', 390] ],
+        actions: [
+          { type: 'check', text: 'Rohit booked free trial via website', time: '15 min ago' },
+          { type: 'mail', text: 'Neha submitted membership inquiry', time: '1h ago' },
+          { type: 'download', text: 'Vikram downloaded workout plan PDF', time: '3h ago' },
+        ],
+      },
+      agents: {
+        agentName: 'Zara', agentInitial: 'Z', statusText: 'Active · Onboarding members 24/7',
+        kpis: [
+          { label: 'Members Onboarded', value: 21, subLabel: 'this week' },
+          { label: 'Trial Sessions Booked', value: 34, subLabel: 'this week' },
+          { label: 'Avg. Response Time', value: 6, suffix: ' sec' },
+          { label: 'Languages', staticValue: 'Hindi + English' },
+        ],
+        conversations: [
+          { initials: 'RS', name: 'Rohit Sharma', message: '"Book my free trial for tomorrow morning."', statusLabel: 'Booked', statusKey: 'booked', time: '5 min ago', tooltip: 'Rohit Sharma · New lead this week' },
+          { initials: 'NK', name: 'Neha Kapoor', message: '"What are your monthly membership plans?"', statusLabel: 'Info Given', statusKey: 'info', time: '20 min ago', tooltip: 'Neha Kapoor · New lead this week' },
+          { initials: 'AR', name: 'Ananya Rao', message: '"What time is the evening HIIT class?"', statusLabel: 'Info Given', statusKey: 'info', time: '35 min ago', tooltip: 'Ananya Rao · Member' },
+          { initials: 'VJ', name: 'Vikram Joshi', message: '"Do you have PT slots available on weekends?"', statusLabel: 'Info Given', statusKey: 'info', time: '50 min ago', tooltip: 'Vikram Joshi · Member since Jan 2025' },
+          { initials: 'SP', name: 'Suresh Pillai', message: '"I need to cancel my membership, can we talk?"', statusLabel: 'Transferred to Human', statusKey: 'transferred', time: '1h ago', tooltip: 'Suresh Pillai · Member' },
+        ],
+        summaryHtml: 'Onboarded <span class="text-neutral-900 dark:text-neutral-50 font-medium">4 new members</span>, answered <span class="text-neutral-900 dark:text-neutral-50 font-medium">16 pricing questions</span>, sent <span class="text-neutral-900 dark:text-neutral-50 font-medium">11 class schedule reminders</span>, booked 7 trial sessions, transferred 1 refund query to Karan.',
+        learningText: 'Zara has learned 6 new membership objection patterns this week.',
+      },
     },
   };
+
+  let currentBusiness = 'dental';
+
+  // ---------- Render helpers ----------
+  function trendBadgeHtml(kpi) {
+    if (!kpi.trendPct) return '';
+    const isDown = kpi.trendDir === 'down';
+    return `<span class="flex items-center gap-0.5 text-xs font-semibold ${isDown ? 'text-red-600 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400'} mb-1">${isDown ? ICON_TREND_DOWN : ICON_TREND_UP}${kpi.trendPct}</span>`;
+  }
+  function kpiValueHtml(kpi) {
+    if (kpi.staticValue) {
+      return `<p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">${kpi.staticValue}</p>`;
+    }
+    const prefixAttr = kpi.prefix ? ` data-prefix="${kpi.prefix}"` : '';
+    const suffixAttr = kpi.suffix ? ` data-suffix="${kpi.suffix}"` : '';
+    return `<p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="${kpi.value}"${prefixAttr}${suffixAttr}>0</p>`;
+  }
+  function overviewKpiCardHtml(kpi, kpiKey) {
+    const tooltipAttr = kpi.tooltip ? ` data-tooltip="${kpi.tooltip}"` : '';
+    const subLabel = kpi.subLabel ? `<p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-1">${kpi.subLabel}</p>` : '';
+    return `
+      <button onclick="openKpiModal('${kpiKey}')"${tooltipAttr} class="text-left rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 hover:border-gray-300 dark:hover:border-neutral-700 transition-all duration-200">
+        <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">${kpi.label}</p>
+        <div class="flex items-end justify-between">
+          ${kpiValueHtml(kpi)}
+          ${trendBadgeHtml(kpi)}
+        </div>
+        ${subLabel}
+      </button>
+    `;
+  }
+  function staticKpiCardHtml(kpi) {
+    const tooltipAttr = kpi.tooltip ? ` data-tooltip="${kpi.tooltip}" cursor-help` : '';
+    const subLabel = kpi.subLabel ? `<p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-1">${kpi.subLabel}</p>` : '';
+    return `
+      <div${tooltipAttr} class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
+        <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">${kpi.label}</p>
+        <div class="flex items-end justify-between">
+          ${kpiValueHtml(kpi)}
+          ${trendBadgeHtml(kpi)}
+        </div>
+        ${subLabel}
+      </div>
+    `;
+  }
+  function convoCardHtml(c) {
+    const body = c.statusKey === 'progress'
+      ? `<div class="flex items-center gap-1 h-4">
+           <span class="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-neutral-500 typing-dot"></span>
+           <span class="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-neutral-500 typing-dot"></span>
+           <span class="w-1.5 h-1.5 rounded-full bg-gray-400 dark:bg-neutral-500 typing-dot"></span>
+         </div>`
+      : `<p class="text-xs text-gray-500 dark:text-neutral-400 line-clamp-2">${c.message}</p>`;
+    return `
+      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
+        <div class="flex items-center justify-between mb-2.5">
+          <div class="flex items-center gap-2">
+            <div data-tooltip="${c.tooltip}" class="w-7 h-7 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 cursor-help">${c.initials}</div>
+            <span class="text-sm font-medium text-neutral-900 dark:text-neutral-50">${c.name}</span>
+          </div>
+          <button onclick="openTranscriptModal('${c.key}')" class="text-[10px] font-semibold px-2 py-0.5 rounded-md ${STATUS_BADGE[c.statusKey]} whitespace-nowrap transition-colors">${c.statusLabel}</button>
+        </div>
+        ${body}
+        <p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-2.5">${c.time}</p>
+      </div>
+    `;
+  }
+  function scheduleRowHtml(item) {
+    const pulseClass = item.pulse ? ' status-pulse' : '';
+    return `
+      <button onclick="openScheduleModal('${item.key}')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 -mx-2 px-2 rounded-lg transition-colors text-left">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="w-2 h-2 rounded-full ${DOT_COLOR[item.dot]}${pulseClass} shrink-0"></span>
+          <span class="text-xs text-gray-500 dark:text-neutral-400 font-mono w-16 shrink-0">${item.time}</span>
+          <span class="text-sm text-neutral-900 dark:text-neutral-50 truncate">${item.name}</span>
+        </div>
+        <span class="text-[11px] font-medium text-gray-600 dark:text-neutral-300 bg-gray-100 dark:bg-neutral-800 rounded-md px-2 py-0.5 shrink-0 ml-2">${item.service}</span>
+      </button>
+    `;
+  }
+  function insightCardHtml(insight) {
+    return `
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0">${ICONS[insight.icon]}</span>
+          <p class="text-sm text-neutral-700 dark:text-neutral-300">${insight.text}</p>
+        </div>
+        <button onclick="showToast('${insight.toastMessage}')" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-[1.02] transition-all duration-200">${insight.buttonLabel}</button>
+      </div>
+    `;
+  }
+  function previewCardHtml(domain) {
+    return `
+      <img src="https://placehold.co/240x150/eef2ff/4f46e5?text=${encodeURIComponent(domain)}" alt="${domain} website preview" class="rounded-lg border border-gray-200 dark:border-neutral-800 w-full sm:w-40 shrink-0" />
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">${domain}</p>
+        <p class="text-xs text-gray-500 dark:text-neutral-400 mt-1">Live · Built &amp; hosted by NoirFlow · SSL secured</p>
+        <a href="https://noirflow.ai" target="_blank" rel="noopener" class="inline-flex items-center gap-1 mt-2 text-xs font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">
+          View site
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+        </a>
+      </div>
+    `;
+  }
+  function trafficRowHtml(t) {
+    return `
+      <div>
+        <div class="flex items-center justify-between text-xs mb-1">
+          <span class="text-neutral-700 dark:text-neutral-300 font-medium">${t.label}</span>
+          <span class="text-gray-500 dark:text-neutral-400">${t.pct}%</span>
+        </div>
+        <div class="h-2 rounded-full bg-gray-100 dark:bg-neutral-800 overflow-hidden">
+          <div class="h-full ${t.color} rounded-full" style="width:${t.pct}%"></div>
+        </div>
+      </div>
+    `;
+  }
+  function pageRowHtml(p) {
+    return `
+      <div class="flex items-center justify-between py-2 text-sm">
+        <span class="text-neutral-700 dark:text-neutral-300">${p[0]}</span>
+        <span class="text-gray-500 dark:text-neutral-400 font-mono text-xs">${p[1].toLocaleString('en-IN')} views</span>
+      </div>
+    `;
+  }
+  function actionRowHtml(a) {
+    const icon = ACTION_ICONS[a.type];
+    return `
+      <div class="flex items-start gap-2.5">
+        <span class="w-6 h-6 rounded-full ${icon.bg} flex items-center justify-center shrink-0 mt-0.5">
+          <span class="${icon.color}">${icon.svg}</span>
+        </span>
+        <p class="text-sm text-neutral-700 dark:text-neutral-300 leading-snug">${a.text} <span class="block text-xs text-gray-400 dark:text-neutral-500 mt-0.5">${a.time}</span></p>
+      </div>
+    `;
+  }
+  function agentConvoRowHtml(c) {
+    return `
+      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-3.5 flex items-center gap-3 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
+        <div data-tooltip="${c.tooltip}" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-600 dark:text-neutral-300 shrink-0 cursor-help">${c.initials}</div>
+        <div class="min-w-0 flex-1">
+          <p class="text-sm font-medium text-neutral-900 dark:text-neutral-50">${c.name}</p>
+          <p class="text-xs text-gray-500 dark:text-neutral-400 truncate">${c.message}</p>
+        </div>
+        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md ${STATUS_BADGE[c.statusKey]} shrink-0 whitespace-nowrap">${c.statusLabel}</span>
+        <span class="text-[11px] text-gray-400 dark:text-neutral-500 shrink-0 hidden sm:block">${c.time}</span>
+      </div>
+    `;
+  }
+
+  function renderOverview(biz) {
+    document.getElementById('greeting-name').textContent = biz.greetingName;
+    document.getElementById('ov-kpis').innerHTML = biz.overview.kpis.map((k, i) => overviewKpiCardHtml(k, 'kpi' + (i + 1))).join('');
+    document.getElementById('ov-summary').innerHTML = biz.overview.summaryHtml;
+    document.getElementById('ov-conversations').innerHTML = biz.overview.conversations.map(convoCardHtml).join('');
+    document.getElementById('ov-schedule').innerHTML = biz.overview.schedule.map(scheduleRowHtml).join('');
+    document.getElementById('ov-insights').innerHTML = biz.overview.insights.map(insightCardHtml).join('');
+    animateCountUpsIn(document.getElementById('ov-kpis'));
+    initTooltips();
+  }
+  function renderWebsite(biz) {
+    document.getElementById('web-subtitle').textContent = `How ${biz.website.domain} is converting visitors into ${biz.website.noun}`;
+    document.getElementById('web-preview').innerHTML = previewCardHtml(biz.website.domain);
+    document.getElementById('web-kpis').innerHTML = biz.website.kpis.map(staticKpiCardHtml).join('');
+    document.getElementById('web-traffic').innerHTML = biz.website.traffic.map(trafficRowHtml).join('');
+    document.getElementById('web-toppages').innerHTML = biz.website.topPages.map(pageRowHtml).join('');
+    document.getElementById('web-actions').innerHTML = biz.website.actions.map(actionRowHtml).join('');
+    animateCountUpsIn(document.getElementById('web-kpis'));
+    initTooltips();
+  }
+  function renderAgents(biz) {
+    const a = biz.agents;
+    document.getElementById('agent-subtitle').textContent = `What your AI ${biz === BUSINESS_DATA.dental ? 'receptionist' : biz === BUSINESS_DATA.realty ? 'property assistant' : 'coach assistant'} has been doing`;
+    document.getElementById('agent-header').innerHTML = `
+      <div class="w-11 h-11 rounded-full bg-indigo-600 text-white flex items-center justify-center text-base font-semibold shrink-0">${a.agentInitial}</div>
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">${a.agentName} — Your AI ${biz === BUSINESS_DATA.realty ? 'Property Assistant' : biz === BUSINESS_DATA.gym ? 'Fitness Coach Assistant' : 'Receptionist'}</p>
+        <p class="text-xs text-gray-500 dark:text-neutral-400 flex items-center gap-1.5 mt-0.5 cursor-help" data-tooltip="${a.agentName} has been running for ${biz.agentUptime} without downtime">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          ${a.statusText}
+        </p>
+      </div>
+    `;
+    document.getElementById('agent-kpis').innerHTML = a.kpis.map(staticKpiCardHtml).join('');
+    document.getElementById('agent-conversations').innerHTML = a.conversations.map(agentConvoRowHtml).join('');
+    document.getElementById('agent-summary').innerHTML = `
+      <div class="flex items-center gap-2 mb-2.5">
+        ${ICONS.sparkle}
+        <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight">What ${a.agentName} Handled Today</h2>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-neutral-300 leading-relaxed">${a.summaryHtml}</p>
+    `;
+    document.getElementById('agent-learning').innerHTML = `
+      <span class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center shrink-0">${ICONS.sparkle}</span>
+      <p class="text-sm text-neutral-700 dark:text-neutral-300"><span class="font-medium text-neutral-900 dark:text-neutral-50">Learning Insights:</span> ${a.learningText}</p>
+    `;
+    animateCountUpsIn(document.getElementById('agent-kpis'));
+    initTooltips();
+  }
+
   function switchBusiness(key) {
-    const b = BUSINESSES[key];
-    if (!b) return;
-    document.getElementById('biz-name').textContent = b.name;
-    document.getElementById('user-initials').textContent = b.initials;
-    document.getElementById('greeting-name').textContent = b.greetingName;
-    document.getElementById('kpi1-label').textContent = b.kpi1Label;
-    document.getElementById('kpi1-value').textContent = b.kpi1Value;
-    document.getElementById('kpi3-label').textContent = b.kpi3Label;
-    document.getElementById('kpi3-value').textContent = b.kpi3Value;
-    document.getElementById('revenue-value').textContent = b.revenueValue;
+    const biz = BUSINESS_DATA[key];
+    if (!biz) return;
+    currentBusiness = key;
+    try { localStorage.setItem('selectedBusiness', key); } catch (e) {}
+    document.getElementById('biz-name').textContent = biz.name;
+    document.getElementById('user-initials').textContent = biz.initials;
+    renderOverview(biz);
+    renderWebsite(biz);
+    renderAgents(biz);
     document.querySelectorAll('[data-biz-option]').forEach((el) => {
       el.querySelector('[data-check]').classList.toggle('opacity-0', el.dataset.bizOption !== key);
     });
@@ -986,34 +1078,17 @@
     }, 3000);
   }
 
-  // ---------- KPI modal (fake chart) ----------
-  const KPI_DATA = {
-    kpi1: {
-      title: "Today's Appointments", subtitle: 'Appointments booked, last 7 days',
-      values: [{ day: 'Mon', value: 10 }, { day: 'Tue', value: 14 }, { day: 'Wed', value: 11 }, { day: 'Thu', value: 15 }, { day: 'Fri', value: 13 }, { day: 'Sat', value: 9 }, { day: 'Sun', value: 12 }],
-    },
-    kpi2: {
-      title: 'AI Bookings (24h)', subtitle: 'Bookings the AI assistant closed without staff involvement',
-      values: [{ day: 'Mon', value: 3 }, { day: 'Tue', value: 5 }, { day: 'Wed', value: 4 }, { day: 'Thu', value: 6 }, { day: 'Fri', value: 5 }, { day: 'Sat', value: 2 }, { day: 'Sun', value: 7 }],
-    },
-    kpi3: {
-      title: 'Pending Confirmations', subtitle: 'Patients yet to confirm, reminders sent automatically',
-      values: [{ day: 'Mon', value: 5 }, { day: 'Tue', value: 4 }, { day: 'Wed', value: 6 }, { day: 'Thu', value: 3 }, { day: 'Fri', value: 4 }, { day: 'Sat', value: 2 }, { day: 'Sun', value: 3 }],
-    },
-    kpi4: {
-      title: 'Revenue Today', subtitle: 'Revenue collected, last 7 days (₹ thousands)',
-      values: [{ day: 'Mon', value: 14 }, { day: 'Tue', value: 19 }, { day: 'Wed', value: 12 }, { day: 'Thu', value: 22 }, { day: 'Fri', value: 17 }, { day: 'Sat', value: 9 }, { day: 'Sun', value: 18.5 }],
-    },
-  };
+  // ---------- KPI modal (fake chart, reads current business) ----------
   function openKpiModal(key) {
-    const d = KPI_DATA[key];
-    const max = Math.max(...d.values.map((v) => v.value));
-    const bars = d.values.map((v) => `
+    const d = BUSINESS_DATA[currentBusiness].overview.kpiCharts[key];
+    const max = Math.max(...d.values);
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const bars = d.values.map((value, i) => `
       <div class="flex flex-col items-center gap-1.5 flex-1">
         <div class="w-full h-20 bg-indigo-50 dark:bg-indigo-500/10 rounded-t-[4px] flex items-end overflow-hidden">
-          <div class="w-full bg-indigo-600 rounded-t-[4px]" style="height:${Math.round((v.value / max) * 100)}%"></div>
+          <div class="w-full bg-indigo-600 rounded-t-[4px]" style="height:${Math.round((value / max) * 100)}%"></div>
         </div>
-        <span class="text-[10px] text-gray-400 dark:text-neutral-500 font-medium">${v.day}</span>
+        <span class="text-[10px] text-gray-400 dark:text-neutral-500 font-medium">${days[i]}</span>
       </div>
     `).join('');
     openModal(`
@@ -1028,37 +1103,11 @@
     `);
   }
 
-  // ---------- Transcript modal ----------
-  const TRANSCRIPTS = {
-    priya: {
-      name: 'Priya Mohanty', initials: 'PM', status: 'Booked ✓', statusClass: 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-500/20',
-      messages: [
-        { from: 'patient', text: 'Hi, I need to book a cleaning sometime this week.', time: '11:42 AM' },
-        { from: 'riya', text: 'Hi Priya! I have an opening Thursday at 4 PM, or Friday at 10 AM — which works better?', time: '11:42 AM' },
-        { from: 'patient', text: 'Thursday 4 PM works great.', time: '11:44 AM' },
-        { from: 'riya', text: 'Perfect, see you Thursday at 4 PM for the cleaning! I\'ll send a reminder the day before.', time: '11:44 AM' },
-      ],
-    },
-    rakesh: {
-      name: 'Rakesh Patra', initials: 'RP', status: 'In progress...', statusClass: 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-100 dark:border-amber-500/20',
-      messages: [
-        { from: 'patient', text: 'I felt some sensitivity after my last cleaning, is that normal?', time: '2:58 PM' },
-        { from: 'riya', text: 'Mild sensitivity for a day or two is common after a cleaning. If it lasts more than 3 days I\'ll get Dr. Sharma to take a quick look — want me to flag it for review?', time: '2:59 PM' },
-        { from: 'patient', text: 'Yes please, and can I also move my 3:15 appointment tomorrow?', time: '3:01 PM' },
-      ],
-    },
-    anjali: {
-      name: 'Anjali Das', initials: 'AD', status: 'Confirmed ✓', statusClass: 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20',
-      messages: [
-        { from: 'riya', text: 'Hi Anjali, just confirming your RCT follow-up tomorrow at 11 AM with Dr. Sharma. Reply YES to confirm.', time: '10:15 AM' },
-        { from: 'patient', text: 'Yes, confirming my RCT appointment tomorrow at 11 AM.', time: '10:20 AM' },
-        { from: 'riya', text: 'Great, you\'re all set! See you then.', time: '10:20 AM' },
-      ],
-    },
-  };
+  // ---------- Transcript modal (reads current business) ----------
   function openTranscriptModal(key) {
-    const t = TRANSCRIPTS[key];
-    const bubbles = t.messages.map((m) => `
+    const t = BUSINESS_DATA[currentBusiness].overview.conversations.find((c) => c.key === key);
+    if (!t) return;
+    const bubbles = t.transcript.map((m) => `
       <div class="flex ${m.from === 'riya' ? 'justify-end' : 'justify-start'}">
         <div class="max-w-[80%] rounded-lg px-3 py-2 text-sm ${m.from === 'riya' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100'}">
           <p>${m.text}</p>
@@ -1073,7 +1122,7 @@
             <div class="w-8 h-8 rounded-full bg-gray-100 dark:bg-neutral-800 flex items-center justify-center text-xs font-semibold text-neutral-600 dark:text-neutral-300 shrink-0">${t.initials}</div>
             <div>
               <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50">${t.name}</p>
-              <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${t.statusClass}">${t.status}</span>
+              <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${STATUS_BADGE[t.statusKey]}">${t.statusLabel}</span>
             </div>
           </div>
           <button onclick="closeModal()" class="text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-800" aria-label="Close">${ICON_X}</button>
@@ -1083,36 +1132,26 @@
     `);
   }
 
-  // ---------- Patient modal ----------
-  const PATIENTS = {
-    priya: { name: 'Priya Mohanty', initials: 'PM', time: '9:00 AM', procedure: 'Cleaning', lastVisit: 'Mar 3, 2026', history: 'Routine cleaning (x4), one cavity filling in 2024.', notes: 'Prefers morning slots. No known allergies.' },
-    suresh: { name: 'Suresh Nair', initials: 'SN', time: '10:00 AM', procedure: 'RCT', lastVisit: 'Aug 21, 2025', history: 'Root canal started on lower molar, session 2 of 3.', notes: 'Mildly anxious — talk through each step before starting.' },
-    anjali: { name: 'Anjali Das', initials: 'AD', time: '11:00 AM', procedure: 'RCT Follow-up', lastVisit: 'Sep 5, 2026', history: 'RCT completed last month, healing well.', notes: 'Confirmed via WhatsApp this morning.' },
-    vikram: { name: 'Vikram Reddy', initials: 'VR', time: '12:30 PM', procedure: 'Implant Consultation', lastVisit: 'New patient', history: 'Referred by Priya Mohanty. No prior records on file.', notes: 'High-value consult — bring implant pricing sheet.' },
-    meera: { name: 'Meera Iyer', initials: 'MI', time: '2:00 PM', procedure: 'Veneer Fitting', lastVisit: 'Jul 30, 2026', history: 'Veneer impressions taken 2 weeks ago, ready for fitting.', notes: 'Wants shade matched to front incisors.' },
-    rakesh: { name: 'Rakesh Patra', initials: 'RP', time: '3:15 PM', procedure: 'Cleaning', lastVisit: 'Mar 10, 2026', history: 'Routine cleaning, mild gum sensitivity noted last visit.', notes: 'Reported sensitivity after last cleaning — check in.' },
-    deepak: { name: 'Deepak Joshi', initials: 'DJ', time: '4:00 PM', procedure: 'Implant Consultation', lastVisit: 'New patient', history: 'Inquired online about implant costs last week.', notes: 'Price-sensitive — walk through financing options.' },
-    kavita: { name: 'Kavita Menon', initials: 'KM', time: '5:30 PM', procedure: 'Cleaning', lastVisit: 'Mar 15, 2026', history: 'Routine cleaning every 6 months, excellent oral hygiene.', notes: 'Usually books next appointment on the spot.' },
-  };
-  function openPatientModal(key) {
-    const p = PATIENTS[key];
+  // ---------- Schedule modal (reads current business) ----------
+  function openScheduleModal(key) {
+    const item = BUSINESS_DATA[currentBusiness].overview.schedule.find((s) => s.key === key);
+    if (!item) return;
+    const rows = item.modal.rows.map(([label, value]) => `
+      <div><dt class="text-xs font-medium text-gray-500 dark:text-neutral-500 mb-0.5">${label}</dt><dd class="text-neutral-900 dark:text-neutral-100">${value}</dd></div>
+    `).join('');
     openModal(`
       <div class="p-5">
         <div class="flex items-center justify-between mb-4">
           <div class="flex items-center gap-2.5">
-            <div class="w-9 h-9 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center text-xs font-semibold text-indigo-700 dark:text-indigo-400 shrink-0">${p.initials}</div>
+            <div class="w-9 h-9 rounded-full bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center text-xs font-semibold text-indigo-700 dark:text-indigo-400 shrink-0">${item.name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()}</div>
             <div>
-              <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight">${p.name}</p>
-              <p class="text-xs text-gray-500 dark:text-neutral-400">${p.time} · ${p.procedure}</p>
+              <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight">${item.name}</p>
+              <p class="text-xs text-gray-500 dark:text-neutral-400">${item.time} · ${item.service}</p>
             </div>
           </div>
           <button onclick="closeModal()" class="text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-800" aria-label="Close">${ICON_X}</button>
         </div>
-        <dl class="space-y-3.5 text-sm">
-          <div><dt class="text-xs font-medium text-gray-500 dark:text-neutral-500 mb-0.5">Last Visit</dt><dd class="text-neutral-900 dark:text-neutral-100">${p.lastVisit}</dd></div>
-          <div><dt class="text-xs font-medium text-gray-500 dark:text-neutral-500 mb-0.5">Treatment History</dt><dd class="text-neutral-900 dark:text-neutral-100">${p.history}</dd></div>
-          <div><dt class="text-xs font-medium text-gray-500 dark:text-neutral-500 mb-0.5">Notes</dt><dd class="text-neutral-900 dark:text-neutral-100">${p.notes}</dd></div>
-        </dl>
+        <dl class="space-y-3.5 text-sm">${rows}</dl>
       </div>
     `);
   }
@@ -1146,6 +1185,13 @@
       </div>
     `);
   }
+
+  // ---------- Init: restore last-selected business ----------
+  (function initBusiness() {
+    let saved = null;
+    try { saved = localStorage.getItem('selectedBusiness'); } catch (e) {}
+    switchBusiness(BUSINESS_DATA[saved] ? saved : 'dental');
+  })();
 </script>
 
 </body>
