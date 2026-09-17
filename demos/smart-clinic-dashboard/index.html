@@ -3,280 +3,373 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
-<title>Smart Clinic Dashboard — NoirFlow AI Demo</title>
-<meta name="description" content="A demo of an AI-powered clinic operations dashboard by NoirFlow." />
+<title>Intelligence Dashboard — NoirFlow AI Demo</title>
+<meta name="description" content="A demo of an AI-powered operations dashboard by NoirFlow." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-  :root { --accent: #a855f7; }
   html, body {
-    background: #0a0a0a;
+    background: #ffffff;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
   ::-webkit-scrollbar { width: 6px; height: 6px; }
-  ::-webkit-scrollbar-thumb { background: #262626; border-radius: 9999px; }
-
-  @keyframes pulse-dot {
-    0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6); }
-    50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(74, 222, 128, 0); }
-  }
-  .ai-active-dot { animation: pulse-dot 2s ease-in-out infinite; }
+  ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 9999px; }
 
   @keyframes fade-in-up {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(6px); }
     to { opacity: 1; transform: translateY(0); }
   }
   .fade-in {
     opacity: 0;
-    animation: fade-in-up 0.5s ease-out forwards;
-  }
-
-  .glow-card {
-    box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.15), 0 0 40px -12px rgba(168, 85, 247, 0.35);
+    animation: fade-in-up 0.4s ease-out forwards;
   }
 
   @keyframes typing-bounce {
-    0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
-    30% { transform: translateY(-3px); opacity: 1; }
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-2px); opacity: 0.9; }
   }
   .typing-dot { animation: typing-bounce 1.2s ease-in-out infinite; }
   .typing-dot:nth-child(2) { animation-delay: 0.15s; }
   .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+  #modal-content { transition: opacity 150ms ease-out, transform 150ms ease-out; transform: translateY(4px); }
+  #modal-content.modal-open { opacity: 1; transform: translateY(0); }
+
+  .toast { transition: transform 300ms ease-out, opacity 300ms ease-out; }
 </style>
 </head>
-<body class="bg-[#0a0a0a] text-neutral-200 min-h-screen">
+<body class="bg-white text-neutral-900 min-h-screen">
 <noscript>
-  <div class="p-6 text-center text-white">This demo requires JavaScript to be enabled.</div>
+  <div class="p-6 text-center">This demo requires JavaScript to be enabled.</div>
 </noscript>
+
+<!-- Toasts -->
+<div id="toast-container" class="fixed bottom-4 right-4 z-[100] flex flex-col gap-2 items-end"></div>
+
+<!-- Modal -->
+<div id="modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 backdrop-blur-sm p-4" onclick="if(event.target===this) closeModal();">
+  <div id="modal-content" class="bg-white rounded-[10px] border border-gray-200 shadow-lg max-w-[500px] w-full max-h-[85vh] overflow-y-auto opacity-0" role="dialog" aria-modal="true"></div>
+</div>
+
+<!-- Top Nav -->
+<header class="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-gray-200">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-2 relative" data-dropdown>
+      <div class="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4Z"/><path d="M8 14a6 6 0 0 0 8 0"/><path d="M12 20v-2"/></svg>
+      </div>
+      <button type="button" onclick="event.stopPropagation(); toggleDropdown('biz-panel')" class="flex items-center gap-1 group" aria-haspopup="true" aria-expanded="false">
+        <span id="biz-name" class="font-semibold text-sm sm:text-base text-neutral-900 tracking-tight">Smile Dental Care</span>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-gray-400 group-hover:text-gray-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div id="biz-panel" data-dropdown-panel class="hidden absolute left-0 top-11 w-64 bg-white border border-gray-200 rounded-[10px] shadow-lg py-1.5 z-40">
+        <p class="px-3 pt-1.5 pb-1 text-[11px] font-medium text-gray-400 uppercase tracking-wide">Switch example business</p>
+        <button data-biz-option="dental" onclick="switchBusiness('dental')" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-neutral-800 hover:bg-gray-50">
+          <span>Smile Dental Care</span>
+          <svg data-check xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </button>
+        <button data-biz-option="gym" onclick="switchBusiness('gym')" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-neutral-800 hover:bg-gray-50">
+          <span>FitZone Gym</span>
+          <svg data-check xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 opacity-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </button>
+        <button data-biz-option="realty" onclick="switchBusiness('realty')" class="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm text-neutral-800 hover:bg-gray-50">
+          <span>Aurum Realty</span>
+          <svg data-check xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 opacity-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="flex-1 max-w-xs hidden sm:block">
+      <div class="relative group">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" placeholder="Search patients, appointments..." class="peer w-full text-sm bg-gray-50 border border-gray-200 rounded-lg pl-9 pr-12 py-2 text-neutral-800 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-300 transition-colors" />
+        <kbd class="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-medium text-gray-400 bg-white border border-gray-200 rounded px-1.5 py-0.5 peer-focus:hidden">⌘K</kbd>
+        <div class="hidden peer-focus:block absolute left-0 top-full mt-1.5 text-xs text-gray-500 bg-white border border-gray-200 rounded-lg shadow-md px-2.5 py-1.5 whitespace-nowrap">Search coming soon</div>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-1.5 sm:gap-2.5">
+      <div class="hidden md:flex items-center gap-1.5 text-xs text-gray-500 mr-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+        Live
+      </div>
+      <div class="relative" data-dropdown>
+        <button type="button" onclick="event.stopPropagation(); toggleDropdown('notif-panel')" class="text-gray-500 hover:text-neutral-900 hover:bg-gray-50 rounded-lg p-2 transition-colors relative" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          <span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+        </button>
+        <div id="notif-panel" data-dropdown-panel class="hidden absolute right-0 top-11 w-72 bg-white border border-gray-200 rounded-[10px] shadow-lg py-1.5 z-40">
+          <p class="px-3 pt-1.5 pb-2 text-sm font-semibold text-neutral-900 border-b border-gray-100 mb-1">Notifications</p>
+          <button onclick="toggleDropdown('notif-panel')" class="w-full text-left flex gap-2.5 px-3 py-2.5 hover:bg-gray-50">
+            <span class="w-7 h-7 rounded-full bg-emerald-50 flex items-center justify-center shrink-0 mt-0.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            </span>
+            <span class="text-sm text-neutral-700 leading-snug">3 patients confirmed via WhatsApp <span class="block text-xs text-gray-400 mt-0.5">5 min ago</span></span>
+          </button>
+          <button onclick="toggleDropdown('notif-panel')" class="w-full text-left flex gap-2.5 px-3 py-2.5 hover:bg-gray-50">
+            <span class="w-7 h-7 rounded-full bg-indigo-50 flex items-center justify-center shrink-0 mt-0.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            </span>
+            <span class="text-sm text-neutral-700 leading-snug">New booking from AI assistant <span class="block text-xs text-gray-400 mt-0.5">22 min ago</span></span>
+          </button>
+          <button onclick="toggleDropdown('notif-panel')" class="w-full text-left flex gap-2.5 px-3 py-2.5 hover:bg-gray-50">
+            <span class="w-7 h-7 rounded-full bg-amber-50 flex items-center justify-center shrink-0 mt-0.5">
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 text-amber-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </span>
+            <span class="text-sm text-neutral-700 leading-snug">Reminder: 2 unconfirmed appointments tomorrow <span class="block text-xs text-gray-400 mt-0.5">1 hr ago</span></span>
+          </button>
+        </div>
+      </div>
+      <button type="button" onclick="openSettingsModal()" class="text-gray-500 hover:text-neutral-900 hover:bg-gray-50 rounded-lg p-2 transition-colors" aria-label="Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+      </button>
+      <div id="user-avatar" class="w-8 h-8 rounded-full bg-indigo-600 text-white text-xs font-semibold flex items-center justify-center shrink-0"><span id="user-initials">RS</span></div>
+    </div>
+  </div>
+</header>
 
 <div class="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
 
-  <!-- Top Nav -->
-  <header class="flex items-center justify-between py-4 sm:py-5 border-b border-neutral-800/80 sticky top-0 bg-[#0a0a0a]/90 backdrop-blur z-20">
-    <div class="flex items-center gap-2">
-      <div class="w-8 h-8 rounded-lg bg-purple-500/15 border border-purple-500/30 flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4Z"/><path d="M8 14a6 6 0 0 0 8 0"/><path d="M12 20v-2"/></svg>
-      </div>
-      <span class="font-semibold text-sm sm:text-base text-white tracking-tight">Smile Dental Care</span>
-    </div>
-    <div class="flex items-center gap-3 sm:gap-4">
-      <div class="hidden sm:flex items-center gap-1.5 text-xs text-neutral-400 border border-neutral-800 rounded-full px-2.5 py-1">
-        <span class="w-1.5 h-1.5 rounded-full bg-green-400 ai-active-dot"></span>
-        AI Assistant: Active
-      </div>
-      <button class="text-neutral-400 hover:text-white transition-colors relative" aria-label="Notifications">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-        <span class="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-purple-500"></span>
-      </button>
-      <button class="text-neutral-400 hover:text-white transition-colors" aria-label="Settings">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
-      </button>
-      <div class="hidden sm:block w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 text-white text-xs font-semibold flex items-center justify-center">RS</div>
-      <span class="hidden md:inline text-sm text-neutral-300">Dr. Rajesh Sharma</span>
-    </div>
-  </header>
-
   <!-- Welcome Bar -->
   <section class="pt-6 sm:pt-8 pb-2 fade-in" style="animation-delay: 0.05s;">
-    <h1 class="text-xl sm:text-2xl font-bold text-white">Good afternoon, Dr. Sharma 👋</h1>
+    <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 tracking-tight">Good afternoon, <span id="greeting-name">Dr. Sharma</span> 👋</h1>
     <div class="flex flex-wrap items-center justify-between gap-2 mt-1">
-      <p class="text-sm text-neutral-400">Here's what your AI assistant handled today</p>
-      <p id="live-clock" class="text-xs text-neutral-500 font-mono"></p>
+      <p class="text-sm text-gray-500">Here's what your AI assistant handled today</p>
+      <p id="live-clock" class="text-xs text-gray-400 font-mono"></p>
     </div>
   </section>
 
   <!-- KPI Cards -->
   <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4 fade-in" style="animation-delay: 0.1s;">
-    <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4">
-      <p class="text-xs text-neutral-500 mb-1.5">Today's Appointments</p>
-      <p class="text-2xl sm:text-3xl font-bold text-white">12</p>
-    </div>
-    <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4">
-      <p class="text-xs text-neutral-500 mb-1.5">AI Bookings (24h)</p>
-      <div class="flex items-baseline gap-2">
-        <p class="text-2xl sm:text-3xl font-bold text-white">7</p>
-        <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-500/15 text-green-400">+40%</span>
+    <button onclick="openKpiModal('kpi1')" class="text-left rounded-[10px] border border-gray-200 bg-white shadow-sm p-5 hover:shadow-md hover:border-gray-300 transition-all">
+      <p id="kpi1-label" class="text-xs font-medium text-gray-500 mb-2">Today's Appointments</p>
+      <div class="flex items-end justify-between">
+        <p id="kpi1-value" class="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight">12</p>
+        <span class="flex items-center gap-0.5 text-xs font-semibold text-red-600 mb-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h10v10"/><path d="M17 7 7 17"/></svg>
+          -5%
+        </span>
       </div>
-    </div>
-    <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4">
-      <p class="text-xs text-neutral-500 mb-1.5">Pending Confirmations</p>
-      <p class="text-2xl sm:text-3xl font-bold text-white">3</p>
-    </div>
-    <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4">
-      <p class="text-xs text-neutral-500 mb-1.5">Revenue Today</p>
-      <p class="text-2xl sm:text-3xl font-bold text-white">₹18,500</p>
-    </div>
+    </button>
+    <button onclick="openKpiModal('kpi2')" class="text-left rounded-[10px] border border-gray-200 bg-white shadow-sm p-5 hover:shadow-md hover:border-gray-300 transition-all">
+      <p class="text-xs font-medium text-gray-500 mb-2">AI Bookings (24h)</p>
+      <div class="flex items-end justify-between">
+        <p class="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight">7</p>
+        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 mb-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7V7"/><path d="m7 17 10-10"/></svg>
+          +40%
+        </span>
+      </div>
+    </button>
+    <button onclick="openKpiModal('kpi3')" class="text-left rounded-[10px] border border-gray-200 bg-white shadow-sm p-5 hover:shadow-md hover:border-gray-300 transition-all">
+      <p id="kpi3-label" class="text-xs font-medium text-gray-500 mb-2">Pending Confirmations</p>
+      <p id="kpi3-value" class="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight">3</p>
+    </button>
+    <button onclick="openKpiModal('kpi4')" class="text-left rounded-[10px] border border-gray-200 bg-white shadow-sm p-5 hover:shadow-md hover:border-gray-300 transition-all">
+      <p class="text-xs font-medium text-gray-500 mb-2">Revenue Today</p>
+      <div class="flex items-end justify-between">
+        <p id="revenue-value" class="text-2xl sm:text-3xl font-bold text-neutral-900 tracking-tight">₹18,500</p>
+        <span class="flex items-center gap-0.5 text-xs font-semibold text-emerald-600 mb-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 17H7V7"/><path d="m7 17 10-10"/></svg>
+          +12%
+        </span>
+      </div>
+    </button>
   </section>
 
   <!-- AI Daily Summary -->
   <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 0.15s;">
-    <div class="rounded-xl border border-purple-500/30 bg-gradient-to-br from-purple-500/10 to-neutral-900/50 p-4 sm:p-5 glow-card">
+    <div class="rounded-[10px] border border-gray-200 border-l-4 border-l-indigo-600 bg-white shadow-sm p-4 sm:p-5">
       <div class="flex items-center gap-2 mb-2.5">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/></svg>
-        <h2 class="text-sm font-semibold text-white">AI Daily Summary</h2>
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/></svg>
+        <h2 class="text-sm font-semibold text-neutral-900 tracking-tight">AI Daily Summary</h2>
       </div>
-      <p class="text-sm text-neutral-300 leading-relaxed">
-        Good afternoon Dr. Sharma. Today you have <span class="text-white font-medium">12 appointments</span>, including 2 implant consultations (high value). 3 patients haven't confirmed — I've sent WhatsApp reminders. Yesterday I booked <span class="text-white font-medium">7 new appointments</span> while you were with patients. Your no-show rate this week: <span class="text-green-400 font-medium">8%</span> (down from 15% last month).
+      <p class="text-sm text-gray-600 leading-relaxed">
+        Good afternoon Dr. Sharma. Today you have <span class="text-neutral-900 font-medium">12 appointments</span>, including 2 implant consultations (high value). 3 patients haven't confirmed — I've sent WhatsApp reminders. Yesterday I booked <span class="text-neutral-900 font-medium">7 new appointments</span> while you were with patients. Your no-show rate this week: <span class="text-emerald-600 font-medium">8%</span> (down from 15% last month).
       </p>
     </div>
   </section>
 
   <!-- Live Conversations -->
   <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 0.2s;">
-    <h2 class="text-sm font-semibold text-white mb-3">Live Conversations</h2>
+    <h2 class="text-sm font-semibold text-neutral-900 tracking-tight mb-3">Live Conversations</h2>
     <div class="grid sm:grid-cols-3 gap-3">
       <!-- Convo 1 -->
-      <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4">
-        <div class="flex items-center justify-between mb-2">
+      <div class="rounded-[10px] border border-gray-200 bg-white shadow-sm p-4">
+        <div class="flex items-center justify-between mb-2.5">
           <div class="flex items-center gap-2">
-            <div class="w-7 h-7 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-300">PM</div>
-            <span class="text-sm font-medium text-white">Priya Mohanty</span>
+            <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-semibold text-neutral-600">PM</div>
+            <span class="text-sm font-medium text-neutral-900">Priya Mohanty</span>
           </div>
-          <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-green-500/15 text-green-400 whitespace-nowrap">Booked ✓</span>
+          <button onclick="openTranscriptModal('priya')" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-100 whitespace-nowrap hover:bg-emerald-100 transition-colors">Booked ✓</button>
         </div>
-        <p class="text-xs text-neutral-400 line-clamp-2">"Perfect, see you Thursday at 4 PM for the cleaning!"</p>
-        <p class="text-[11px] text-neutral-600 mt-2">2 min ago</p>
+        <p class="text-xs text-gray-500 line-clamp-2">"Perfect, see you Thursday at 4 PM for the cleaning!"</p>
+        <p class="text-[11px] text-gray-400 mt-2.5">2 min ago</p>
       </div>
       <!-- Convo 2 -->
-      <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4">
-        <div class="flex items-center justify-between mb-2">
+      <div class="rounded-[10px] border border-gray-200 bg-white shadow-sm p-4">
+        <div class="flex items-center justify-between mb-2.5">
           <div class="flex items-center gap-2">
-            <div class="w-7 h-7 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-300">RP</div>
-            <span class="text-sm font-medium text-white">Rakesh Patra</span>
+            <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-semibold text-neutral-600">RP</div>
+            <span class="text-sm font-medium text-neutral-900">Rakesh Patra</span>
           </div>
-          <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-yellow-500/15 text-yellow-400 whitespace-nowrap">In progress...</span>
+          <button onclick="openTranscriptModal('rakesh')" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-100 whitespace-nowrap hover:bg-amber-100 transition-colors">In progress...</button>
         </div>
         <div class="flex items-center gap-1 h-4">
-          <span class="w-1.5 h-1.5 rounded-full bg-neutral-500 typing-dot"></span>
-          <span class="w-1.5 h-1.5 rounded-full bg-neutral-500 typing-dot"></span>
-          <span class="w-1.5 h-1.5 rounded-full bg-neutral-500 typing-dot"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-gray-400 typing-dot"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-gray-400 typing-dot"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-gray-400 typing-dot"></span>
         </div>
-        <p class="text-[11px] text-neutral-600 mt-2">15 min ago</p>
+        <p class="text-[11px] text-gray-400 mt-2.5">15 min ago</p>
       </div>
       <!-- Convo 3 -->
-      <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4">
-        <div class="flex items-center justify-between mb-2">
+      <div class="rounded-[10px] border border-gray-200 bg-white shadow-sm p-4">
+        <div class="flex items-center justify-between mb-2.5">
           <div class="flex items-center gap-2">
-            <div class="w-7 h-7 rounded-full bg-neutral-800 flex items-center justify-center text-[10px] font-semibold text-neutral-300">AD</div>
-            <span class="text-sm font-medium text-white">Anjali Das</span>
+            <div class="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-semibold text-neutral-600">AD</div>
+            <span class="text-sm font-medium text-neutral-900">Anjali Das</span>
           </div>
-          <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 whitespace-nowrap">Confirmed ✓</span>
+          <button onclick="openTranscriptModal('anjali')" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-100 whitespace-nowrap hover:bg-indigo-100 transition-colors">Confirmed ✓</button>
         </div>
-        <p class="text-xs text-neutral-400 line-clamp-2">"Yes, confirming my RCT appointment tomorrow at 11 AM."</p>
-        <p class="text-[11px] text-neutral-600 mt-2">1h ago</p>
+        <p class="text-xs text-gray-500 line-clamp-2">"Yes, confirming my RCT appointment tomorrow at 11 AM."</p>
+        <p class="text-[11px] text-gray-400 mt-2.5">1h ago</p>
       </div>
     </div>
   </section>
 
   <!-- Today's Schedule -->
   <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 0.25s;">
-    <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4 sm:p-5">
-      <h2 class="text-sm font-semibold text-white mb-3">Today's Schedule</h2>
-      <div class="divide-y divide-neutral-800/80">
-        <div class="flex items-center justify-between py-2.5">
-          <div class="flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-green-400 shrink-0"></span>
-            <span class="text-xs text-neutral-500 w-14 shrink-0">9:00 AM</span>
-            <span class="text-sm text-white">Priya Mohanty</span>
+    <div class="rounded-[10px] border border-gray-200 bg-white shadow-sm p-4 sm:p-5">
+      <h2 class="text-sm font-semibold text-neutral-900 tracking-tight mb-3">Today's Schedule</h2>
+      <div class="divide-y divide-gray-100">
+        <button onclick="openPatientModal('priya')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">9:00 AM</span>
+            <span class="text-sm text-neutral-900 truncate">Priya Mohanty</span>
           </div>
-          <span class="text-xs text-neutral-400">Cleaning</span>
-        </div>
-        <div class="flex items-center justify-between py-2.5">
-          <div class="flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-green-400 shrink-0"></span>
-            <span class="text-xs text-neutral-500 w-14 shrink-0">10:00 AM</span>
-            <span class="text-sm text-white">Suresh Nair</span>
+          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">Cleaning</span>
+        </button>
+        <button onclick="openPatientModal('suresh')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">10:00 AM</span>
+            <span class="text-sm text-neutral-900 truncate">Suresh Nair</span>
           </div>
-          <span class="text-xs text-neutral-400">RCT</span>
-        </div>
-        <div class="flex items-center justify-between py-2.5">
-          <div class="flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-purple-400 shrink-0"></span>
-            <span class="text-xs text-neutral-500 w-14 shrink-0">11:00 AM</span>
-            <span class="text-sm text-white">Anjali Das</span>
+          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">RCT</span>
+        </button>
+        <button onclick="openPatientModal('anjali')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
+            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">11:00 AM</span>
+            <span class="text-sm text-neutral-900 truncate">Anjali Das</span>
           </div>
-          <span class="text-xs text-neutral-400">RCT Follow-up</span>
-        </div>
-        <div class="flex items-center justify-between py-2.5">
-          <div class="flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-yellow-400 shrink-0"></span>
-            <span class="text-xs text-neutral-500 w-14 shrink-0">12:30 PM</span>
-            <span class="text-sm text-white">Vikram Reddy</span>
+          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">RCT Follow-up</span>
+        </button>
+        <button onclick="openPatientModal('vikram')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">12:30 PM</span>
+            <span class="text-sm text-neutral-900 truncate">Vikram Reddy</span>
           </div>
-          <span class="text-xs text-neutral-400">Implant Consultation</span>
-        </div>
-        <div class="flex items-center justify-between py-2.5">
-          <div class="flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-green-400 shrink-0"></span>
-            <span class="text-xs text-neutral-500 w-14 shrink-0">2:00 PM</span>
-            <span class="text-sm text-white">Meera Iyer</span>
+          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">Implant Consult</span>
+        </button>
+        <button onclick="openPatientModal('meera')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">2:00 PM</span>
+            <span class="text-sm text-neutral-900 truncate">Meera Iyer</span>
           </div>
-          <span class="text-xs text-neutral-400">Veneer Fitting</span>
-        </div>
-        <div class="flex items-center justify-between py-2.5">
-          <div class="flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-yellow-400 shrink-0"></span>
-            <span class="text-xs text-neutral-500 w-14 shrink-0">3:15 PM</span>
-            <span class="text-sm text-white">Rakesh Patra</span>
+          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">Veneer Fitting</span>
+        </button>
+        <button onclick="openPatientModal('rakesh')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-amber-500 shrink-0"></span>
+            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">3:15 PM</span>
+            <span class="text-sm text-neutral-900 truncate">Rakesh Patra</span>
           </div>
-          <span class="text-xs text-neutral-400">Cleaning</span>
-        </div>
-        <div class="flex items-center justify-between py-2.5">
-          <div class="flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-purple-400 shrink-0"></span>
-            <span class="text-xs text-neutral-500 w-14 shrink-0">4:00 PM</span>
-            <span class="text-sm text-white">Deepak Joshi</span>
+          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">Cleaning</span>
+        </button>
+        <button onclick="openPatientModal('deepak')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
+            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">4:00 PM</span>
+            <span class="text-sm text-neutral-900 truncate">Deepak Joshi</span>
           </div>
-          <span class="text-xs text-neutral-400">Implant Consultation</span>
-        </div>
-        <div class="flex items-center justify-between py-2.5">
-          <div class="flex items-center gap-3">
-            <span class="w-2 h-2 rounded-full bg-green-400 shrink-0"></span>
-            <span class="text-xs text-neutral-500 w-14 shrink-0">5:30 PM</span>
-            <span class="text-sm text-white">Kavita Menon</span>
+          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">Implant Consult</span>
+        </button>
+        <button onclick="openPatientModal('kavita')" class="w-full flex items-center justify-between py-2.5 hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors text-left">
+          <div class="flex items-center gap-3 min-w-0">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+            <span class="text-xs text-gray-500 font-mono w-16 shrink-0">5:30 PM</span>
+            <span class="text-sm text-neutral-900 truncate">Kavita Menon</span>
           </div>
-          <span class="text-xs text-neutral-400">Cleaning</span>
-        </div>
+          <span class="text-[11px] font-medium text-gray-600 bg-gray-100 rounded-md px-2 py-0.5 shrink-0 ml-2">Cleaning</span>
+        </button>
       </div>
     </div>
   </section>
 
   <!-- AI Insights -->
   <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 0.3s;">
-    <div class="rounded-xl border border-neutral-800 bg-neutral-900/50 p-4 sm:p-5">
-      <div class="flex items-center gap-2 mb-3.5">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
-        <h2 class="text-sm font-semibold text-white">AI Insights</h2>
+    <h2 class="text-sm font-semibold text-neutral-900 tracking-tight mb-3">AI Insights</h2>
+    <div class="space-y-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-[10px] border border-gray-200 bg-white shadow-sm p-4">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 4.9L5 10l5.1 2.1L12 17l1.9-4.9L19 10l-5.1-2.1Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+          </span>
+          <p class="text-sm text-neutral-700">3 patients from Aug haven't returned for follow-up cleaning</p>
+        </div>
+        <button onclick="showToast('Campaign queued for 3 patients')" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">Send reactivation campaign</button>
       </div>
-      <div class="space-y-3">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 py-2.5 border-b border-neutral-800/80">
-          <p class="text-sm text-neutral-300">3 patients from Aug haven't returned for follow-up cleaning</p>
-          <button class="shrink-0 text-xs font-medium px-3 py-1.5 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition-colors">Send reactivation campaign</button>
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-[10px] border border-gray-200 bg-white shadow-sm p-4">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
+          </span>
+          <p class="text-sm text-neutral-700">You could add 2 more slots on Tuesdays based on demand patterns</p>
         </div>
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 py-2.5 border-b border-neutral-800/80">
-          <p class="text-sm text-neutral-300">You could add 2 more slots on Tuesdays based on demand patterns</p>
-          <button class="shrink-0 text-xs font-medium px-3 py-1.5 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition-colors">Optimize schedule</button>
+        <button onclick="showToast('Optimization suggestions saved')" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">Optimize schedule</button>
+      </div>
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-[10px] border border-gray-200 bg-white shadow-sm p-4">
+        <div class="flex items-center gap-3 min-w-0">
+          <span class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </span>
+          <p class="text-sm text-neutral-700">Dr. Anjali is fully booked this week — consider adding her Sunday hours</p>
         </div>
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 py-2.5">
-          <p class="text-sm text-neutral-300">Dr. Anjali is fully booked this week — consider adding her Sunday hours</p>
-          <button class="shrink-0 text-xs font-medium px-3 py-1.5 rounded-lg bg-purple-500/15 text-purple-300 border border-purple-500/30 hover:bg-purple-500/25 transition-colors">Notify Dr. Anjali</button>
-        </div>
+        <button onclick="showToast('Message sent via WhatsApp')" class="shrink-0 text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">Notify Dr. Anjali</button>
       </div>
     </div>
   </section>
 
+  <!-- CTA Banner -->
+  <section class="mt-4 sm:mt-6 fade-in" style="animation-delay: 0.35s;">
+    <div class="rounded-[10px] border border-indigo-200 bg-white p-6 sm:p-8 text-center">
+      <p class="text-sm sm:text-base text-neutral-700 max-w-xl mx-auto">
+        This is a live demo of NoirFlow's Intelligence Dashboard. Want one for your business?
+      </p>
+      <a href="https://noirflow.ai/book" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold px-4 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">
+        Book a call
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+      </a>
+    </div>
+  </section>
+
   <!-- Footer -->
-  <footer class="mt-8 sm:mt-10 pt-5 border-t border-neutral-800/80 text-center">
-    <p class="text-xs text-neutral-600">
-      Powered by <a href="https://noirflow.ai" class="text-neutral-400 hover:text-purple-400 transition-colors font-medium">NoirFlow AI</a> · Demo mode
+  <footer class="mt-8 sm:mt-10 pt-5 border-t border-gray-200 text-center">
+    <p class="text-xs text-gray-400">
+      Powered by <a href="https://noirflow.ai" class="text-gray-500 hover:text-indigo-600 transition-colors font-medium">NoirFlow AI</a> · Demo mode
     </p>
   </footer>
 
 </div>
 
 <script>
+  // ---------- Live clock ----------
   function updateClock() {
     const el = document.getElementById('live-clock');
     if (!el) return;
@@ -288,6 +381,280 @@
   }
   updateClock();
   setInterval(updateClock, 1000);
+
+  // ---------- Shared icons ----------
+  const ICON_X = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+  const ICON_CHECK = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+  // ---------- Business switcher ----------
+  const BUSINESSES = {
+    dental: {
+      name: 'Smile Dental Care', initials: 'RS', greetingName: 'Dr. Sharma',
+      kpi1Label: "Today's Appointments", kpi1Value: '12',
+      kpi3Label: 'Pending Confirmations', kpi3Value: '3',
+      revenueValue: '₹18,500',
+    },
+    gym: {
+      name: 'FitZone Gym', initials: 'AM', greetingName: 'Arjun',
+      kpi1Label: "Today's Classes", kpi1Value: '9',
+      kpi3Label: 'Pending Renewals', kpi3Value: '5',
+      revenueValue: '₹24,200',
+    },
+    realty: {
+      name: 'Aurum Realty', initials: 'KI', greetingName: 'Kavya',
+      kpi1Label: "Today's Viewings", kpi1Value: '6',
+      kpi3Label: 'Pending Follow-ups', kpi3Value: '2',
+      revenueValue: '₹1,42,000',
+    },
+  };
+
+  function switchBusiness(key) {
+    const b = BUSINESSES[key];
+    if (!b) return;
+    document.getElementById('biz-name').textContent = b.name;
+    document.getElementById('user-initials').textContent = b.initials;
+    document.getElementById('greeting-name').textContent = b.greetingName;
+    document.getElementById('kpi1-label').textContent = b.kpi1Label;
+    document.getElementById('kpi1-value').textContent = b.kpi1Value;
+    document.getElementById('kpi3-label').textContent = b.kpi3Label;
+    document.getElementById('kpi3-value').textContent = b.kpi3Value;
+    document.getElementById('revenue-value').textContent = b.revenueValue;
+    document.querySelectorAll('[data-biz-option]').forEach((el) => {
+      el.querySelector('[data-check]').classList.toggle('opacity-0', el.dataset.bizOption !== key);
+    });
+    toggleDropdown('biz-panel', true);
+  }
+
+  // ---------- Dropdowns ----------
+  function toggleDropdown(id, forceClose) {
+    const panel = document.getElementById(id);
+    document.querySelectorAll('[data-dropdown-panel]').forEach((p) => {
+      if (p.id !== id) p.classList.add('hidden');
+    });
+    if (forceClose) panel.classList.add('hidden');
+    else panel.classList.toggle('hidden');
+  }
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('[data-dropdown]')) {
+      document.querySelectorAll('[data-dropdown-panel]').forEach((p) => p.classList.add('hidden'));
+    }
+  });
+
+  // ---------- Modal ----------
+  let lastFocused = null;
+  function openModal(html) {
+    lastFocused = document.activeElement;
+    const overlay = document.getElementById('modal-overlay');
+    const content = document.getElementById('modal-content');
+    content.innerHTML = html;
+    overlay.classList.remove('hidden');
+    overlay.classList.add('flex');
+    content.classList.remove('modal-open');
+    requestAnimationFrame(() => requestAnimationFrame(() => content.classList.add('modal-open')));
+    const firstFocusable = content.querySelector('button, [href], input, select, textarea, [tabindex]');
+    if (firstFocusable) firstFocusable.focus();
+  }
+  function closeModal() {
+    const overlay = document.getElementById('modal-overlay');
+    const content = document.getElementById('modal-content');
+    content.classList.remove('modal-open');
+    setTimeout(() => {
+      overlay.classList.add('hidden');
+      overlay.classList.remove('flex');
+      if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+    }, 150);
+  }
+  document.addEventListener('keydown', (e) => {
+    const overlay = document.getElementById('modal-overlay');
+    if (overlay.classList.contains('hidden')) return;
+    if (e.key === 'Escape') { closeModal(); return; }
+    if (e.key === 'Tab') {
+      const content = document.getElementById('modal-content');
+      const focusable = content.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+
+  // ---------- Toasts ----------
+  function showToast(message) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast flex items-center gap-2 bg-emerald-500 text-white text-sm font-medium pl-3.5 pr-4 py-3 rounded-lg shadow-lg translate-x-[130%] opacity-0 max-w-xs';
+    toast.innerHTML = ICON_CHECK + '<span>' + message + ' ✓</span>';
+    container.appendChild(toast);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      toast.classList.remove('translate-x-[130%]', 'opacity-0');
+    }));
+    setTimeout(() => {
+      toast.classList.add('translate-x-[130%]', 'opacity-0');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  // ---------- KPI modal (fake chart) ----------
+  const KPI_DATA = {
+    kpi1: {
+      title: "Today's Appointments", subtitle: 'Appointments booked, last 7 days',
+      values: [{ day: 'Mon', value: 10 }, { day: 'Tue', value: 14 }, { day: 'Wed', value: 11 }, { day: 'Thu', value: 15 }, { day: 'Fri', value: 13 }, { day: 'Sat', value: 9 }, { day: 'Sun', value: 12 }],
+    },
+    kpi2: {
+      title: 'AI Bookings (24h)', subtitle: 'Bookings the AI assistant closed without staff involvement',
+      values: [{ day: 'Mon', value: 3 }, { day: 'Tue', value: 5 }, { day: 'Wed', value: 4 }, { day: 'Thu', value: 6 }, { day: 'Fri', value: 5 }, { day: 'Sat', value: 2 }, { day: 'Sun', value: 7 }],
+    },
+    kpi3: {
+      title: 'Pending Confirmations', subtitle: 'Patients yet to confirm, reminders sent automatically',
+      values: [{ day: 'Mon', value: 5 }, { day: 'Tue', value: 4 }, { day: 'Wed', value: 6 }, { day: 'Thu', value: 3 }, { day: 'Fri', value: 4 }, { day: 'Sat', value: 2 }, { day: 'Sun', value: 3 }],
+    },
+    kpi4: {
+      title: 'Revenue Today', subtitle: 'Revenue collected, last 7 days (₹ thousands)',
+      values: [{ day: 'Mon', value: 14 }, { day: 'Tue', value: 19 }, { day: 'Wed', value: 12 }, { day: 'Thu', value: 22 }, { day: 'Fri', value: 17 }, { day: 'Sat', value: 9 }, { day: 'Sun', value: 18.5 }],
+    },
+  };
+  function openKpiModal(key) {
+    const d = KPI_DATA[key];
+    const max = Math.max(...d.values.map((v) => v.value));
+    const bars = d.values.map((v) => `
+      <div class="flex flex-col items-center gap-1.5 flex-1">
+        <div class="w-full h-20 bg-indigo-50 rounded-t-[4px] flex items-end overflow-hidden">
+          <div class="w-full bg-indigo-600 rounded-t-[4px]" style="height:${Math.round((v.value / max) * 100)}%"></div>
+        </div>
+        <span class="text-[10px] text-gray-400 font-medium">${v.day}</span>
+      </div>
+    `).join('');
+    openModal(`
+      <div class="p-5">
+        <div class="flex items-start justify-between mb-1">
+          <h3 class="text-base font-semibold text-neutral-900 tracking-tight">${d.title}</h3>
+          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 -mt-1 -mr-1 p-1 rounded-md hover:bg-gray-100" aria-label="Close">${ICON_X}</button>
+        </div>
+        <p class="text-sm text-gray-500 mb-5">${d.subtitle}</p>
+        <div class="flex items-end gap-2">${bars}</div>
+      </div>
+    `);
+  }
+
+  // ---------- Transcript modal ----------
+  const TRANSCRIPTS = {
+    priya: {
+      name: 'Priya Mohanty', initials: 'PM', status: 'Booked ✓', statusClass: 'bg-emerald-50 text-emerald-700 border border-emerald-100',
+      messages: [
+        { from: 'patient', text: 'Hi, I need to book a cleaning sometime this week.', time: '11:42 AM' },
+        { from: 'riya', text: 'Hi Priya! I have an opening Thursday at 4 PM, or Friday at 10 AM — which works better?', time: '11:42 AM' },
+        { from: 'patient', text: 'Thursday 4 PM works great.', time: '11:44 AM' },
+        { from: 'riya', text: 'Perfect, see you Thursday at 4 PM for the cleaning! I\'ll send a reminder the day before.', time: '11:44 AM' },
+      ],
+    },
+    rakesh: {
+      name: 'Rakesh Patra', initials: 'RP', status: 'In progress...', statusClass: 'bg-amber-50 text-amber-700 border border-amber-100',
+      messages: [
+        { from: 'patient', text: 'I felt some sensitivity after my last cleaning, is that normal?', time: '2:58 PM' },
+        { from: 'riya', text: 'Mild sensitivity for a day or two is common after a cleaning. If it lasts more than 3 days I\'ll get Dr. Sharma to take a quick look — want me to flag it for review?', time: '2:59 PM' },
+        { from: 'patient', text: 'Yes please, and can I also move my 3:15 appointment tomorrow?', time: '3:01 PM' },
+      ],
+    },
+    anjali: {
+      name: 'Anjali Das', initials: 'AD', status: 'Confirmed ✓', statusClass: 'bg-indigo-50 text-indigo-700 border border-indigo-100',
+      messages: [
+        { from: 'riya', text: 'Hi Anjali, just confirming your RCT follow-up tomorrow at 11 AM with Dr. Sharma. Reply YES to confirm.', time: '10:15 AM' },
+        { from: 'patient', text: 'Yes, confirming my RCT appointment tomorrow at 11 AM.', time: '10:20 AM' },
+        { from: 'riya', text: 'Great, you\'re all set! See you then.', time: '10:20 AM' },
+      ],
+    },
+  };
+  function openTranscriptModal(key) {
+    const t = TRANSCRIPTS[key];
+    const bubbles = t.messages.map((m) => `
+      <div class="flex ${m.from === 'riya' ? 'justify-end' : 'justify-start'}">
+        <div class="max-w-[80%] rounded-lg px-3 py-2 text-sm ${m.from === 'riya' ? 'bg-indigo-600 text-white' : 'bg-gray-100 text-neutral-900'}">
+          <p>${m.text}</p>
+          <div class="text-[10px] mt-1 ${m.from === 'riya' ? 'text-indigo-200' : 'text-gray-400'}">${m.time}</div>
+        </div>
+      </div>
+    `).join('');
+    openModal(`
+      <div class="p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-semibold text-neutral-600 shrink-0">${t.initials}</div>
+            <div>
+              <p class="text-sm font-semibold text-neutral-900">${t.name}</p>
+              <span class="text-[10px] font-semibold px-1.5 py-0.5 rounded-md ${t.statusClass}">${t.status}</span>
+            </div>
+          </div>
+          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100" aria-label="Close">${ICON_X}</button>
+        </div>
+        <div class="space-y-2.5 max-h-80 overflow-y-auto pr-1">${bubbles}</div>
+      </div>
+    `);
+  }
+
+  // ---------- Patient modal ----------
+  const PATIENTS = {
+    priya: { name: 'Priya Mohanty', initials: 'PM', time: '9:00 AM', procedure: 'Cleaning', lastVisit: 'Mar 3, 2026', history: 'Routine cleaning (x4), one cavity filling in 2024.', notes: 'Prefers morning slots. No known allergies.' },
+    suresh: { name: 'Suresh Nair', initials: 'SN', time: '10:00 AM', procedure: 'RCT', lastVisit: 'Aug 21, 2025', history: 'Root canal started on lower molar, session 2 of 3.', notes: 'Mildly anxious — talk through each step before starting.' },
+    anjali: { name: 'Anjali Das', initials: 'AD', time: '11:00 AM', procedure: 'RCT Follow-up', lastVisit: 'Sep 5, 2026', history: 'RCT completed last month, healing well.', notes: 'Confirmed via WhatsApp this morning.' },
+    vikram: { name: 'Vikram Reddy', initials: 'VR', time: '12:30 PM', procedure: 'Implant Consultation', lastVisit: 'New patient', history: 'Referred by Priya Mohanty. No prior records on file.', notes: 'High-value consult — bring implant pricing sheet.' },
+    meera: { name: 'Meera Iyer', initials: 'MI', time: '2:00 PM', procedure: 'Veneer Fitting', lastVisit: 'Jul 30, 2026', history: 'Veneer impressions taken 2 weeks ago, ready for fitting.', notes: 'Wants shade matched to front incisors.' },
+    rakesh: { name: 'Rakesh Patra', initials: 'RP', time: '3:15 PM', procedure: 'Cleaning', lastVisit: 'Mar 10, 2026', history: 'Routine cleaning, mild gum sensitivity noted last visit.', notes: 'Reported sensitivity after last cleaning — check in.' },
+    deepak: { name: 'Deepak Joshi', initials: 'DJ', time: '4:00 PM', procedure: 'Implant Consultation', lastVisit: 'New patient', history: 'Inquired online about implant costs last week.', notes: 'Price-sensitive — walk through financing options.' },
+    kavita: { name: 'Kavita Menon', initials: 'KM', time: '5:30 PM', procedure: 'Cleaning', lastVisit: 'Mar 15, 2026', history: 'Routine cleaning every 6 months, excellent oral hygiene.', notes: 'Usually books next appointment on the spot.' },
+  };
+  function openPatientModal(key) {
+    const p = PATIENTS[key];
+    openModal(`
+      <div class="p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div class="flex items-center gap-2.5">
+            <div class="w-9 h-9 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center text-xs font-semibold text-indigo-700 shrink-0">${p.initials}</div>
+            <div>
+              <p class="text-sm font-semibold text-neutral-900 tracking-tight">${p.name}</p>
+              <p class="text-xs text-gray-500">${p.time} · ${p.procedure}</p>
+            </div>
+          </div>
+          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100" aria-label="Close">${ICON_X}</button>
+        </div>
+        <dl class="space-y-3.5 text-sm">
+          <div><dt class="text-xs font-medium text-gray-500 mb-0.5">Last Visit</dt><dd class="text-neutral-900">${p.lastVisit}</dd></div>
+          <div><dt class="text-xs font-medium text-gray-500 mb-0.5">Treatment History</dt><dd class="text-neutral-900">${p.history}</dd></div>
+          <div><dt class="text-xs font-medium text-gray-500 mb-0.5">Notes</dt><dd class="text-neutral-900">${p.notes}</dd></div>
+        </dl>
+      </div>
+    `);
+  }
+
+  // ---------- Settings modal ----------
+  function toggleRow(label, checked) {
+    return `
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-neutral-700">${label}</span>
+        <button type="button" aria-pressed="${checked}" aria-label="${label}"
+          onclick="const on=this.getAttribute('aria-pressed')!=='true'; this.setAttribute('aria-pressed', on); this.classList.toggle('bg-indigo-600', on); this.classList.toggle('bg-gray-200', !on); this.firstElementChild.classList.toggle('translate-x-4', on); this.firstElementChild.classList.toggle('translate-x-0.5', !on);"
+          class="w-9 h-5 rounded-full relative transition-colors shrink-0 ${checked ? 'bg-indigo-600' : 'bg-gray-200'}">
+          <span class="absolute top-0.5 left-0 w-4 h-4 bg-white rounded-full shadow transition-transform ${checked ? 'translate-x-4' : 'translate-x-0.5'}"></span>
+        </button>
+      </div>
+    `;
+  }
+  function openSettingsModal() {
+    openModal(`
+      <div class="p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-base font-semibold text-neutral-900 tracking-tight">Settings</h3>
+          <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100" aria-label="Close">${ICON_X}</button>
+        </div>
+        <div class="space-y-4">
+          ${toggleRow('WhatsApp reminders', true)}
+          ${toggleRow('Auto-confirm bookings', true)}
+          ${toggleRow('Dark mode', false)}
+          ${toggleRow('Weekly summary email', true)}
+        </div>
+      </div>
+    `);
+  }
 </script>
 
 </body>
