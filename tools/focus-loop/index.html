@@ -376,7 +376,15 @@ async function callGemini({ prompt, history, useSearch }) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ systemPrompt: BASE_SYSTEM_PROMPT, prompt, history, useSearch: !!useSearch }),
   });
-  if (!res.ok) throw new Error('API error ' + res.status);
+  if (!res.ok) {
+    let detail = '';
+    try {
+      const errBody = await res.json();
+      detail = errBody.error || '';
+    } catch (e) {}
+    console.error('[focus-loop] Gemini call failed:', res.status, detail);
+    throw new Error('API error ' + res.status + (detail ? ': ' + detail : ''));
+  }
   const data = await res.json();
   if (!data.reply) throw new Error('Empty reply');
   return data.reply.trim();

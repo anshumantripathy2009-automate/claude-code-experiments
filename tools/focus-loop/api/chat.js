@@ -66,6 +66,11 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ reply });
   } catch (err) {
     console.error('[focus-loop] Gemini API call failed:', err);
-    return res.status(500).json({ error: 'Gemini call failed' });
+    // Forward Google's actual status/message (e.g. 429 quota exceeded, 400
+    // invalid key) instead of a generic 500 — this is what actually showed
+    // up in the Vercel function logs when debugging a silent "offline"
+    // failure, so surface it to the browser instead of hiding it.
+    const status = typeof err.status === 'number' && err.status >= 400 && err.status < 600 ? err.status : 500;
+    return res.status(status).json({ error: err.message || 'Gemini call failed' });
   }
 };
