@@ -72,17 +72,41 @@ module.exports = async function handler(req, res) {
     return !!err && (err.status === 429 || err.status === 403);
   }
 
+  // A 5xx means Google's own servers are temporarily overloaded/unavailable
+  // — not a problem with our key, billing, or the request. It's the one
+  // error class worth a short automatic retry rather than surfacing to the
+  // user, who'd otherwise have to notice and resend by hand (Anshuman is
+  // phone-only, no laptop to babysit this from).
+  function isTransientServerError(err) {
+    return !!err && typeof err.status === 'number' && err.status >= 500 && err.status < 600;
+  }
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+  async function callModelWithRetry(genAI, withSearchTool) {
+    try {
+      return await callModel(genAI, withSearchTool);
+    } catch (err) {
+      if (isTransientServerError(err)) {
+        console.warn('[focus-loop] Transient server error, retrying once:', err.status, err.message);
+        await sleep(1200);
+        return await callModel(genAI, withSearchTool);
+      }
+      throw err;
+    }
+  }
+
   try {
     const genAI = getClient();
 
     let result;
     let degraded = false;
     try {
-      result = await callModel(genAI, !!useSearch);
+      result = await callModelWithRetry(genAI, !!useSearch);
     } catch (err) {
       if (useSearch && isPermissionOrQuotaError(err)) {
         console.warn('[focus-loop] Google Search grounding unavailable (permission/quota), retrying without it:', err.message);
-        result = await callModel(genAI, false);
+        result = await callModelWithRetry(genAI, false);
         degraded = true;
       } else {
         throw err;
