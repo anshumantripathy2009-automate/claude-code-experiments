@@ -537,6 +537,20 @@ function escapeHtml(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+// Short, on-screen version of a failed Gemini call's real reason. Anshuman is
+// phone-only (no laptop until Feb 2027), so a browser-console error is
+// invisible to him — this puts the actual status/message right on the
+// screen next to the fallback text instead of requiring DevTools or the
+// Vercel dashboard to see why something went offline.
+function describeGeminiError(err) {
+  const msg = err && err.message ? String(err.message) : 'Unknown error';
+  return truncate(msg, 160);
+}
+function errorDetailHTML(detail) {
+  if (!detail) return '';
+  return `<div class="mt-1.5 text-[11px] text-gray-400 dark:text-neutral-500 font-mono leading-snug break-words">${escapeHtml(detail)}</div>`;
+}
+
 /* =========================================================
    GEMINI CALL
    ========================================================= */
@@ -710,16 +724,17 @@ MODE: Focus Coach.
 They just started a 25-min sprint. Goal: '${goal}'.
 Time-leak they reported before starting: '${leak || 'none reported'}'.
 Give a 1-2 sentence kickoff message. Specific to their goal and situation. Direct. Warm. No fluff. No emoji. End with a period.`;
-  let msg;
+  let msg, errDetail = '';
   try {
     msg = await callGemini({ prompt });
   } catch (e) {
     msg = FALLBACKS.kickoff;
+    errDetail = describeGeminiError(e);
   }
   if (timer && timer.phase === 'sprint') {
     timer.kickoffMessage = msg;
     saveTimer();
-    box.textContent = msg;
+    box.innerHTML = escapeHtml(msg) + errorDetailHTML(errDetail);
   }
 }
 
@@ -813,11 +828,12 @@ MODE: Focus Coach.
 They just finished a 25-min sprint on '${pendingReview.goal}'. They marked it '${pendingReview.outcome}' and said: '${reason || 'no reason given'}'.
 Give ONE sentence response. Max 20 words. If nailed: brief acknowledgment. If partial: name adjustment. If failed: real, not soft. No shaming.`;
 
-  let endMessage;
+  let endMessage, errDetail = '';
   try {
     endMessage = await callGemini({ prompt });
   } catch (e) {
     endMessage = FALLBACKS.end;
+    errDetail = describeGeminiError(e);
   }
 
   const now = new Date();
@@ -835,7 +851,7 @@ Give ONE sentence response. Max 20 words. If nailed: brief acknowledgment. If pa
   setLS('focusloop.sprints', sprints);
 
   const responseBox = document.getElementById('review-response');
-  responseBox.textContent = endMessage;
+  responseBox.innerHTML = escapeHtml(endMessage) + errorDetailHTML(errDetail);
   responseBox.classList.remove('hidden');
   btn.textContent = 'Submit';
 
@@ -1035,15 +1051,16 @@ MODE: End-of-day analyst.
 Here is their full sprint log for today: ${JSON.stringify(todaySprints)}.
 In 3-4 sentences, identify ONE clear pattern. Be specific — cite the sprints. Include what killed their focus (if they reported leaks) and what worked. If fewer than 5 sprints, be honest that patterns aren't clear yet. Read the data like a coach who cares. No generic advice.`;
 
-  let analysis;
+  let analysis, errDetail = '';
   try {
     analysis = await callGemini({ prompt });
   } catch (e) {
     analysis = FALLBACKS.eod;
+    errDetail = describeGeminiError(e);
   }
 
   const contentEl = document.getElementById('eod-content');
-  if (contentEl) contentEl.textContent = analysis;
+  if (contentEl) contentEl.innerHTML = escapeHtml(analysis) + errorDetailHTML(errDetail);
 
   const existingIdx = journal.findIndex((j) => j.date === today);
   if (existingIdx >= 0) journal[existingIdx].patternAnalysis = analysis;
@@ -1319,11 +1336,13 @@ RULES:
 At end of lesson output the sub-topic breadcrumb again so frontend can confirm parsing:
 <META>subtopic:${subTopic}|lesson:${lessonNumber}</META>`;
 
-  let content;
+  let content, ok = true, errDetail = '';
   try {
     content = await callGemini({ prompt, useSearch: true });
   } catch (e) {
     content = FALLBACKS.lesson;
+    ok = false;
+    errDetail = describeGeminiError(e);
   }
   const displayContent = content.replace(/<META>[\s\S]*?<\/META>\s*$/, '').trim();
 
@@ -1339,12 +1358,18 @@ At end of lesson output the sub-topic breadcrumb again so frontend can confirm p
   if (!learningLog[mainTopic][subTopic]) learningLog[mainTopic][subTopic] = [];
   learningLog[mainTopic][subTopic].push(lessonRecord);
   setLS('focusloop.learningLog', learningLog);
-  incrementDailyLessonCount();
+  // Only a real lesson counts against the daily cap — a failed call didn't
+  // actually teach anything, so it shouldn't eat one of the day's 10 slots.
+  if (ok) incrementDailyLessonCount();
 
   currentMainTopic = mainTopic;
   currentSubTopic = subTopic;
   currentLessonIndex = learningLog[mainTopic][subTopic].length - 1;
   renderSubTopicLessonView();
+  if (errDetail) {
+    const contentEl = document.getElementById('lesson-content');
+    if (contentEl) contentEl.innerHTML += errorDetailHTML(errDetail);
+  }
 }
 
 function handleNextLesson() {
@@ -1499,15 +1524,16 @@ Lesson content: ${lesson.content}.
 Their follow-up question: '${question}'.
 Answer directly in 2-4 sentences. Reference the lesson. No fluff.`;
 
-  let answer;
+  let answer, errDetail = '';
   try {
     answer = await callGemini({ prompt, useSearch: true });
   } catch (e) {
     answer = FALLBACKS.followup;
+    errDetail = describeGeminiError(e);
   }
 
   const loadingEl = document.getElementById(loadingId);
-  if (loadingEl) loadingEl.outerHTML = `<div class="text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3 py-2 mr-8">${escapeHtml(answer)}</div>`;
+  if (loadingEl) loadingEl.outerHTML = `<div class="text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3 py-2 mr-8">${escapeHtml(answer)}${errorDetailHTML(errDetail)}</div>`;
 
   lesson.followUps = lesson.followUps || [];
   lesson.followUps.push({ question, answer });
@@ -1752,11 +1778,12 @@ async function sendAdvisorMessage(presetText) {
 
   const historyForApi = session.messages.slice(0, -1).slice(-10).map((m) => ({ role: m.role, text: m.content }));
 
-  let reply;
+  let reply, errDetail = '';
   try {
     reply = await callGemini({ prompt, history: historyForApi, useSearch: true });
   } catch (e) {
     reply = FALLBACKS.advisor;
+    errDetail = describeGeminiError(e);
   }
 
   const loadingEl = document.getElementById(loadingId);
@@ -1765,6 +1792,10 @@ async function sendAdvisorMessage(presetText) {
   session.messages.push({ role: 'assistant', content: reply, timestamp: Date.now() });
   setLS('focusloop.advisor', advisorSessions);
   renderAdvisorChat();
+  if (errDetail) {
+    document.getElementById('advisor-chat').innerHTML += `<div class="flex justify-start"><div class="max-w-[85%]">${errorDetailHTML(errDetail)}</div></div>`;
+    scrollAdvisorToBottom();
+  }
 }
 
 function togglePastSessions() {
