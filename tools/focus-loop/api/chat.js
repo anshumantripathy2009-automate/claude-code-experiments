@@ -46,24 +46,51 @@ module.exports = async function handler(req, res) {
         }))
     : [];
 
-  try {
-    const genAI = getClient();
+  // Runs one Gemini call, with or without the Google Search grounding tool.
+  function callModel(genAI, withSearchTool) {
     const model = genAI.getGenerativeModel({
       model: MODEL_NAME,
       systemInstruction: systemPrompt,
-      tools: useSearch ? [{ googleSearch: {} }] : undefined,
+      tools: withSearchTool ? [{ googleSearch: {} }] : undefined,
     });
-
-    let result;
     if (priorHistory.length) {
       const chat = model.startChat({ history: priorHistory });
-      result = await chat.sendMessage(prompt);
-    } else {
-      result = await model.generateContent(prompt);
+      return chat.sendMessage(prompt);
+    }
+    return model.generateContent(prompt);
+  }
+
+  // Google Search grounding sits behind its own permission/quota gate,
+  // separate from plain text generation — e.g. free-tier keys don't get
+  // grounding on Gemini 3.x models at all, only on a billed project. Google
+  // reports that the same way it reports any other quota/permission problem
+  // (429 Too Many Requests or 403 Permission Denied), so we can't tell from
+  // the error alone whether it's the grounding gate specifically or a
+  // broader account issue — but since it only happens on calls that asked
+  // for the tool, scope the retry to those.
+  function isPermissionOrQuotaError(err) {
+    return !!err && (err.status === 429 || err.status === 403);
+  }
+
+  try {
+    const genAI = getClient();
+
+    let result;
+    let degraded = false;
+    try {
+      result = await callModel(genAI, !!useSearch);
+    } catch (err) {
+      if (useSearch && isPermissionOrQuotaError(err)) {
+        console.warn('[focus-loop] Google Search grounding unavailable (permission/quota), retrying without it:', err.message);
+        result = await callModel(genAI, false);
+        degraded = true;
+      } else {
+        throw err;
+      }
     }
 
     const reply = result.response.text();
-    return res.status(200).json({ reply });
+    return res.status(200).json({ reply, degraded });
   } catch (err) {
     console.error('[focus-loop] Gemini API call failed:', err);
     // Forward Google's actual status/message (e.g. 429 quota exceeded, 400
