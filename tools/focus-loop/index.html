@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
 <title>Focus Loop</title>
-<meta name="description" content="Anshuman's personal AI focus coach, classroom, and NoirFlow advisor." />
+<meta name="description" content="Your AI focus coach, classroom, and personal advisor." />
 <script>
   // Light-first: only switch to dark if the user explicitly chose it before.
   (function () {
@@ -66,6 +66,32 @@
   <div id="modal-content" class="modal-content opacity-0 translate-y-2 bg-white dark:bg-neutral-900 rounded-[10px] border border-gray-200 dark:border-neutral-800 shadow-lg max-w-[480px] w-full max-h-[85vh] overflow-y-auto" role="dialog" aria-modal="true"></div>
 </div>
 
+<!-- ===================== IDENTITY SCREEN (first load, not dismissible) ===================== -->
+<div id="identity-screen" class="hidden fixed inset-0 z-[70] bg-white dark:bg-neutral-950 flex flex-col items-center justify-center px-6 text-center">
+  <span class="font-extrabold text-2xl text-indigo-600 dark:text-indigo-400 tracking-tight mb-3">Focus Loop</span>
+  <h1 class="text-xl font-bold text-neutral-900 dark:text-neutral-50 mb-1.5">Welcome to Focus Loop</h1>
+  <p class="text-sm text-gray-500 dark:text-neutral-400 mb-8 max-w-xs leading-relaxed">Your AI focus coach, classroom, and business advisor. Who's using it?</p>
+  <div class="w-full max-w-xs space-y-3">
+    <button onclick="chooseIdentity('anshuman')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm py-3.5 rounded-lg transition-colors">I'm Anshuman</button>
+    <button onclick="chooseIdentity('new')" class="w-full bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold text-sm py-3.5 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800">I'm new here</button>
+  </div>
+</div>
+
+<!-- ===================== ONBOARDING SCREEN (new users only) ===================== -->
+<div id="onboarding-screen" class="hidden fixed inset-0 z-[70] bg-white dark:bg-neutral-950 flex flex-col">
+  <div class="px-4 pt-5 pb-3 border-b border-gray-100 dark:border-neutral-800 shrink-0">
+    <span class="font-extrabold text-base text-indigo-600 dark:text-indigo-400 tracking-tight">Focus Loop</span>
+    <p id="onboarding-progress" class="text-xs font-medium text-gray-400 dark:text-neutral-500 mt-1">Getting to know you — 0 of 8 questions</p>
+  </div>
+  <div id="onboarding-chat" class="flex-1 overflow-y-auto px-4 py-4 space-y-3"></div>
+  <div class="px-4 pb-5 pt-2 flex gap-2 border-t border-gray-100 dark:border-neutral-800 shrink-0">
+    <input id="onboarding-input" type="text" placeholder="Type your answer..." class="flex-1 text-sm bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg px-3 py-2.5 text-neutral-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-400 transition-colors" onkeydown="if(event.key==='Enter') sendOnboardingMessage();" />
+    <button onclick="sendOnboardingMessage()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-4 rounded-lg transition-colors">Send</button>
+  </div>
+</div>
+
+<div id="app-shell" class="hidden">
+
 <!-- Top Nav -->
 <header class="sticky top-0 z-30 bg-white/95 dark:bg-neutral-950/95 backdrop-blur border-b border-gray-200 dark:border-neutral-800 transition-colors duration-300">
   <div class="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
@@ -79,6 +105,9 @@
       <button type="button" onclick="toggleDarkMode()" class="text-gray-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:bg-gray-50 dark:hover:bg-neutral-900 rounded-lg p-2 transition-colors" aria-label="Toggle dark mode">
         <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
         <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+      <button type="button" onclick="openSettingsModal()" class="text-gray-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:bg-gray-50 dark:hover:bg-neutral-900 rounded-lg p-2 transition-colors" aria-label="Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
       </button>
     </div>
   </div>
@@ -174,6 +203,14 @@
 <!-- ===================== CLASSROOM TAB ===================== -->
 <section id="panel-classroom" class="pt-5 hidden">
 
+  <div class="mb-6">
+    <button onclick="toggleLearningProfilePanel()" class="w-full flex items-center justify-between text-sm font-bold text-neutral-900 dark:text-neutral-50 mb-2.5">
+      <span>What I already know</span>
+      <svg id="learning-profile-chevron" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="learning-profile-panel" class="hidden space-y-2"></div>
+  </div>
+
   <div id="classroom-picker">
     <div class="flex items-center justify-between mb-3">
       <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-50">Today's Lesson</h2>
@@ -191,10 +228,19 @@
       <p id="lesson-topic-label" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide mb-2"></p>
       <div id="lesson-content" class="text-sm text-neutral-700 dark:text-neutral-300"></div>
     </div>
-    <div class="flex gap-2 mt-3">
-      <button id="mark-learned-btn" onclick="markLessonLearned()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm py-2.5 rounded-lg transition-colors">Mark as learned</button>
-      <button onclick="toggleFollowUp()" class="flex-1 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold text-sm py-2.5 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800">Ask a follow-up</button>
+    <p class="text-xs font-medium text-gray-400 dark:text-neutral-500 mt-4 mb-2">How well did that land?</p>
+    <div class="grid grid-cols-3 gap-2 mb-2.5" id="lesson-feedback-buttons">
+      <button data-feedback="clear" onclick="submitLessonFeedback('clear')" class="lesson-feedback-btn flex flex-col items-center gap-1 py-2.5 rounded-[10px] border-2 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
+        <span class="text-lg">✅</span><span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">Clear</span>
+      </button>
+      <button data-feedback="partial" onclick="submitLessonFeedback('partial')" class="lesson-feedback-btn flex flex-col items-center gap-1 py-2.5 rounded-[10px] border-2 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
+        <span class="text-lg">🤔</span><span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">Partial</span>
+      </button>
+      <button data-feedback="lost" onclick="submitLessonFeedback('lost')" class="lesson-feedback-btn flex flex-col items-center gap-1 py-2.5 rounded-[10px] border-2 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
+        <span class="text-lg">❌</span><span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">Lost</span>
+      </button>
     </div>
+    <button onclick="toggleFollowUp()" class="w-full bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold text-sm py-2.5 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800">Ask a follow-up</button>
     <div id="follow-up-box" class="hidden mt-3">
       <div id="follow-up-thread" class="space-y-2 mb-2"></div>
       <div class="flex gap-2">
@@ -242,11 +288,15 @@
 
 </main>
 
+</div><!-- /#app-shell -->
+
 <script>
 /* =========================================================
    CONSTANTS + PROMPTS
    ========================================================= */
-const BASE_SYSTEM_PROMPT = `You are Focus Loop — Anshuman Tripathy's personal AI coach, classroom teacher, and NoirFlow business advisor. You are NOT a generic AI. You know him deeply. Speak like a mentor who has watched him build for months and has skin in his success.
+const VALID_LEVELS = ['beginner', 'intermediate', 'advanced'];
+
+const ANSHUMAN_BASE_SYSTEM_PROMPT = `You are Focus Loop — Anshuman Tripathy's personal AI coach, classroom teacher, and NoirFlow business advisor. You are NOT a generic AI. You know him deeply. Speak like a mentor who has watched him build for months and has skin in his success.
 
 ABOUT ANSHUMAN:
 - 19 years old, first-year college student in Bhubaneswar, Odisha, India
@@ -292,14 +342,100 @@ You are three things in one:
 2. His CLASSROOM TEACHER for daily learning
 3. His NOIRFLOW ADVISOR for business questions`;
 
-const TOPICS = [
-  { name: 'AI & Tech', icon: '🤖' },
-  { name: 'Business & Sales', icon: '💼' },
-  { name: 'Personal Brand & Positioning', icon: '✨' },
-  { name: 'Finance & Money Mindset', icon: '💰' },
-  { name: 'Founder Mental Game', icon: '🧠' },
-  { name: 'Tools Deep Dive', icon: '🛠️' },
+const ANSHUMAN_DEFAULT_LEARNING_PROFILE = [
+  { topic: 'AI & Tech', level: 'intermediate', knows: 'Builds with Claude Code and Gemini daily from an Android phone; comfortable directing AI agents, still learning to read and write code directly.' },
+  { topic: 'Business & Sales', level: 'beginner', knows: 'Has NoirFlow live with real automations and a prospect list, but hasn’t closed a paid client yet — mostly building, not selling.' },
+  { topic: 'Personal Brand & Positioning', level: 'beginner', knows: 'No public presence built yet for NoirFlow; compares himself to peers on Instagram instead of posting his own work.' },
+  { topic: 'Finance & Money Mindset', level: 'beginner', knows: 'No revenue yet from NoirFlow; operating on zero external budget.' },
+  { topic: 'Founder Mental Game', level: 'intermediate', knows: 'Ships hard under pressure and names his own patterns (perfectionism, chasing complex tools), but still gets distracted building when he should be selling.' },
+  { topic: 'Tools Deep Dive', level: 'intermediate', knows: 'Daily user of Claude Code, Claude Agent SDK, Gemini API, Supabase, Vercel, and n8n at a working level.' },
 ];
+
+const TOPIC_ICON_MAP = {
+  'AI & Tech': '🤖',
+  'Business & Sales': '💼',
+  'Personal Brand & Positioning': '✨',
+  'Finance & Money Mindset': '💰',
+  'Founder Mental Game': '🧠',
+  'Tools Deep Dive': '🛠️',
+};
+function topicIcon(topicName) {
+  return TOPIC_ICON_MAP[topicName] || '📘';
+}
+
+const ONBOARDING_SYSTEM_PROMPT = `[SYSTEM]
+You are Focus Loop onboarding. Your job right now is to have a 5-8 minute natural conversation with a new user to build their profile. You will ask ONE question at a time and wait for their reply before the next. Do not send multiple questions in one message.
+
+Questions to work through, in order:
+
+1. 'Hey, welcome. What should I call you?'
+2. 'What are you working on right now? Could be a business, a job, a project, studies — whatever's taking your energy.'
+3. 'How old are you?'
+4. 'What's your current situation with tools and setup — phone only, laptop, both? What software do you actually use daily?'
+5. 'What are you actively trying to learn right now? Give me your top 2-3 topics — could be tech, business, sales, design, anything.'
+6. 'For each of those topics — what do you ALREADY know? What have you tried or built? Just a sentence per topic, your own words.'
+7. 'Where do you usually leak time or lose focus? Instagram, YouTube, anxiety scrolling, overthinking — call it out honestly.'
+8. 'Last one — what does a great day look like for you? What would you have shipped, learned, or done by end of it?'
+
+After the last answer, respond:
+'Locked in. Building your profile now.'
+
+Then output a JSON block wrapped in <PROFILE_JSON></PROFILE_JSON> tags with this exact shape:
+
+{
+  "name": string,
+  "working_on": string,
+  "age": number,
+  "setup": string,
+  "learning_topics": [{ "topic": string, "level": "beginner" | "intermediate" | "advanced", "knows": string }],
+  "time_leaks": [string],
+  "great_day": string
+}
+
+The 'level' field: YOU infer it from what they said in question 6. If they mention shipping things → intermediate or advanced. If they say 'just starting' → beginner. Don't ask them to self-assess level, YOU judge it from their answer.
+
+Rules:
+- Never dump all 8 questions at once. ONE per message.
+- Feel human — react briefly to their answers before the next question ('Nice, that's a real project.' — 5 words max, then next question).
+- If they give a vague answer, ask one clarifier before moving on.
+- No lists. No headers. Talk like a person.`;
+
+function buildDynamicBaseSystemPrompt(profile) {
+  const topicsStr =
+    (profile.learning_topics || [])
+      .map((t) => `${t.topic} (${t.level}) — knows: ${t.knows || 'not specified'}`)
+      .join('; ') || 'Not specified yet.';
+  const leaksStr = (profile.time_leaks || []).join(', ') || 'Not specified yet.';
+  return `You are Focus Loop — ${profile.name}'s personal AI coach, classroom teacher, and personal advisor. You are NOT a generic AI. You know them from onboarding.
+
+ABOUT ${profile.name}:
+- Age: ${profile.age || 'not specified'}
+- Currently working on: ${profile.working_on || 'not specified'}
+- Setup: ${profile.setup || 'not specified'}
+- Learning right now: ${topicsStr}
+- Time leaks they self-reported: ${leaksStr}
+- Their definition of a great day: ${profile.great_day || 'not specified'}
+
+YOUR VOICE:
+- Direct and decisive. Never hedge.
+- Warm but firm. You care.
+- Never generic — every response ties to their specific reality above.
+- Push back when they're wrong. Don't cave.
+- Celebrate real wins specifically, not generically.
+- Match their energy — fast when fast, real when stuck.
+
+You are three things:
+1. Their FOCUS COACH during sprints
+2. Their CLASSROOM TEACHER for adaptive learning
+3. Their ADVISOR for whatever they're building`;
+}
+
+function getBaseSystemPrompt() {
+  if (userType === 'anshuman') return ANSHUMAN_BASE_SYSTEM_PROMPT;
+  const profile = getLS('focusloop.userProfile', null);
+  if (!profile) return ANSHUMAN_BASE_SYSTEM_PROMPT; // shouldn't happen — onboarding gate guarantees a profile first
+  return buildDynamicBaseSystemPrompt(profile);
+}
 
 const SPRINT_SECONDS = 25 * 60;
 const BREAK_SECONDS = 5 * 60;
@@ -313,6 +449,7 @@ const FALLBACKS = {
   advisor: 'Offline. Retry.',
   eod: 'Analysis unavailable. Try again in a bit.',
   followup: 'Coach offline. Try again.',
+  onboarding: "Connection hiccup — can you say that again?",
 };
 
 /* =========================================================
@@ -337,7 +474,13 @@ let journal = getLS('focusloop.journal', []);
 let classroom = getLS('focusloop.classroom', []);
 let advisorSessions = getLS('focusloop.advisor', []);
 let soundOn = getLS('focusloop.soundOn', true);
+let vibrationOn = getLS('focusloop.vibrationOn', true);
 let timer = getLS('focusloop.currentSprint', null); // { phase, goal, leak, startTime, duration, paused, pausedAt }
+
+let userType = getLS('focusloop.userType', null); // 'anshuman' | 'new' | null
+let learningProfile = getLS('focusloop.learningProfile', null); // [{ topic, level, knows }]
+let learningLog = getLS('focusloop.learningLog', []); // [{ id, date, topic, concept, feedback, timestamp }]
+let onboardingMessages = getLS('focusloop.onboardingChat', []); // [{ role, content }]
 
 let currentAdvisorSessionId = null;
 let currentLessonEntry = null; // reference into classroom array for the lesson currently shown
@@ -370,11 +513,12 @@ function escapeHtml(str) {
 /* =========================================================
    GEMINI CALL
    ========================================================= */
-async function callGemini({ prompt, history, useSearch }) {
+async function callGemini({ prompt, history, useSearch, systemPromptOverride }) {
+  const systemPrompt = systemPromptOverride || getBaseSystemPrompt();
   const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ systemPrompt: BASE_SYSTEM_PROMPT, prompt, history, useSearch: !!useSearch }),
+    body: JSON.stringify({ systemPrompt, prompt, history, useSearch: !!useSearch }),
   });
   if (!res.ok) {
     let detail = '';
@@ -408,6 +552,10 @@ function toggleSound() {
   setLS('focusloop.soundOn', soundOn);
   updateSoundIcon();
 }
+function toggleVibration() {
+  vibrationOn = !vibrationOn;
+  setLS('focusloop.vibrationOn', vibrationOn);
+}
 function updateSoundIcon() {
   document.getElementById('icon-sound-on').classList.toggle('hidden', !soundOn);
   document.getElementById('icon-sound-off').classList.toggle('hidden', soundOn);
@@ -430,6 +578,7 @@ function playChime(freq) {
   } catch (e) {}
 }
 function vibrate(pattern) {
+  if (!vibrationOn) return;
   try {
     if (navigator.vibrate) navigator.vibrate(pattern);
   } catch (e) {}
@@ -529,11 +678,11 @@ function startSprint() {
 async function fetchKickoff(goal, leak) {
   const box = document.getElementById('kickoff-message');
   box.innerHTML = '<span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400"></span>';
-  const prompt = `${BASE_SYSTEM_PROMPT}
+  const prompt = `${getBaseSystemPrompt()}
 MODE: Focus Coach.
-Anshuman just started a 25-min sprint. Goal: '${goal}'.
-Time-leak he reported before starting: '${leak || 'none reported'}'.
-Give a 1-2 sentence kickoff message. Specific to his goal and NoirFlow context. Direct. Warm. No fluff. No emoji. End with a period.`;
+They just started a 25-min sprint. Goal: '${goal}'.
+Time-leak they reported before starting: '${leak || 'none reported'}'.
+Give a 1-2 sentence kickoff message. Specific to their goal and situation. Direct. Warm. No fluff. No emoji. End with a period.`;
   let msg;
   try {
     msg = await callGemini({ prompt });
@@ -632,9 +781,9 @@ async function submitReview() {
   btn.disabled = true;
   btn.textContent = 'Saving...';
 
-  const prompt = `${BASE_SYSTEM_PROMPT}
+  const prompt = `${getBaseSystemPrompt()}
 MODE: Focus Coach.
-Anshuman just finished a 25-min sprint on '${pendingReview.goal}'. He marked it '${pendingReview.outcome}' and said: '${reason || 'no reason given'}'.
+They just finished a 25-min sprint on '${pendingReview.goal}'. They marked it '${pendingReview.outcome}' and said: '${reason || 'no reason given'}'.
 Give ONE sentence response. Max 20 words. If nailed: brief acknowledgment. If partial: name adjustment. If failed: real, not soft. No shaming.`;
 
   let endMessage;
@@ -854,10 +1003,10 @@ async function openEndOfDayReview() {
     </div>
   `);
 
-  const prompt = `${BASE_SYSTEM_PROMPT}
+  const prompt = `${getBaseSystemPrompt()}
 MODE: End-of-day analyst.
-Here is Anshuman's full sprint log for today: ${JSON.stringify(todaySprints)}.
-In 3-4 sentences, identify ONE clear pattern. Be specific — cite the sprints. Include what killed his focus (if he reported leaks) and what worked. If fewer than 5 sprints, be honest that patterns aren't clear yet. Read the data like a coach who cares. No generic advice.`;
+Here is their full sprint log for today: ${JSON.stringify(todaySprints)}.
+In 3-4 sentences, identify ONE clear pattern. Be specific — cite the sprints. Include what killed their focus (if they reported leaks) and what worked. If fewer than 5 sprints, be honest that patterns aren't clear yet. Read the data like a coach who cares. No generic advice.`;
 
   let analysis;
   try {
@@ -881,13 +1030,73 @@ In 3-4 sentences, identify ONE clear pattern. Be specific — cite the sprints. 
    ========================================================= */
 function renderTopicGrid() {
   const grid = document.getElementById('topic-grid');
-  grid.innerHTML = TOPICS.map(
-    (t) => `
-    <button onclick="pickTopic('${t.name.replace(/'/g, "\\'")}')" class="flex flex-col items-start gap-2 p-3.5 rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors text-left">
-      <span class="text-xl">${t.icon}</span>
-      <span class="text-xs font-semibold text-neutral-800 dark:text-neutral-200 leading-snug">${t.name}</span>
+  if (!learningProfile || !learningProfile.length) {
+    grid.innerHTML = '<p class="col-span-2 text-sm text-gray-400 dark:text-neutral-500 px-1 py-4 text-center">No topics yet.</p>';
+    return;
+  }
+  grid.innerHTML = learningProfile
+    .map(
+      (t) => `
+    <button onclick="pickTopic('${t.topic.replace(/'/g, "\\'")}')" class="flex flex-col items-start gap-2 p-3.5 rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors text-left">
+      <span class="text-xl">${topicIcon(t.topic)}</span>
+      <span class="text-xs font-semibold text-neutral-800 dark:text-neutral-200 leading-snug">${escapeHtml(t.topic)}</span>
     </button>`
-  ).join('');
+    )
+    .join('');
+}
+
+/* ---- Learning profile: editable "What I already know" ---- */
+function toggleLearningProfilePanel() {
+  const box = document.getElementById('learning-profile-panel');
+  const chevron = document.getElementById('learning-profile-chevron');
+  const willShow = box.classList.contains('hidden');
+  box.classList.toggle('hidden');
+  chevron.style.transform = willShow ? 'rotate(180deg)' : 'rotate(0deg)';
+  if (willShow) renderLearningProfilePanel();
+}
+
+function expandLearningProfile() {
+  const box = document.getElementById('learning-profile-panel');
+  const chevron = document.getElementById('learning-profile-chevron');
+  box.classList.remove('hidden');
+  chevron.style.transform = 'rotate(180deg)';
+  renderLearningProfilePanel();
+  box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function renderLearningProfilePanel() {
+  const panel = document.getElementById('learning-profile-panel');
+  if (!learningProfile || !learningProfile.length) {
+    panel.innerHTML = '<p class="text-sm text-gray-400 dark:text-neutral-500 px-1">No topics yet.</p>';
+    return;
+  }
+  panel.innerHTML = learningProfile
+    .map(
+      (t, i) => `
+    <div class="bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-[10px] p-3">
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">${escapeHtml(t.topic)}</p>
+        <select onchange="updateLearningProfileLevel(${i}, this.value)" class="text-xs bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-md px-2 py-1 text-neutral-700 dark:text-neutral-300">
+          <option value="beginner" ${t.level === 'beginner' ? 'selected' : ''}>Beginner</option>
+          <option value="intermediate" ${t.level === 'intermediate' ? 'selected' : ''}>Intermediate</option>
+          <option value="advanced" ${t.level === 'advanced' ? 'selected' : ''}>Advanced</option>
+        </select>
+      </div>
+      <textarea onblur="updateLearningProfileKnows(${i}, this.value)" rows="2" placeholder="What do you already know about this?" class="w-full text-xs bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-md px-2 py-1.5 text-neutral-700 dark:text-neutral-300 placeholder:text-gray-400 dark:placeholder:text-neutral-500 resize-none">${escapeHtml(t.knows)}</textarea>
+    </div>`
+    )
+    .join('');
+}
+
+function updateLearningProfileLevel(i, value) {
+  if (!learningProfile[i]) return;
+  learningProfile[i].level = VALID_LEVELS.includes(value) ? value : 'beginner';
+  setLS('focusloop.learningProfile', learningProfile);
+}
+function updateLearningProfileKnows(i, value) {
+  if (!learningProfile[i]) return;
+  learningProfile[i].knows = value;
+  setLS('focusloop.learningProfile', learningProfile);
 }
 
 function recentSprintSummary() {
@@ -903,31 +1112,46 @@ function pastTopicsList() {
   return recent.length ? recent.join('; ') : 'No lessons yet.';
 }
 
+function firstLine(text) {
+  return (text || '').split('\n').find((l) => l.trim()) || '';
+}
+
+function recentLearningLogForTopic(topicName) {
+  const entries = learningLog.filter((l) => l.topic === topicName).slice(-5);
+  if (!entries.length) return 'No prior lessons on this topic yet.';
+  return entries.map((e) => `${e.date}: ${e.feedback} — ${truncate(e.concept, 60)}`).join('; ');
+}
+
 async function pickTopic(topicName) {
   document.getElementById('classroom-picker').classList.add('hidden');
   document.getElementById('classroom-lesson').classList.remove('hidden');
   document.getElementById('lesson-topic-label').textContent = topicName;
-  document.getElementById('mark-learned-btn').textContent = 'Mark as learned';
-  document.getElementById('mark-learned-btn').disabled = false;
+  document.querySelectorAll('.lesson-feedback-btn').forEach((b) => b.classList.remove('border-indigo-600', 'bg-indigo-50', 'dark:bg-indigo-500/10'));
   document.getElementById('follow-up-box').classList.add('hidden');
   document.getElementById('follow-up-thread').innerHTML = '';
   const contentEl = document.getElementById('lesson-content');
   contentEl.innerHTML = '<span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400"></span>';
 
-  const prompt = `${BASE_SYSTEM_PROMPT}
-MODE: Classroom teacher.
-Today's topic: '${topicName}'.
-Anshuman's classroom history (last 7 lessons): ${pastTopicsList()}.
+  const profileEntry = (learningProfile || []).find((t) => t.topic === topicName) || { topic: topicName, level: 'beginner', knows: '' };
+
+  const prompt = `${getBaseSystemPrompt()}
+MODE: Classroom teacher (adaptive).
+Topic: '${topicName}'.
+Their current level on this topic: '${profileEntry.level}'.
+What they already know / have tried: '${profileEntry.knows || 'Not specified yet.'}'.
+Recent lessons + feedback on this topic (most recent first): ${recentLearningLogForTopic(topicName)}.
 Recent sprint patterns: ${recentSprintSummary()}.
 
-Generate a 5-8 minute lesson:
-1. ONE core concept (not a survey — one specific idea)
-2. Why it matters for HIS situation right now (tie to NoirFlow or his stage)
-3. A concrete example he can actually apply
-4. ONE action he could take in his next sprint
-5. If the topic requires current info (new tool, recent development), use your Google Search tool to ground the lesson in real facts, cite sources briefly
+Pick ONE next concept for this topic that fits their level and builds on what they already know — don't re-teach something they already marked 'clear', and revisit gently if their last concept on this topic was marked 'lost'. If there's no history yet, start with the most foundational useful concept.
 
-Keep it TIGHT. Do not lecture. Do not 'here are 10 principles'. One idea, well-taught. Format with clear headings but no walls of text. Assume he'll act on it today.`;
+Generate a 5-8 minute lesson:
+1. Name the ONE concept you picked
+2. Why it matters for their situation right now
+3. A concrete example they can actually apply
+4. ONE action for their next sprint
+5. If it needs current info (new tool, recent development), use your Google Search tool to ground the lesson in real facts, cite sources briefly
+
+Keep it TIGHT. Do not lecture. Do not 'here are 10 principles'. One idea, well-taught. Format with clear headings but no walls of text. Assume they'll act on it today.`;
 
   let content;
   try {
@@ -938,7 +1162,7 @@ Keep it TIGHT. Do not lecture. Do not 'here are 10 principles'. One idea, well-t
 
   contentEl.innerHTML = renderLessonHTML(content);
 
-  const entry = { date: todayStr(), topic: topicName, content, followUps: [], learned: false };
+  const entry = { date: todayStr(), topic: topicName, content, followUps: [], feedback: null };
   classroom.push(entry);
   setLS('focusloop.classroom', classroom);
   currentLessonEntry = entry;
@@ -951,17 +1175,19 @@ async function suggestTopic() {
   btn.textContent = 'Thinking...';
   btn.disabled = true;
 
-  const prompt = `${BASE_SYSTEM_PROMPT}
+  const topicNames = (learningProfile || []).map((t) => t.topic);
+
+  const prompt = `${getBaseSystemPrompt()}
 MODE: Classroom teacher (topic picker).
-Anshuman's classroom history (last 7 lessons): ${pastTopicsList()}.
+Their classroom history (last 7 lessons): ${pastTopicsList()}.
 Recent sprint patterns: ${recentSprintSummary()}.
-Pick exactly ONE topic from this list that fits what he needs to learn right now: ${TOPICS.map((t) => t.name).join(', ')}.
+Pick exactly ONE topic from this list that fits what they need to learn right now: ${topicNames.join(', ')}.
 Reply with ONLY the exact topic name from the list, nothing else.`;
 
   let picked;
   try {
     const reply = await callGemini({ prompt });
-    picked = TOPICS.find((t) => reply.toLowerCase().includes(t.name.toLowerCase()))?.name;
+    picked = topicNames.find((name) => reply.toLowerCase().includes(name.toLowerCase()));
   } catch (e) {
     picked = null;
   }
@@ -971,9 +1197,9 @@ Reply with ONLY the exact topic name from the list, nothing else.`;
 
   if (!picked) {
     const studied = new Set(classroom.map((c) => c.topic));
-    picked = TOPICS.find((t) => !studied.has(t.name))?.name || TOPICS[0].name;
+    picked = topicNames.find((name) => !studied.has(name)) || topicNames[0];
   }
-  pickTopic(picked);
+  if (picked) pickTopic(picked);
 }
 
 function backToTopics() {
@@ -981,14 +1207,30 @@ function backToTopics() {
   document.getElementById('classroom-picker').classList.remove('hidden');
 }
 
-function markLessonLearned() {
-  if (currentLessonEntry) {
-    currentLessonEntry.learned = true;
-    setLS('focusloop.classroom', classroom);
-  }
-  const btn = document.getElementById('mark-learned-btn');
-  btn.textContent = 'Learned ✓';
-  btn.disabled = true;
+const FEEDBACK_ICON = { clear: '✅', partial: '🤔', lost: '❌' };
+
+function submitLessonFeedback(feedback) {
+  if (!currentLessonEntry) return;
+  currentLessonEntry.feedback = feedback;
+  setLS('focusloop.classroom', classroom);
+
+  learningLog.push({
+    id: uid(),
+    date: todayStr(),
+    topic: currentLessonEntry.topic,
+    concept: truncate(firstLine(currentLessonEntry.content).replace(/^#+\s*/, '').replace(/\*\*/g, ''), 80),
+    feedback,
+    timestamp: Date.now(),
+  });
+  setLS('focusloop.learningLog', learningLog);
+
+  document.querySelectorAll('.lesson-feedback-btn').forEach((b) => {
+    const active = b.dataset.feedback === feedback;
+    b.classList.toggle('border-indigo-600', active);
+    b.classList.toggle('bg-indigo-50', active);
+    b.classList.toggle('dark:bg-indigo-500/10', active);
+  });
+  renderLessonHistory();
 }
 
 function toggleFollowUp() {
@@ -1007,11 +1249,11 @@ async function sendFollowUp() {
   const loadingId = 'fu-loading-' + uid();
   thread.innerHTML += `<div id="${loadingId}" class="text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3 py-2 mr-8"><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400"></span></div>`;
 
-  const prompt = `${BASE_SYSTEM_PROMPT}
+  const prompt = `${getBaseSystemPrompt()}
 MODE: Classroom teacher (follow-up).
 Today's lesson topic: '${currentLessonEntry.topic}'.
 Lesson content: ${currentLessonEntry.content}.
-Anshuman's follow-up question: '${question}'.
+Their follow-up question: '${question}'.
 Answer directly in 2-4 sentences. Reference the lesson. No fluff.`;
 
   let answer;
@@ -1051,7 +1293,7 @@ function renderLessonHistory() {
         <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200 truncate">${escapeHtml(entry.topic)}</p>
         <p class="text-xs text-gray-400 dark:text-neutral-500 mt-0.5">${entry.date}</p>
       </div>
-      ${entry.learned ? '<span class="text-xs text-emerald-600 dark:text-emerald-400 shrink-0">Learned</span>' : ''}
+      ${entry.feedback ? `<span class="text-base shrink-0">${FEEDBACK_ICON[entry.feedback] || ''}</span>` : ''}
     </button>`
     )
     .join('');
@@ -1065,8 +1307,12 @@ function reopenLesson(index) {
   document.getElementById('classroom-lesson').classList.remove('hidden');
   document.getElementById('lesson-topic-label').textContent = entry.topic;
   document.getElementById('lesson-content').innerHTML = renderLessonHTML(entry.content);
-  document.getElementById('mark-learned-btn').textContent = entry.learned ? 'Learned ✓' : 'Mark as learned';
-  document.getElementById('mark-learned-btn').disabled = !!entry.learned;
+  document.querySelectorAll('.lesson-feedback-btn').forEach((b) => {
+    const active = b.dataset.feedback === entry.feedback;
+    b.classList.toggle('border-indigo-600', active);
+    b.classList.toggle('bg-indigo-50', active);
+    b.classList.toggle('dark:bg-indigo-500/10', active);
+  });
   document.getElementById('follow-up-box').classList.add('hidden');
   document.getElementById('follow-up-thread').innerHTML = (entry.followUps || [])
     .map(
@@ -1125,7 +1371,7 @@ function renderAdvisorChat() {
   const session = getOrCreateAdvisorSession();
   const chatEl = document.getElementById('advisor-chat');
   if (!session.messages.length) {
-    chatEl.innerHTML = '<p class="text-sm text-gray-400 dark:text-neutral-500 text-center pt-8">Ask me anything about NoirFlow. I know where we actually stand.</p>';
+    chatEl.innerHTML = `<p class="text-sm text-gray-400 dark:text-neutral-500 text-center pt-8">${escapeHtml(emptyAdvisorPlaceholder())}</p>`;
     return;
   }
   chatEl.innerHTML = session.messages
@@ -1150,6 +1396,34 @@ function todaySprintsSummaryForAdvisor() {
   return todaySprints.map((s) => `${s.outcome}: ${s.goal}`).join('; ');
 }
 
+function emptyAdvisorPlaceholder() {
+  return userType === 'anshuman'
+    ? 'Ask me anything about NoirFlow. I know where we actually stand.'
+    : "Ask me anything about what you're building. I know where you actually stand.";
+}
+
+function buildAdvisorPrompt(message, chatHistorySummary) {
+  const base = getBaseSystemPrompt();
+  if (userType === 'anshuman') {
+    return `${base}
+MODE: NoirFlow Business Advisor.
+Recent context — today's sprints: ${todaySprintsSummaryForAdvisor()}.
+Chat history this session: ${chatHistorySummary}.
+Anshuman just asked: '${message}'.
+
+Respond as his co-founder-in-spirit. Direct. Specific to NoirFlow's actual state. Push back if his premise is weak. Cite specifics — his prospects, his offers, his deals, his patterns. If he's about to make a bad call (scope creep, premature building, avoiding sales), stop him. If you don't know something factual (current market rates, new tools), use Google Search to check before answering.
+
+Never generic. Never a list of 5 options unless he asks. Pick a direction, defend it.`;
+  }
+  return `${base}
+MODE: Personal Advisor for what they're working on.
+Recent context — today's sprints: ${todaySprintsSummaryForAdvisor()}.
+Chat history this session: ${chatHistorySummary}.
+User just asked: '${message}'.
+
+Respond as a mentor with skin in their game. Direct, specific to THEIR situation (see profile above). Push back on weak premises. Use Google Search if factual info is needed (degrade gracefully if unavailable).`;
+}
+
 async function sendAdvisorMessage(presetText) {
   const input = document.getElementById('advisor-input');
   const message = (presetText !== undefined && typeof presetText === 'string' ? presetText : input.value).trim();
@@ -1166,20 +1440,13 @@ async function sendAdvisorMessage(presetText) {
   chatEl.innerHTML += `<div id="${loadingId}" class="flex justify-start"><div class="max-w-[85%] text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3.5 py-2.5"><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400"></span></div></div>`;
   scrollAdvisorToBottom();
 
+  const userLabel = userType === 'anshuman' ? 'Anshuman: ' : 'User: ';
   const chatHistorySummary = session.messages
     .slice(-8, -1)
-    .map((m) => (m.role === 'user' ? 'Anshuman: ' : 'You: ') + m.content)
+    .map((m) => (m.role === 'user' ? userLabel : 'You: ') + m.content)
     .join(' | ') || 'No prior messages this session.';
 
-  const prompt = `${BASE_SYSTEM_PROMPT}
-MODE: NoirFlow Business Advisor.
-Recent context — today's sprints: ${todaySprintsSummaryForAdvisor()}.
-Chat history this session: ${chatHistorySummary}.
-Anshuman just asked: '${message}'.
-
-Respond as his co-founder-in-spirit. Direct. Specific to NoirFlow's actual state. Push back if his premise is weak. Cite specifics — his prospects, his offers, his deals, his patterns. If he's about to make a bad call (scope creep, premature building, avoiding sales), stop him. If you don't know something factual (current market rates, new tools), use Google Search to check before answering.
-
-Never generic. Never a list of 5 options unless he asks. Pick a direction, defend it.`;
+  const prompt = buildAdvisorPrompt(message, chatHistorySummary);
 
   const historyForApi = session.messages.slice(0, -1).slice(-10).map((m) => ({ role: m.role, text: m.content }));
 
@@ -1227,9 +1494,256 @@ function loadAdvisorSession(sessionId) {
 }
 
 /* =========================================================
-   INIT
+   IDENTITY + ONBOARDING
    ========================================================= */
-function init() {
+function chooseIdentity(type) {
+  userType = type;
+  setLS('focusloop.userType', type);
+  document.getElementById('identity-screen').classList.add('hidden');
+  if (type === 'anshuman') {
+    ensureLearningProfileSeeded();
+    initMainApp();
+  } else {
+    showOnboardingScreen();
+  }
+}
+
+function ensureLearningProfileSeeded() {
+  learningProfile = getLS('focusloop.learningProfile', null);
+  if (learningProfile) return;
+  if (userType === 'anshuman') {
+    learningProfile = ANSHUMAN_DEFAULT_LEARNING_PROFILE.map((t) => ({ ...t }));
+  } else {
+    const profile = getLS('focusloop.userProfile', null);
+    learningProfile =
+      profile && Array.isArray(profile.learning_topics) && profile.learning_topics.length
+        ? profile.learning_topics.map((t) => ({
+            topic: t.topic,
+            level: VALID_LEVELS.includes(t.level) ? t.level : 'beginner',
+            knows: t.knows || '',
+          }))
+        : [{ topic: 'General', level: 'beginner', knows: '' }];
+  }
+  setLS('focusloop.learningProfile', learningProfile);
+}
+
+function showOnboardingScreen() {
+  document.getElementById('onboarding-screen').classList.remove('hidden');
+  startOnboarding();
+}
+
+function renderOnboardingProgress() {
+  const answered = Math.min(onboardingMessages.filter((m) => m.role === 'user').length, 8);
+  document.getElementById('onboarding-progress').textContent = `Getting to know you — ${answered} of 8 questions`;
+}
+
+function renderOnboardingChat() {
+  const chatEl = document.getElementById('onboarding-chat');
+  chatEl.innerHTML = onboardingMessages
+    .map((m) =>
+      m.role === 'user'
+        ? `<div class="flex justify-end"><div class="max-w-[85%] text-sm bg-indigo-600 text-white chat-bubble-user px-3.5 py-2.5">${escapeHtml(m.content)}</div></div>`
+        : `<div class="flex justify-start"><div class="max-w-[85%] text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3.5 py-2.5">${escapeHtml(m.content)}</div></div>`
+    )
+    .join('');
+  chatEl.scrollTop = chatEl.scrollHeight;
+  renderOnboardingProgress();
+}
+
+function showOnboardingTyping() {
+  const chatEl = document.getElementById('onboarding-chat');
+  chatEl.innerHTML += `<div id="onboarding-typing" class="flex justify-start"><div class="max-w-[85%] text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3.5 py-2.5"><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400"></span></div></div>`;
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+function hideOnboardingTyping() {
+  const el = document.getElementById('onboarding-typing');
+  if (el) el.remove();
+}
+
+async function startOnboarding() {
+  onboardingMessages = getLS('focusloop.onboardingChat', []);
+  if (!onboardingMessages.length) {
+    renderOnboardingChat();
+    showOnboardingTyping();
+    let reply;
+    try {
+      reply = await callGemini({
+        prompt: 'Begin the onboarding conversation now with your first question, exactly as instructed.',
+        history: [],
+        systemPromptOverride: ONBOARDING_SYSTEM_PROMPT,
+      });
+    } catch (e) {
+      reply = "Hey, welcome. What should I call you?";
+    }
+    hideOnboardingTyping();
+    onboardingMessages.push({ role: 'assistant', content: reply });
+    setLS('focusloop.onboardingChat', onboardingMessages);
+  }
+  renderOnboardingChat();
+  try { document.getElementById('onboarding-input').focus(); } catch (e) {}
+}
+
+async function sendOnboardingMessage() {
+  const input = document.getElementById('onboarding-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  onboardingMessages.push({ role: 'user', content: text });
+  setLS('focusloop.onboardingChat', onboardingMessages);
+  renderOnboardingChat();
+  showOnboardingTyping();
+
+  const historyForApi = onboardingMessages.slice(0, -1).map((m) => ({ role: m.role, text: m.content }));
+  let reply;
+  try {
+    reply = await callGemini({ prompt: text, history: historyForApi, systemPromptOverride: ONBOARDING_SYSTEM_PROMPT });
+  } catch (e) {
+    reply = FALLBACKS.onboarding;
+  }
+  hideOnboardingTyping();
+
+  onboardingMessages.push({ role: 'assistant', content: reply });
+  setLS('focusloop.onboardingChat', onboardingMessages);
+  renderOnboardingChat();
+
+  const profileMatch = reply.match(/<PROFILE_JSON>([\s\S]*?)<\/PROFILE_JSON>/);
+  if (profileMatch) {
+    tryFinishOnboarding(profileMatch[1]);
+  }
+}
+
+function tryFinishOnboarding(jsonText) {
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonText.trim());
+  } catch (e) {
+    parsed = null;
+  }
+
+  const valid = parsed && typeof parsed === 'object' && typeof parsed.name === 'string' && parsed.name.trim() && Array.isArray(parsed.learning_topics);
+  if (!valid) {
+    // Robust fallback per spec: don't crash, ask them to redo the last couple answers.
+    onboardingMessages.push({
+      role: 'assistant',
+      content: "I didn't catch all of that clearly — mind answering the last couple questions again? What are you learning right now, and what do you already know about it?",
+    });
+    setLS('focusloop.onboardingChat', onboardingMessages);
+    renderOnboardingChat();
+    return;
+  }
+
+  const learningTopics = parsed.learning_topics
+    .map((t) => ({
+      topic: String((t && t.topic) || '').trim(),
+      level: VALID_LEVELS.includes(t && t.level) ? t.level : 'beginner',
+      knows: typeof (t && t.knows) === 'string' ? t.knows : '',
+    }))
+    .filter((t) => t.topic);
+
+  const profile = {
+    name: String(parsed.name).trim(),
+    working_on: typeof parsed.working_on === 'string' ? parsed.working_on : '',
+    age: Number.isFinite(Number(parsed.age)) ? Number(parsed.age) : null,
+    setup: typeof parsed.setup === 'string' ? parsed.setup : '',
+    learning_topics: learningTopics.length ? learningTopics : [{ topic: 'General', level: 'beginner', knows: '' }],
+    time_leaks: Array.isArray(parsed.time_leaks) ? parsed.time_leaks.filter((x) => typeof x === 'string') : [],
+    great_day: typeof parsed.great_day === 'string' ? parsed.great_day : '',
+  };
+
+  setLS('focusloop.userProfile', profile);
+  localStorage.removeItem('focusloop.onboardingChat');
+
+  learningProfile = profile.learning_topics.map((t) => ({ ...t }));
+  setLS('focusloop.learningProfile', learningProfile);
+
+  document.getElementById('onboarding-screen').classList.add('hidden');
+  initMainApp();
+}
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+function settingsToggleRow(label, checked, onclickFn) {
+  return `<button onclick="${onclickFn}" class="w-full flex items-center justify-between text-sm font-medium text-neutral-700 dark:text-neutral-300 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors">
+    <span>${label}</span>
+    <span class="w-9 h-5 rounded-full ${checked ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-neutral-700'} relative transition-colors shrink-0">
+      <span class="absolute top-0.5 ${checked ? 'right-0.5' : 'left-0.5'} w-4 h-4 rounded-full bg-white transition-all"></span>
+    </span>
+  </button>`;
+}
+
+function openSettingsModal() {
+  openModal(`
+    <div class="p-5">
+      <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide mb-3">Settings</p>
+      <div class="space-y-1 mb-4">
+        ${settingsToggleRow('Sound', soundOn, 'toggleSoundSetting()')}
+        ${settingsToggleRow('Vibration', vibrationOn, 'toggleVibrationSetting()')}
+        ${settingsToggleRow('Dark mode', document.documentElement.classList.contains('dark'), 'toggleDarkModeSetting()')}
+      </div>
+      <button onclick="closeModal(); switchTab('classroom'); expandLearningProfile();" class="w-full text-left text-sm font-medium text-neutral-700 dark:text-neutral-300 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors mb-1">Edit learning profile</button>
+      <button onclick="exportUserData()" class="w-full text-left text-sm font-medium text-neutral-700 dark:text-neutral-300 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors mb-1">Export my data</button>
+      <button onclick="confirmSwitchUser()" class="w-full text-left text-sm font-medium text-red-600 dark:text-red-400 px-3 py-2.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">Switch user (resets everything)</button>
+      <button onclick="closeModal()" class="mt-4 w-full bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 font-semibold text-sm py-2.5 rounded-lg">Close</button>
+    </div>
+  `);
+}
+
+function toggleSoundSetting() {
+  toggleSound();
+  openSettingsModal();
+}
+function toggleVibrationSetting() {
+  toggleVibration();
+  openSettingsModal();
+}
+function toggleDarkModeSetting() {
+  toggleDarkMode();
+  openSettingsModal();
+}
+
+function confirmSwitchUser() {
+  closeModal();
+  const ok = confirm('Switch user? This clears all data — sprints, lessons, chats, profile — and starts fresh. This cannot be undone.');
+  if (ok) resetAllFocusLoopData();
+}
+
+function resetAllFocusLoopData() {
+  Object.keys(localStorage)
+    .filter((k) => k.startsWith('focusloop.'))
+    .forEach((k) => localStorage.removeItem(k));
+  location.reload();
+}
+
+function exportUserData() {
+  const data = {};
+  Object.keys(localStorage)
+    .filter((k) => k.startsWith('focusloop.'))
+    .forEach((k) => {
+      try {
+        data[k] = JSON.parse(localStorage.getItem(k));
+      } catch (e) {
+        data[k] = localStorage.getItem(k);
+      }
+    });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'focus-loop-export-' + todayStr() + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  closeModal();
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+function initMainApp() {
+  document.getElementById('app-shell').classList.remove('hidden');
   updateThemeIcon();
   updateSoundIcon();
   renderTodayLog();
@@ -1241,7 +1755,20 @@ function init() {
   renderAdvisorChat();
   recoverTimerOnLoad();
 }
-init();
+
+function boot() {
+  if (!userType) {
+    document.getElementById('identity-screen').classList.remove('hidden');
+    return;
+  }
+  if (userType === 'new' && !getLS('focusloop.userProfile', null)) {
+    showOnboardingScreen();
+    return;
+  }
+  ensureLearningProfileSeeded();
+  initMainApp();
+}
+boot();
 </script>
 </body>
 </html>
