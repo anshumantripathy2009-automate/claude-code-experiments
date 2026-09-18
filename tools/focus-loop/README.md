@@ -34,13 +34,19 @@ Three tabs, one page:
 - **Focus** — a 25-minute sprint timer with a coach kickoff message, a
   post-sprint check-in, a daily sprint log, a 7-day streak view, and an
   end-of-day AI pattern analysis.
-- **Classroom** — an editable "What I already know" learning profile (6
-  fixed topics for Anshuman, however many topics onboarding produced for a
-  new user) drives an adaptive lesson flow: pick a topic, the AI reads your
-  level + what you already know + your feedback history on that topic, picks
-  the next concept, and teaches it — grounded with Google Search when the
-  topic needs current facts. Three feedback buttons (Clear / Partial / Lost)
-  after each lesson feed back into what gets taught next.
+- **Classroom** — three levels deep. Main topics (6 fixed for Anshuman,
+  however many onboarding produced for a new user) → user-created sub-topics
+  inside each one (e.g. "Python", "RAG" inside "AI & Tech") → a sequential,
+  numbered lesson track inside each sub-topic (Lesson 1, 2, 3...). Lesson 1
+  in a sub-topic starts with a quick diagnostic; every lesson after that
+  reads the full lesson history for that specific sub-topic and picks the
+  next concept — advancing after "Got it", reinforcing after "Partial",
+  backing off after "Lost" — grounded with Google Search when it needs
+  current facts. Previous/Next lesson navigation reads straight from the
+  log (no re-fetch); only generating a genuinely new lesson counts against
+  a configurable daily lesson cap (default 10, adjustable in Settings),
+  with a soft warning near the limit and a hard block once you hit it —
+  reviewing past lessons is never capped.
 - **Advisor** — a free-form chat with an AI that knows your actual situation
   (NoirFlow's real prospects/offers/patterns for Anshuman; whatever the new
   user said they're building, for them) and pushes back on weak calls.
@@ -84,9 +90,15 @@ the static offline messages built into the app.
   new user), not an account. Each browser/device picks once and stays that
   way until "Switch user" resets it.
 - All persistence is `localStorage`, keyed under `focusloop.*` (sprints,
-  journal, classroom, advisor sessions, userType, userProfile,
-  learningProfile, learningLog). Clearing browser data clears everything.
-  "Export my data" in Settings downloads it all as one JSON file first.
+  journal, advisor sessions, userType, userProfile, learningProfile,
+  subTopics, learningLog, dailyLessonCap/dailyLessonCount). Clearing browser
+  data clears everything. "Export my data" in Settings downloads it all as
+  one JSON file first.
+- `learningLog` is nested: `{ mainTopic: { subTopic: [lessons] } }`. Lessons
+  created before this sub-topic system shipped were migrated automatically
+  on first load into a `(General)` sub-topic under their original main
+  topic — nothing was lost, and the old flat `classroom` array is kept
+  on disk (unused) as a source-of-truth backup for that migration.
 - If the Gemini call fails for any reason, every mode has a hardcoded
   offline fallback message so the timer and logging never get blocked by a
   network issue. Onboarding has its own fallback too, so a dropped

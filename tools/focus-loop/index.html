@@ -211,51 +211,71 @@
     <div id="learning-profile-panel" class="hidden space-y-2"></div>
   </div>
 
-  <div id="classroom-picker">
+  <!-- VIEW A: main topic list -->
+  <div id="classroom-view-topics">
     <div class="flex items-center justify-between mb-3">
-      <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-50">Today's Lesson</h2>
+      <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-50">Classroom</h2>
       <button onclick="suggestTopic()" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">Suggest topic for me</button>
     </div>
     <div id="topic-grid" class="grid grid-cols-2 gap-2.5"></div>
   </div>
 
-  <div id="classroom-lesson" class="hidden mt-2">
-    <button onclick="backToTopics()" class="text-xs font-medium text-gray-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-200 mb-3 flex items-center gap-1">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-      Topics
+  <!-- VIEW B: sub-topic list inside a main topic -->
+  <div id="classroom-view-subtopics" class="hidden mt-2">
+    <button onclick="backToTopicsView()" class="text-xs font-medium text-gray-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-200 mb-3 flex items-center gap-1">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      <span>All topics · <span id="subtopic-breadcrumb-topic" class="font-semibold text-neutral-600 dark:text-neutral-300"></span></span>
     </button>
+    <div id="subtopic-list" class="space-y-2 mb-3"></div>
+    <button onclick="openAddSubTopicModal(currentMainTopic)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm py-3 rounded-lg transition-colors">+ Add sub-topic</button>
+  </div>
+
+  <!-- VIEW C: lessons inside a sub-topic -->
+  <div id="classroom-view-lesson" class="hidden mt-2">
+    <button onclick="backToSubTopicsView()" class="text-xs font-medium text-gray-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-200 mb-3 flex items-center gap-1">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      <span><span id="lesson-breadcrumb-topic"></span> · <span id="lesson-breadcrumb-subtopic" class="font-semibold text-neutral-600 dark:text-neutral-300"></span></span>
+    </button>
+
+    <div id="lesson-cap-warning" class="hidden text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-lg px-3 py-2.5 leading-relaxed mb-3"></div>
+
     <div class="bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-[10px] p-4">
       <p id="lesson-topic-label" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide mb-2"></p>
       <div id="lesson-content" class="text-sm text-neutral-700 dark:text-neutral-300"></div>
     </div>
+
     <p class="text-xs font-medium text-gray-400 dark:text-neutral-500 mt-4 mb-2">How well did that land?</p>
-    <div class="grid grid-cols-3 gap-2 mb-2.5" id="lesson-feedback-buttons">
-      <button data-feedback="clear" onclick="submitLessonFeedback('clear')" class="lesson-feedback-btn flex flex-col items-center gap-1 py-2.5 rounded-[10px] border-2 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
-        <span class="text-lg">✅</span><span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">Clear</span>
+    <div class="grid grid-cols-3 gap-2 mb-3" id="lesson-feedback-buttons">
+      <button data-feedback="clear" onclick="submitLessonUnderstanding('clear')" class="lesson-feedback-btn flex flex-col items-center gap-1 py-2.5 rounded-[10px] border-2 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
+        <span class="text-lg">✅</span><span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">Got it</span>
       </button>
-      <button data-feedback="partial" onclick="submitLessonFeedback('partial')" class="lesson-feedback-btn flex flex-col items-center gap-1 py-2.5 rounded-[10px] border-2 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
+      <button data-feedback="partial" onclick="submitLessonUnderstanding('partial')" class="lesson-feedback-btn flex flex-col items-center gap-1 py-2.5 rounded-[10px] border-2 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
         <span class="text-lg">🤔</span><span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">Partial</span>
       </button>
-      <button data-feedback="lost" onclick="submitLessonFeedback('lost')" class="lesson-feedback-btn flex flex-col items-center gap-1 py-2.5 rounded-[10px] border-2 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
+      <button data-feedback="lost" onclick="submitLessonUnderstanding('lost')" class="lesson-feedback-btn flex flex-col items-center gap-1 py-2.5 rounded-[10px] border-2 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
         <span class="text-lg">❌</span><span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">Lost</span>
       </button>
     </div>
-    <button onclick="toggleFollowUp()" class="w-full bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold text-sm py-2.5 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800">Ask a follow-up</button>
-    <div id="follow-up-box" class="hidden mt-3">
+
+    <div class="flex gap-2 mb-3">
+      <button id="prev-lesson-btn" onclick="prevLesson()" class="flex-1 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold text-sm py-2.5 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed">← Previous lesson</button>
+      <div id="next-lesson-wrap" class="flex-1"></div>
+    </div>
+
+    <button onclick="toggleFollowUp()" class="w-full bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold text-sm py-2.5 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800 mb-3">Ask a follow-up</button>
+    <div id="follow-up-box" class="hidden mb-3">
       <div id="follow-up-thread" class="space-y-2 mb-2"></div>
       <div class="flex gap-2">
         <input id="follow-up-input" type="text" placeholder="Ask a clarifying question..." class="flex-1 text-sm bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg px-3 py-2 text-neutral-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-400 transition-colors" onkeydown="if(event.key==='Enter') sendFollowUp();" />
         <button onclick="sendFollowUp()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-3.5 rounded-lg transition-colors">Ask</button>
       </div>
     </div>
-  </div>
 
-  <div class="mt-8 mb-4">
-    <button onclick="toggleLessonHistory()" class="w-full flex items-center justify-between text-sm font-bold text-neutral-900 dark:text-neutral-50 mb-2.5">
-      <span>Past lessons</span>
-      <svg id="lesson-history-chevron" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    <button onclick="toggleSubtopicLessonHistory()" class="w-full flex items-center justify-between text-sm font-bold text-neutral-900 dark:text-neutral-50 mb-2.5">
+      <span>Past lessons in this sub-topic</span>
+      <svg id="subtopic-lesson-history-chevron" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
     </button>
-    <div id="lesson-history" class="hidden bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-[10px] divide-y divide-gray-100 dark:divide-neutral-800 overflow-hidden"></div>
+    <div id="subtopic-lesson-history" class="hidden bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-[10px] divide-y divide-gray-100 dark:divide-neutral-800 overflow-hidden mb-4"></div>
   </div>
 
 </section>
@@ -372,7 +392,7 @@ Questions to work through, in order:
 2. 'What are you working on right now? Could be a business, a job, a project, studies — whatever's taking your energy.'
 3. 'How old are you?'
 4. 'What's your current situation with tools and setup — phone only, laptop, both? What software do you actually use daily?'
-5. 'What are you actively trying to learn right now? Give me your top 2-3 topics — could be tech, business, sales, design, anything.'
+5. 'What are you actively trying to learn right now? Give me your top 2-3 areas — could be broad like 'AI & Tech' or specific like 'Python' or 'cold email copywriting'. Broad or specific both fine — you'll build detailed learning tracks inside these later.'
 6. 'For each of those topics — what do you ALREADY know? What have you tried or built? Just a sentence per topic, your own words.'
 7. 'Where do you usually leak time or lose focus? Instagram, YouTube, anxiety scrolling, overthinking — call it out honestly.'
 8. 'Last one — what does a great day look like for you? What would you have shipped, learned, or done by end of it?'
@@ -387,12 +407,14 @@ Then output a JSON block wrapped in <PROFILE_JSON></PROFILE_JSON> tags with this
   "working_on": string,
   "age": number,
   "setup": string,
-  "learning_topics": [{ "topic": string, "level": "beginner" | "intermediate" | "advanced", "knows": string }],
+  "learning_topics": [{ "topic": string, "level": "beginner" | "intermediate" | "advanced", "knows": string, "parent_topic": string | null }],
   "time_leaks": [string],
   "great_day": string
 }
 
 The 'level' field: YOU infer it from what they said in question 6. If they mention shipping things → intermediate or advanced. If they say 'just starting' → beginner. Don't ask them to self-assess level, YOU judge it from their answer.
+
+The 'parent_topic' field: classify each answer from question 5. The six broad categories are: 'AI & Tech', 'Business & Sales', 'Personal Brand & Positioning', 'Finance & Money Mindset', 'Founder Mental Game', 'Tools Deep Dive'. If their answer for a topic already IS one of these six broad categories (or maps cleanly onto one, e.g. 'coding' → 'AI & Tech'), set "topic" to that exact canonical name and "parent_topic" to null. If instead their answer names something SPECIFIC (a tool, skill, or niche subject — e.g. 'Python', 'RAG systems', 'cold email copywriting'), keep "topic" as their specific term and set "parent_topic" to whichever of the six broad categories it best fits under.
 
 Rules:
 - Never dump all 8 questions at once. ONE per message.
@@ -478,12 +500,17 @@ let vibrationOn = getLS('focusloop.vibrationOn', true);
 let timer = getLS('focusloop.currentSprint', null); // { phase, goal, leak, startTime, duration, paused, pausedAt }
 
 let userType = getLS('focusloop.userType', null); // 'anshuman' | 'new' | null
-let learningProfile = getLS('focusloop.learningProfile', null); // [{ topic, level, knows }]
-let learningLog = getLS('focusloop.learningLog', []); // [{ id, date, topic, concept, feedback, timestamp }]
+let learningProfile = getLS('focusloop.learningProfile', null); // [{ topic, level, knows }] — main topics
+let subTopics = getLS('focusloop.subTopics', {}); // { [mainTopic]: [subTopicName, ...] }
+let learningLog = getLS('focusloop.learningLog', {}); // { [mainTopic]: { [subTopic]: [{ lessonNumber, date, conceptTaught, understanding, content, followUps }] } }
+// May still be the pre-upgrade flat array shape on disk (migrateClassroomData() below fixes that on boot).
+let dailyLessonCap = getLS('focusloop.dailyLessonCap', 10);
 let onboardingMessages = getLS('focusloop.onboardingChat', []); // [{ role, content }]
 
 let currentAdvisorSessionId = null;
-let currentLessonEntry = null; // reference into classroom array for the lesson currently shown
+let currentMainTopic = null; // Classroom nav: which main topic is open (View B/C)
+let currentSubTopic = null; // Classroom nav: which sub-topic is open (View C)
+let currentLessonIndex = null; // Classroom nav: index into learningLog[mainTopic][subTopic] currently shown
 let rafHandle = null;
 
 /* =========================================================
@@ -1028,6 +1055,72 @@ In 3-4 sentences, identify ONE clear pattern. Be specific — cite the sprints. 
 /* =========================================================
    CLASSROOM TAB
    ========================================================= */
+const FEEDBACK_ICON = { clear: '✅', partial: '🤔', lost: '❌' };
+
+/* ---- One-time migration: old flat learningLog array -> nested { mainTopic: { subTopic: [lessons] } } ---- */
+function migrateClassroomData() {
+  if (!Array.isArray(learningLog)) return; // already migrated (or a brand-new install)
+  const nestedLog = {};
+  const subs = {};
+  const byTopic = {};
+  classroom.forEach((entry) => {
+    if (!entry || !entry.topic) return;
+    (byTopic[entry.topic] = byTopic[entry.topic] || []).push(entry);
+  });
+  Object.keys(byTopic).forEach((topic) => {
+    nestedLog[topic] = {
+      '(General)': byTopic[topic].map((entry, i) => ({
+        lessonNumber: i + 1,
+        date: entry.date,
+        conceptTaught: truncate(firstLine(entry.content).replace(/^#+\s*/, '').replace(/\*\*/g, ''), 80),
+        understanding: entry.feedback || null,
+        content: entry.content,
+        followUps: entry.followUps || [],
+      })),
+    };
+    subs[topic] = ['(General)'];
+  });
+  learningLog = nestedLog;
+  subTopics = { ...subs, ...subTopics };
+  setLS('focusloop.learningLog', learningLog);
+  setLS('focusloop.subTopics', subTopics);
+}
+
+function getSubTopicLessons(mainTopic, subTopic) {
+  return (learningLog[mainTopic] && learningLog[mainTopic][subTopic]) || [];
+}
+
+function topicStats(mainTopic) {
+  const subs = learningLog[mainTopic] || {};
+  const subCount = Object.keys(subs).length;
+  const lessonCount = Object.values(subs).reduce((sum, arr) => sum + arr.length, 0);
+  return { subCount, lessonCount };
+}
+
+/* ---- Daily lesson cap ---- */
+function getDailyLessonCountRecord() {
+  const rec = getLS('focusloop.dailyLessonCount', { date: todayStr(), count: 0 });
+  if (rec.date !== todayStr()) return { date: todayStr(), count: 0 };
+  return rec;
+}
+function dailyLessonStatus() {
+  const rec = getDailyLessonCountRecord();
+  return { cap: dailyLessonCap, count: rec.count, remaining: dailyLessonCap - rec.count };
+}
+function incrementDailyLessonCount() {
+  const rec = getDailyLessonCountRecord();
+  rec.count += 1;
+  setLS('focusloop.dailyLessonCount', rec);
+}
+function updateDailyLessonCap(value) {
+  let n = parseInt(value, 10);
+  if (!Number.isFinite(n)) n = 10;
+  n = Math.max(3, Math.min(20, n));
+  dailyLessonCap = n;
+  setLS('focusloop.dailyLessonCap', dailyLessonCap);
+}
+
+/* ---- VIEW A: main topic list ---- */
 function renderTopicGrid() {
   const grid = document.getElementById('topic-grid');
   if (!learningProfile || !learningProfile.length) {
@@ -1035,17 +1128,393 @@ function renderTopicGrid() {
     return;
   }
   grid.innerHTML = learningProfile
-    .map(
-      (t) => `
-    <button onclick="pickTopic('${t.topic.replace(/'/g, "\\'")}')" class="flex flex-col items-start gap-2 p-3.5 rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors text-left">
+    .map((t) => {
+      const stats = topicStats(t.topic);
+      return `
+    <button onclick="openTopic('${t.topic.replace(/'/g, "\\'")}')" class="flex flex-col items-start gap-2 p-3.5 rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors text-left">
       <span class="text-xl">${topicIcon(t.topic)}</span>
       <span class="text-xs font-semibold text-neutral-800 dark:text-neutral-200 leading-snug">${escapeHtml(t.topic)}</span>
-    </button>`
-    )
+      <span class="text-[11px] text-gray-400 dark:text-neutral-500">${stats.subCount} sub-topic${stats.subCount === 1 ? '' : 's'} · ${stats.lessonCount} lesson${stats.lessonCount === 1 ? '' : 's'}</span>
+    </button>`;
+    })
     .join('');
 }
 
-/* ---- Learning profile: editable "What I already know" ---- */
+function showClassroomView(view) {
+  document.getElementById('classroom-view-topics').classList.toggle('hidden', view !== 'topics');
+  document.getElementById('classroom-view-subtopics').classList.toggle('hidden', view !== 'subtopics');
+  document.getElementById('classroom-view-lesson').classList.toggle('hidden', view !== 'lesson');
+}
+
+function backToTopicsView() {
+  currentMainTopic = null;
+  currentSubTopic = null;
+  currentLessonIndex = null;
+  showClassroomView('topics');
+  renderTopicGrid();
+}
+
+/* ---- VIEW B: sub-topic list inside a main topic ---- */
+function openTopic(mainTopic) {
+  currentMainTopic = mainTopic;
+  currentSubTopic = null;
+  currentLessonIndex = null;
+  showClassroomView('subtopics');
+  renderSubTopicList(mainTopic);
+}
+
+function backToSubTopicsView() {
+  currentSubTopic = null;
+  currentLessonIndex = null;
+  showClassroomView('subtopics');
+  renderSubTopicList(currentMainTopic);
+}
+
+function renderSubTopicList(mainTopic) {
+  document.getElementById('subtopic-breadcrumb-topic').textContent = mainTopic;
+  const wrap = document.getElementById('subtopic-list');
+  const names = subTopics[mainTopic] || [];
+  if (!names.length) {
+    wrap.innerHTML = '<div class="px-4 py-6 text-center text-sm text-gray-400 dark:text-neutral-500 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-[10px]">No sub-topics yet. Add one to start a learning track.</div>';
+    return;
+  }
+  wrap.innerHTML = names
+    .map((name) => {
+      const lessons = getSubTopicLessons(mainTopic, name);
+      const lastDate = lessons.length ? lessons[lessons.length - 1].date : 'Not started';
+      const trend = lessons
+        .slice(-5)
+        .map((l) => FEEDBACK_ICON[l.understanding] || '⚪')
+        .join(' ');
+      return `
+    <button onclick="openSubTopic('${mainTopic.replace(/'/g, "\\'")}', '${name.replace(/'/g, "\\'")}')" class="w-full text-left px-4 py-3 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-[10px] hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors flex items-center justify-between gap-3">
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200 truncate">${escapeHtml(name)}</p>
+        <p class="text-xs text-gray-400 dark:text-neutral-500 mt-0.5">${lessons.length ? 'Lesson ' + lessons.length + ' of ongoing' : 'Not started'} · ${lastDate}</p>
+      </div>
+      <span class="text-xs shrink-0">${trend}</span>
+    </button>`;
+    })
+    .join('');
+}
+
+function openAddSubTopicModal(mainTopic) {
+  if (!mainTopic) return;
+  openModal(`
+    <div class="p-5">
+      <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide mb-2">New sub-topic in ${escapeHtml(mainTopic)}</p>
+      <label class="block text-sm font-semibold text-neutral-900 dark:text-neutral-50 mb-2">What do you want to learn inside ${escapeHtml(mainTopic)}?</label>
+      <textarea id="new-subtopic-input" rows="2" placeholder="e.g. Python, RAG, cold email copywriting..." class="w-full text-sm bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg px-3 py-2.5 text-neutral-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-400 transition-colors resize-none"></textarea>
+      <div class="flex gap-2 mt-3">
+        <button onclick="closeModal()" class="flex-1 bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 font-semibold text-sm py-2.5 rounded-lg">Cancel</button>
+        <button onclick="createSubTopic('${mainTopic.replace(/'/g, "\\'")}')" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm py-2.5 rounded-lg transition-colors">Create</button>
+      </div>
+    </div>
+  `);
+  setTimeout(() => {
+    const el = document.getElementById('new-subtopic-input');
+    if (el) el.focus();
+  }, 50);
+}
+
+function createSubTopic(mainTopic) {
+  const input = document.getElementById('new-subtopic-input');
+  const name = (input ? input.value : '').trim();
+  if (!name) return;
+  closeModal();
+  if (!subTopics[mainTopic]) subTopics[mainTopic] = [];
+  if (!subTopics[mainTopic].includes(name)) subTopics[mainTopic].push(name);
+  setLS('focusloop.subTopics', subTopics);
+  if (!learningLog[mainTopic]) learningLog[mainTopic] = {};
+  if (!learningLog[mainTopic][name]) learningLog[mainTopic][name] = [];
+  setLS('focusloop.learningLog', learningLog);
+  openSubTopic(mainTopic, name);
+}
+
+/* ---- VIEW C: lessons inside a sub-topic ---- */
+function openSubTopic(mainTopic, subTopic) {
+  currentMainTopic = mainTopic;
+  currentSubTopic = subTopic;
+  const lessons = getSubTopicLessons(mainTopic, subTopic);
+  currentLessonIndex = lessons.length ? lessons.length - 1 : null;
+  showClassroomView('lesson');
+  renderSubTopicLessonView();
+  if (!lessons.length) generateNextLesson(mainTopic, subTopic);
+}
+
+function countTrailingLost(lessons) {
+  let n = 0;
+  for (let i = lessons.length - 1; i >= 0; i--) {
+    if (lessons[i].understanding === 'lost') n++;
+    else break;
+  }
+  return n;
+}
+
+async function generateNextLesson(mainTopic, subTopic) {
+  const status = dailyLessonStatus();
+  if (status.remaining <= 0) {
+    currentLessonIndex = getSubTopicLessons(mainTopic, subTopic).length - 1;
+    renderSubTopicLessonView();
+    return;
+  }
+
+  const lessons = getSubTopicLessons(mainTopic, subTopic);
+  const lessonNumber = lessons.length + 1;
+  const profileEntry = (learningProfile || []).find((t) => t.topic === mainTopic) || { level: 'beginner', knows: '' };
+  const profile = userType === 'new' ? getLS('focusloop.userProfile', null) : null;
+  const workingOn = profile && profile.working_on ? profile.working_on : '';
+  const lostStreak = countTrailingLost(lessons);
+
+  const historyBlock = lessons.length
+    ? lessons.map((l) => `Lesson ${l.lessonNumber} (${l.date}): ${l.conceptTaught} — understanding: ${l.understanding || 'not rated'}`).join('\n')
+    : 'No prior lessons in this sub-topic yet.';
+
+  const taskBlock =
+    lessonNumber === 1
+      ? `- This is Lesson 1 for a brand new sub-topic:
+  Start with a diagnostic. Ask 1-2 quick questions to gauge where they are IN THIS SPECIFIC SUB-TOPIC (main topic level isn't always the same as sub-topic level — someone advanced in ${mainTopic} may be beginner in this). Then teach the true foundational concept for their assessed level.`
+      : `- This is Lesson ${lessonNumber} (N > 1):
+  Read every prior lesson in this sub-topic above. Identify what was taught, what they marked understanding as. Pick the NEXT logical concept in the natural progression of this sub-topic.
+  * If last lesson was 'clear' → advance to next concept
+  * If last lesson was 'partial' → reinforce same concept from a different angle
+  * If last lesson was 'lost' → go simpler, re-teach prerequisite`;
+
+  const lostBlock =
+    lostStreak >= 3
+      ? `\n- They have marked ${lostStreak} lessons in a row as 'lost' on this sub-topic: explicitly suggest they pause this sub-topic and try a foundational prerequisite instead. Name what prerequisite specifically.`
+      : '';
+
+  const prompt = `${getBaseSystemPrompt()}
+
+MODE: Classroom teacher — ADAPTIVE + SEQUENTIAL mode.
+
+Main topic: '${mainTopic}'
+Sub-topic: '${subTopic}'
+Current position: Lesson ${lessonNumber} in this sub-topic
+User's overall level in ${mainTopic}: ${profileEntry.level}
+What they already know in ${mainTopic}: ${profileEntry.knows || 'Not specified yet.'}
+
+FULL LESSON HISTORY FOR THIS SUB-TOPIC:
+${historyBlock}
+
+YOUR TASK:
+${taskBlock}${lostBlock}
+
+LESSON STRUCTURE:
+- Sub-topic + lesson number label at top (e.g. '${subTopic} · Lesson ${lessonNumber}')
+- 1 sentence: what this lesson builds on from last lesson (reference specifically, e.g. 'You got list comprehensions last lesson. Now we build on that with...')${lessonNumber === 1 ? ' — skip this for Lesson 1, there is nothing before it.' : ''}
+- Core teaching: ONE concept, clearly explained
+- Concrete example — ${workingOn ? `tie the example to their project: '${workingOn}'.` : 'if user has a project (from their profile), tie the example to their project.'}
+- 'Try this in your next Focus sprint' — one applied action
+- Max 400 words. Tight.
+
+RULES:
+- ONE concept per lesson, always
+- Sequential — never skip prerequisites
+- Never repeat something they already understood in this sub-topic
+- Reference prior lessons explicitly to build continuity
+- Direct, warm, mentor tone
+
+At end of lesson output the sub-topic breadcrumb again so frontend can confirm parsing:
+<META>subtopic:${subTopic}|lesson:${lessonNumber}</META>`;
+
+  let content;
+  try {
+    content = await callGemini({ prompt, useSearch: true });
+  } catch (e) {
+    content = FALLBACKS.lesson;
+  }
+  const displayContent = content.replace(/<META>[\s\S]*?<\/META>\s*$/, '').trim();
+
+  const lessonRecord = {
+    lessonNumber,
+    date: todayStr(),
+    conceptTaught: truncate(firstLine(displayContent).replace(/^#+\s*/, '').replace(/\*\*/g, ''), 80),
+    understanding: null,
+    content: displayContent,
+    followUps: [],
+  };
+  if (!learningLog[mainTopic]) learningLog[mainTopic] = {};
+  if (!learningLog[mainTopic][subTopic]) learningLog[mainTopic][subTopic] = [];
+  learningLog[mainTopic][subTopic].push(lessonRecord);
+  setLS('focusloop.learningLog', learningLog);
+  incrementDailyLessonCount();
+
+  currentMainTopic = mainTopic;
+  currentSubTopic = subTopic;
+  currentLessonIndex = learningLog[mainTopic][subTopic].length - 1;
+  renderSubTopicLessonView();
+}
+
+function handleNextLesson() {
+  const lessons = getSubTopicLessons(currentMainTopic, currentSubTopic);
+  if (currentLessonIndex < lessons.length - 1) {
+    currentLessonIndex++;
+    renderSubTopicLessonView();
+  } else {
+    generateNextLesson(currentMainTopic, currentSubTopic);
+  }
+}
+
+function prevLesson() {
+  if (currentLessonIndex > 0) {
+    currentLessonIndex--;
+    renderSubTopicLessonView();
+  }
+}
+
+function jumpToLesson(index) {
+  currentLessonIndex = index;
+  renderSubTopicLessonView();
+}
+
+function submitLessonUnderstanding(value) {
+  const lessons = getSubTopicLessons(currentMainTopic, currentSubTopic);
+  const lesson = lessons[currentLessonIndex];
+  if (!lesson) return;
+  lesson.understanding = value;
+  setLS('focusloop.learningLog', learningLog);
+  renderSubTopicLessonView();
+}
+
+function renderSubTopicLessonView() {
+  document.getElementById('lesson-breadcrumb-topic').textContent = currentMainTopic || '';
+  document.getElementById('lesson-breadcrumb-subtopic').textContent = currentSubTopic || '';
+
+  const lessons = getSubTopicLessons(currentMainTopic, currentSubTopic);
+  const lesson = currentLessonIndex != null ? lessons[currentLessonIndex] : undefined;
+  const status = dailyLessonStatus();
+
+  const contentEl = document.getElementById('lesson-content');
+  const labelEl = document.getElementById('lesson-topic-label');
+
+  if (!lesson) {
+    if (status.remaining <= 0) {
+      labelEl.textContent = currentSubTopic + ' · Not started';
+      contentEl.innerHTML = '<p class="text-sm text-gray-400 dark:text-neutral-500">Daily lesson cap reached. Come back tomorrow to start this sub-topic.</p>';
+    } else {
+      labelEl.textContent = currentSubTopic + ' · Generating Lesson 1...';
+      contentEl.innerHTML =
+        '<span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400"></span>';
+    }
+  } else {
+    labelEl.textContent = currentSubTopic + ' · Lesson ' + lesson.lessonNumber;
+    contentEl.innerHTML = renderLessonHTML(lesson.content);
+  }
+
+  document.querySelectorAll('.lesson-feedback-btn').forEach((b) => {
+    const active = !!lesson && b.dataset.feedback === lesson.understanding;
+    b.classList.toggle('border-indigo-600', active);
+    b.classList.toggle('bg-indigo-50', active);
+    b.classList.toggle('dark:bg-indigo-500/10', active);
+  });
+
+  document.getElementById('prev-lesson-btn').disabled = !lesson || currentLessonIndex <= 0;
+
+  const atTip = !lesson || currentLessonIndex === lessons.length - 1;
+  const nextWrap = document.getElementById('next-lesson-wrap');
+  if (atTip && status.remaining <= 0) {
+    nextWrap.innerHTML = `<p class="text-xs text-center text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-lg px-3 py-2.5 leading-relaxed">Daily cap reached (${status.cap} lessons). Come back tomorrow — your brain needs sleep to lock in what you learned. You can still review past lessons.</p>`;
+  } else if (!lesson) {
+    nextWrap.innerHTML = '';
+  } else {
+    nextWrap.innerHTML = `<button id="next-lesson-btn" onclick="handleNextLesson()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm py-2.5 rounded-lg transition-colors">Next lesson →</button>`;
+  }
+
+  const warningEl = document.getElementById('lesson-cap-warning');
+  if (atTip && status.remaining > 0 && status.remaining <= 2) {
+    warningEl.classList.remove('hidden');
+    warningEl.textContent = `You've studied ${status.count} lessons today. Great pace — but consider giving your brain time to consolidate. ${status.remaining} more lesson${status.remaining === 1 ? '' : 's'} available today.`;
+  } else {
+    warningEl.classList.add('hidden');
+  }
+
+  document.getElementById('follow-up-box').classList.add('hidden');
+  document.getElementById('follow-up-thread').innerHTML = lesson
+    ? (lesson.followUps || [])
+        .map(
+          (f) => `
+    <div class="text-sm bg-indigo-600 text-white chat-bubble-user px-3 py-2 ml-8">${escapeHtml(f.question)}</div>
+    <div class="text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3 py-2 mr-8">${escapeHtml(f.answer)}</div>`
+        )
+        .join('')
+    : '';
+
+  renderPastLessonsList(lessons);
+}
+
+function toggleSubtopicLessonHistory() {
+  const box = document.getElementById('subtopic-lesson-history');
+  const chevron = document.getElementById('subtopic-lesson-history-chevron');
+  const willShow = box.classList.contains('hidden');
+  box.classList.toggle('hidden');
+  chevron.style.transform = willShow ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
+function renderPastLessonsList(lessons) {
+  const box = document.getElementById('subtopic-lesson-history');
+  if (!lessons.length) {
+    box.innerHTML = '<div class="px-4 py-4 text-center text-sm text-gray-400 dark:text-neutral-500">No lessons yet.</div>';
+    return;
+  }
+  box.innerHTML = [...lessons]
+    .reverse()
+    .map((l, idx) => {
+      const realIndex = lessons.length - 1 - idx;
+      return `
+    <button onclick="jumpToLesson(${realIndex})" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors flex items-center justify-between gap-3 ${realIndex === currentLessonIndex ? 'bg-indigo-50 dark:bg-indigo-500/10' : ''}">
+      <div class="min-w-0">
+        <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200 truncate">Lesson ${l.lessonNumber}: ${escapeHtml(truncate(l.conceptTaught, 40))}</p>
+        <p class="text-xs text-gray-400 dark:text-neutral-500 mt-0.5">${l.date}</p>
+      </div>
+      <span class="text-base shrink-0">${FEEDBACK_ICON[l.understanding] || ''}</span>
+    </button>`;
+    })
+    .join('');
+}
+
+function toggleFollowUp() {
+  document.getElementById('follow-up-box').classList.toggle('hidden');
+  document.getElementById('follow-up-input').focus();
+}
+
+async function sendFollowUp() {
+  const input = document.getElementById('follow-up-input');
+  const question = input.value.trim();
+  const lessons = getSubTopicLessons(currentMainTopic, currentSubTopic);
+  const lesson = currentLessonIndex != null ? lessons[currentLessonIndex] : undefined;
+  if (!question || !lesson) return;
+  input.value = '';
+
+  const thread = document.getElementById('follow-up-thread');
+  thread.innerHTML += `<div class="text-sm bg-indigo-600 text-white chat-bubble-user px-3 py-2 ml-8">${escapeHtml(question)}</div>`;
+  const loadingId = 'fu-loading-' + uid();
+  thread.innerHTML += `<div id="${loadingId}" class="text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3 py-2 mr-8"><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400"></span></div>`;
+
+  const prompt = `${getBaseSystemPrompt()}
+MODE: Classroom teacher (follow-up).
+Sub-topic: '${currentSubTopic}' (main topic: '${currentMainTopic}').
+Lesson content: ${lesson.content}.
+Their follow-up question: '${question}'.
+Answer directly in 2-4 sentences. Reference the lesson. No fluff.`;
+
+  let answer;
+  try {
+    answer = await callGemini({ prompt, useSearch: true });
+  } catch (e) {
+    answer = FALLBACKS.followup;
+  }
+
+  const loadingEl = document.getElementById(loadingId);
+  if (loadingEl) loadingEl.outerHTML = `<div class="text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3 py-2 mr-8">${escapeHtml(answer)}</div>`;
+
+  lesson.followUps = lesson.followUps || [];
+  lesson.followUps.push({ question, answer });
+  setLS('focusloop.learningLog', learningLog);
+}
+
+/* ---- Learning profile: editable "What I already know" (main-topic level) ---- */
 function toggleLearningProfilePanel() {
   const box = document.getElementById('learning-profile-panel');
   const chevron = document.getElementById('learning-profile-chevron');
@@ -1108,65 +1577,19 @@ function recentSprintSummary() {
 }
 
 function pastTopicsList() {
-  const recent = classroom.slice(-7).map((c) => c.date + ': ' + c.topic);
+  const rows = [];
+  Object.keys(learningLog).forEach((topic) => {
+    Object.keys(learningLog[topic] || {}).forEach((sub) => {
+      (learningLog[topic][sub] || []).forEach((l) => rows.push({ date: l.date, label: `${topic} > ${sub} (Lesson ${l.lessonNumber})` }));
+    });
+  });
+  rows.sort((a, b) => a.date.localeCompare(b.date));
+  const recent = rows.slice(-7).map((r) => r.date + ': ' + r.label);
   return recent.length ? recent.join('; ') : 'No lessons yet.';
 }
 
 function firstLine(text) {
   return (text || '').split('\n').find((l) => l.trim()) || '';
-}
-
-function recentLearningLogForTopic(topicName) {
-  const entries = learningLog.filter((l) => l.topic === topicName).slice(-5);
-  if (!entries.length) return 'No prior lessons on this topic yet.';
-  return entries.map((e) => `${e.date}: ${e.feedback} — ${truncate(e.concept, 60)}`).join('; ');
-}
-
-async function pickTopic(topicName) {
-  document.getElementById('classroom-picker').classList.add('hidden');
-  document.getElementById('classroom-lesson').classList.remove('hidden');
-  document.getElementById('lesson-topic-label').textContent = topicName;
-  document.querySelectorAll('.lesson-feedback-btn').forEach((b) => b.classList.remove('border-indigo-600', 'bg-indigo-50', 'dark:bg-indigo-500/10'));
-  document.getElementById('follow-up-box').classList.add('hidden');
-  document.getElementById('follow-up-thread').innerHTML = '';
-  const contentEl = document.getElementById('lesson-content');
-  contentEl.innerHTML = '<span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400"></span>';
-
-  const profileEntry = (learningProfile || []).find((t) => t.topic === topicName) || { topic: topicName, level: 'beginner', knows: '' };
-
-  const prompt = `${getBaseSystemPrompt()}
-MODE: Classroom teacher (adaptive).
-Topic: '${topicName}'.
-Their current level on this topic: '${profileEntry.level}'.
-What they already know / have tried: '${profileEntry.knows || 'Not specified yet.'}'.
-Recent lessons + feedback on this topic (most recent first): ${recentLearningLogForTopic(topicName)}.
-Recent sprint patterns: ${recentSprintSummary()}.
-
-Pick ONE next concept for this topic that fits their level and builds on what they already know — don't re-teach something they already marked 'clear', and revisit gently if their last concept on this topic was marked 'lost'. If there's no history yet, start with the most foundational useful concept.
-
-Generate a 5-8 minute lesson:
-1. Name the ONE concept you picked
-2. Why it matters for their situation right now
-3. A concrete example they can actually apply
-4. ONE action for their next sprint
-5. If it needs current info (new tool, recent development), use your Google Search tool to ground the lesson in real facts, cite sources briefly
-
-Keep it TIGHT. Do not lecture. Do not 'here are 10 principles'. One idea, well-taught. Format with clear headings but no walls of text. Assume they'll act on it today.`;
-
-  let content;
-  try {
-    content = await callGemini({ prompt, useSearch: true });
-  } catch (e) {
-    content = FALLBACKS.lesson;
-  }
-
-  contentEl.innerHTML = renderLessonHTML(content);
-
-  const entry = { date: todayStr(), topic: topicName, content, followUps: [], feedback: null };
-  classroom.push(entry);
-  setLS('focusloop.classroom', classroom);
-  currentLessonEntry = entry;
-  renderLessonHistory();
 }
 
 async function suggestTopic() {
@@ -1196,131 +1619,10 @@ Reply with ONLY the exact topic name from the list, nothing else.`;
   btn.disabled = false;
 
   if (!picked) {
-    const studied = new Set(classroom.map((c) => c.topic));
-    picked = topicNames.find((name) => !studied.has(name)) || topicNames[0];
+    const leastStudied = topicNames.slice().sort((a, b) => topicStats(a).lessonCount - topicStats(b).lessonCount);
+    picked = leastStudied[0];
   }
-  if (picked) pickTopic(picked);
-}
-
-function backToTopics() {
-  document.getElementById('classroom-lesson').classList.add('hidden');
-  document.getElementById('classroom-picker').classList.remove('hidden');
-}
-
-const FEEDBACK_ICON = { clear: '✅', partial: '🤔', lost: '❌' };
-
-function submitLessonFeedback(feedback) {
-  if (!currentLessonEntry) return;
-  currentLessonEntry.feedback = feedback;
-  setLS('focusloop.classroom', classroom);
-
-  learningLog.push({
-    id: uid(),
-    date: todayStr(),
-    topic: currentLessonEntry.topic,
-    concept: truncate(firstLine(currentLessonEntry.content).replace(/^#+\s*/, '').replace(/\*\*/g, ''), 80),
-    feedback,
-    timestamp: Date.now(),
-  });
-  setLS('focusloop.learningLog', learningLog);
-
-  document.querySelectorAll('.lesson-feedback-btn').forEach((b) => {
-    const active = b.dataset.feedback === feedback;
-    b.classList.toggle('border-indigo-600', active);
-    b.classList.toggle('bg-indigo-50', active);
-    b.classList.toggle('dark:bg-indigo-500/10', active);
-  });
-  renderLessonHistory();
-}
-
-function toggleFollowUp() {
-  document.getElementById('follow-up-box').classList.toggle('hidden');
-  document.getElementById('follow-up-input').focus();
-}
-
-async function sendFollowUp() {
-  const input = document.getElementById('follow-up-input');
-  const question = input.value.trim();
-  if (!question || !currentLessonEntry) return;
-  input.value = '';
-
-  const thread = document.getElementById('follow-up-thread');
-  thread.innerHTML += `<div class="text-sm bg-indigo-600 text-white chat-bubble-user px-3 py-2 ml-8">${escapeHtml(question)}</div>`;
-  const loadingId = 'fu-loading-' + uid();
-  thread.innerHTML += `<div id="${loadingId}" class="text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3 py-2 mr-8"><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400"></span></div>`;
-
-  const prompt = `${getBaseSystemPrompt()}
-MODE: Classroom teacher (follow-up).
-Today's lesson topic: '${currentLessonEntry.topic}'.
-Lesson content: ${currentLessonEntry.content}.
-Their follow-up question: '${question}'.
-Answer directly in 2-4 sentences. Reference the lesson. No fluff.`;
-
-  let answer;
-  try {
-    answer = await callGemini({ prompt, useSearch: true });
-  } catch (e) {
-    answer = FALLBACKS.followup;
-  }
-
-  const loadingEl = document.getElementById(loadingId);
-  if (loadingEl) loadingEl.outerHTML = `<div class="text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3 py-2 mr-8">${escapeHtml(answer)}</div>`;
-
-  currentLessonEntry.followUps.push({ question, answer });
-  setLS('focusloop.classroom', classroom);
-}
-
-function toggleLessonHistory() {
-  const box = document.getElementById('lesson-history');
-  const chevron = document.getElementById('lesson-history-chevron');
-  const willShow = box.classList.contains('hidden');
-  box.classList.toggle('hidden');
-  chevron.style.transform = willShow ? 'rotate(180deg)' : 'rotate(0deg)';
-}
-
-function renderLessonHistory() {
-  const box = document.getElementById('lesson-history');
-  if (!classroom.length) {
-    box.innerHTML = '<div class="px-4 py-5 text-center text-sm text-gray-400 dark:text-neutral-500">No lessons yet.</div>';
-    return;
-  }
-  const items = [...classroom].reverse();
-  box.innerHTML = items
-    .map(
-      (entry, idx) => `
-    <button onclick="reopenLesson(${classroom.length - 1 - idx})" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors flex items-center justify-between gap-3">
-      <div class="min-w-0">
-        <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200 truncate">${escapeHtml(entry.topic)}</p>
-        <p class="text-xs text-gray-400 dark:text-neutral-500 mt-0.5">${entry.date}</p>
-      </div>
-      ${entry.feedback ? `<span class="text-base shrink-0">${FEEDBACK_ICON[entry.feedback] || ''}</span>` : ''}
-    </button>`
-    )
-    .join('');
-}
-
-function reopenLesson(index) {
-  const entry = classroom[index];
-  if (!entry) return;
-  currentLessonEntry = entry;
-  document.getElementById('classroom-picker').classList.add('hidden');
-  document.getElementById('classroom-lesson').classList.remove('hidden');
-  document.getElementById('lesson-topic-label').textContent = entry.topic;
-  document.getElementById('lesson-content').innerHTML = renderLessonHTML(entry.content);
-  document.querySelectorAll('.lesson-feedback-btn').forEach((b) => {
-    const active = b.dataset.feedback === entry.feedback;
-    b.classList.toggle('border-indigo-600', active);
-    b.classList.toggle('bg-indigo-50', active);
-    b.classList.toggle('dark:bg-indigo-500/10', active);
-  });
-  document.getElementById('follow-up-box').classList.add('hidden');
-  document.getElementById('follow-up-thread').innerHTML = (entry.followUps || [])
-    .map(
-      (f) => `
-    <div class="text-sm bg-indigo-600 text-white chat-bubble-user px-3 py-2 ml-8">${escapeHtml(f.question)}</div>
-    <div class="text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3 py-2 mr-8">${escapeHtml(f.answer)}</div>`
-    )
-    .join('');
+  if (picked) openTopic(picked);
 }
 
 function renderLessonHTML(text) {
@@ -1638,6 +1940,7 @@ function tryFinishOnboarding(jsonText) {
       topic: String((t && t.topic) || '').trim(),
       level: VALID_LEVELS.includes(t && t.level) ? t.level : 'beginner',
       knows: typeof (t && t.knows) === 'string' ? t.knows : '',
+      parent_topic: typeof (t && t.parent_topic) === 'string' ? t.parent_topic.trim() : '',
     }))
     .filter((t) => t.topic);
 
@@ -1646,7 +1949,7 @@ function tryFinishOnboarding(jsonText) {
     working_on: typeof parsed.working_on === 'string' ? parsed.working_on : '',
     age: Number.isFinite(Number(parsed.age)) ? Number(parsed.age) : null,
     setup: typeof parsed.setup === 'string' ? parsed.setup : '',
-    learning_topics: learningTopics.length ? learningTopics : [{ topic: 'General', level: 'beginner', knows: '' }],
+    learning_topics: learningTopics.length ? learningTopics : [{ topic: 'General', level: 'beginner', knows: '', parent_topic: '' }],
     time_leaks: Array.isArray(parsed.time_leaks) ? parsed.time_leaks.filter((x) => typeof x === 'string') : [],
     great_day: typeof parsed.great_day === 'string' ? parsed.great_day : '',
   };
@@ -1654,8 +1957,35 @@ function tryFinishOnboarding(jsonText) {
   setLS('focusloop.userProfile', profile);
   localStorage.removeItem('focusloop.onboardingChat');
 
-  learningProfile = profile.learning_topics.map((t) => ({ ...t }));
+  // Broad answers (parent_topic null) become main topics in the learning profile.
+  // Specific answers (parent_topic set, e.g. 'Python' -> 'AI & Tech') become
+  // sub-topics nested under that main topic instead — the main topic still
+  // gets a profile entry so it shows up in the Classroom tab.
+  const mainTopicsMap = {};
+  const subTopicsMap = {};
+  profile.learning_topics.forEach((t) => {
+    if (t.parent_topic) {
+      if (!mainTopicsMap[t.parent_topic]) mainTopicsMap[t.parent_topic] = { topic: t.parent_topic, level: t.level, knows: '' };
+      (subTopicsMap[t.parent_topic] = subTopicsMap[t.parent_topic] || []).push(t.topic);
+    } else {
+      mainTopicsMap[t.topic] = { topic: t.topic, level: t.level, knows: t.knows };
+    }
+  });
+
+  learningProfile = Object.values(mainTopicsMap);
   setLS('focusloop.learningProfile', learningProfile);
+
+  subTopics = subTopicsMap;
+  setLS('focusloop.subTopics', subTopics);
+
+  learningLog = {};
+  Object.keys(subTopics).forEach((parent) => {
+    learningLog[parent] = {};
+    subTopics[parent].forEach((name) => {
+      learningLog[parent][name] = [];
+    });
+  });
+  setLS('focusloop.learningLog', learningLog);
 
   document.getElementById('onboarding-screen').classList.add('hidden');
   initMainApp();
@@ -1681,6 +2011,10 @@ function openSettingsModal() {
         ${settingsToggleRow('Sound', soundOn, 'toggleSoundSetting()')}
         ${settingsToggleRow('Vibration', vibrationOn, 'toggleVibrationSetting()')}
         ${settingsToggleRow('Dark mode', document.documentElement.classList.contains('dark'), 'toggleDarkModeSetting()')}
+        <label class="w-full flex items-center justify-between text-sm font-medium text-neutral-700 dark:text-neutral-300 px-3 py-2.5 rounded-lg">
+          <span>Daily lesson cap</span>
+          <input type="number" min="3" max="20" value="${dailyLessonCap}" onchange="updateDailyLessonCap(this.value)" class="w-16 text-sm text-center bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-md px-2 py-1 text-neutral-700 dark:text-neutral-300" />
+        </label>
       </div>
       <button onclick="closeModal(); switchTab('classroom'); expandLearningProfile();" class="w-full text-left text-sm font-medium text-neutral-700 dark:text-neutral-300 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors mb-1">Edit learning profile</button>
       <button onclick="exportUserData()" class="w-full text-left text-sm font-medium text-neutral-700 dark:text-neutral-300 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors mb-1">Export my data</button>
@@ -1749,14 +2083,15 @@ function initMainApp() {
   renderTodayLog();
   renderWeekView();
   renderStreak();
+  showClassroomView('topics');
   renderTopicGrid();
-  renderLessonHistory();
   getOrCreateAdvisorSession();
   renderAdvisorChat();
   recoverTimerOnLoad();
 }
 
 function boot() {
+  migrateClassroomData();
   if (!userType) {
     document.getElementById('identity-screen').classList.remove('hidden');
     return;
