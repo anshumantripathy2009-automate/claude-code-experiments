@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>NoirFlow — The infrastructure for what your business becomes next.</title>
+<meta name="description" content="NoirFlow builds AI infrastructure for businesses that aren't ready for what's coming." />
+<meta name="theme-color" content="#000000" />
+
+<!-- Open Graph: this page gets sent as a link, so it needs to unfurl well. -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="NoirFlow" />
+<meta property="og:description" content="The infrastructure for what your business becomes next." />
+
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600&display=swap"
+  rel="stylesheet" />
+
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   One easing, one duration scale, five colors. Everything else
+   is composition. Keeping the system this small is what makes
+   the page feel like one object instead of five sections.
+   ============================================================ */
+:root {
+  --expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --dur-major: 800ms;
+  --dur-hero: 1200ms;
+  --dur-minor: 400ms;
+
+  --ink: #ffffff;
+  --ink-2: #a1a1aa;   /* zinc-400 */
+  --ink-3: #52525b;   /* zinc-600 */
+  --ink-4: #3f3f46;   /* zinc-700 */
+
+  --indigo: #6366f1;
+  --warm: #fef3c7;    /* amber-100 — used exactly once, in Scene 2 */
+
+  /* 'Inter Display' is a licensed cut and not on Google Fonts.
+     Inter Tight is the closest public display-grade fallback, so the
+     chain degrades cleanly instead of dropping to a system font. */
+  --font-display: 'Inter Display', 'Inter Tight', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+* { -webkit-tap-highlight-color: transparent; }
+
+html { background: #000; }
+
+body {
+  margin: 0;
+  background: #000;
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow: hidden; /* the scroller owns the scroll, not the body */
+}
+
+/* ------------------------------------------------------------
+   SCROLL CONTAINER
+   Snap lives on this element (not <html>) so the
+   IntersectionObservers can use it as their root and stay exact.
+   ------------------------------------------------------------ */
+#scroller {
+  height: 100vh;
+  height: 100dvh;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;   /* momentum on iOS */
+  overscroll-behavior-y: contain;
+  scrollbar-width: none;
+}
+#scroller::-webkit-scrollbar { display: none; }
+
+.scene {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px;
+  overflow: hidden;
+}
+
+.wrap {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+}
+@media (min-width: 768px) { .wrap { max-width: 800px; } }
+
+/* ------------------------------------------------------------
+   NOISE
+   3% fractal noise over pure black. Without it, the two orb
+   gradients band visibly on OLED phones.
+   ------------------------------------------------------------ */
+#noise {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ------------------------------------------------------------
+   TYPE
+   ------------------------------------------------------------ */
+.t-hero {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  font-size: clamp(2.25rem, 9.5vw, 4.5rem);
+}
+.t-scene {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  font-size: clamp(1.875rem, 7.5vw, 2.75rem);
+}
+.t-mark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  line-height: 1;
+  font-size: clamp(3.25rem, 15vw, 6rem);
+}
+.t-body {
+  font-family: var(--font-body);
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.t-label {
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: var(--ink-3);
+}
+
+/* ------------------------------------------------------------
+   REVEAL PRIMITIVE
+   Every entrance on the page is this one rule. `--d` is the
+   stagger. Scenes get `.is-in` from an IntersectionObserver,
+   then stay in their final state permanently.
+   ------------------------------------------------------------ */
+[data-reveal] {
+  opacity: 0;
+  will-change: opacity, transform;
+  transition:
+    opacity var(--dur-major) var(--expo),
+    transform var(--dur-major) var(--expo);
+  transition-delay: var(--d, 0ms);
+}
+[data-reveal="up"]   { transform: translate3d(0, 26px, 0); }
+[data-reveal="fade"] { transform: none; }
+
+.is-in [data-reveal] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+/* Hero lines carry more weight, so they move slower. */
+.t-hero[data-reveal] {
+  transition-duration: var(--dur-hero), var(--dur-hero);
+}
+
+/* ============================================================
+   SCENE 1 — THE OPENING
+   ============================================================ */
+#brand {
+  position: absolute;
+  top: max(28px, env(safe-area-inset-top));
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-size: 0.875rem;
+  opacity: 0;
+  transition: opacity 2000ms var(--expo);
+}
+.is-in #brand { opacity: 1; }
+
+#scroll-cue {
+  position: absolute;
+  bottom: max(34px, env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.cue-rail {
+  position: relative;
+  width: 1px;
+  height: 60px;
+  background: var(--ink-4);
+  overflow: hidden;
+}
+/* A brighter segment drifts down the rail — a scroll invitation
+   that reads as light, not as an arrow icon. */
+.cue-rail::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 22px;
+  background: linear-gradient(to bottom, transparent, var(--ink));
+  animation: cue-drift 3s var(--expo) infinite;
+}
+@keyframes cue-drift {
+  0%   { transform: translate3d(0, -100%, 0); opacity: 0; }
+  35%  { opacity: 0.9; }
+  100% { transform: translate3d(0, 300%, 0); opacity: 0; }
+}
+
+/* ============================================================
+   SCENE 2 — THE PRESENCE  (signature moment #1)
+   A warm-white orb, alone on black, breathing.
+   ============================================================ */
+#orb-stage {
+  /* One knob drives the whole orb stack. Kept small on purpose: a tight
+     orb on a lot of black reads as a point of light; a big one reads as fog. */
+  --orb: 200px;
+  position: relative;
+  width: var(--orb);
+  height: var(--orb);
+  display: grid;
+  place-items: center;
+}
+@media (min-width: 640px) { #orb-stage { --orb: 260px; } }
+
+/* Outer: the 4px-dot → orb growth. */
+#orb-grow {
+  position: absolute;
+  width: var(--orb);
+  height: var(--orb);
+  display: grid;
+  place-items: center;
+  transform: scale(0.018);
+  opacity: 0;
+  transition:
+    transform 2000ms var(--expo),
+    opacity 600ms var(--expo);
+}
+#s2.is-in #orb-grow { transform: scale(1); opacity: 1; }
+
+/* Inner: the always-running breath. Separated from the growth transform
+   so the two never fight over the same property. */
+#orb-breathe {
+  width: var(--orb);
+  height: var(--orb);
+  display: grid;
+  place-items: center;
+  animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { transform: scale(0.98); filter: brightness(0.95); }
+  50%      { transform: scale(1.02); filter: brightness(1.05); }
+}
+
+/* Three layers, because that is how actual light reads: a filament, a
+   bloom around it, and a faint atmosphere beyond. A single mid-opacity
+   gradient just renders as a flat khaki disc against black. */
+.orb-halo {
+  position: absolute;
+  width: var(--orb);
+  height: var(--orb);
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(254, 243, 199, 0.10) 0%,
+    rgba(254, 243, 199, 0.035) 28%,
+    rgba(254, 243, 199, 0.008) 52%,
+    rgba(254, 243, 199, 0) 72%
+  );
+  filter: blur(34px);
+}
+.orb-bloom {
+  position: absolute;
+  width: calc(var(--orb) * 0.46);
+  height: calc(var(--orb) * 0.46);
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 255, 255, 0.95) 0%,
+    rgba(255, 251, 235, 0.68) 18%,
+    rgba(254, 243, 199, 0.30) 42%,
+    rgba(254, 243, 199, 0.08) 68%,
+    rgba(254, 243, 199, 0) 86%
+  );
+  filter: blur(10px);
+}
+.orb-core {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 9999px;
+  background: #fffef8;
+  filter: blur(2px);
+}
+
+/* Concentric presence rings. */
+.ring {
+  position: absolute;
+  width: calc(var(--orb) * 0.42);
+  height: calc(var(--orb) * 0.42);
+  border-radius: 9999px;
+  border: 1px solid rgba(254, 243, 199, 0.42);
+  opacity: 0;
+  animation: ripple 4.5s var(--expo) infinite;
+}
+.ring:nth-child(2) { animation-delay: 1.5s; }
+.ring:nth-child(3) { animation-delay: 3s; }
+@keyframes ripple {
+  0%   { transform: scale(0.3); opacity: 0; }
+  14%  { opacity: 0.2; }
+  /* Tops out just past the orb, so the ripples stay a detail of the
+     light rather than arcs slicing across the headline. */
+  100% { transform: scale(2.6); opacity: 0; }
+}
+
+/* ============================================================
+   SCENE 3 — THE MULTIPLICATION  (signature moment #2)
+   One dot becomes five, and the space between them comes alive.
+   ============================================================ */
+#mesh {
+  --node: 13px;
+  position: relative;
+  width: min(100%, 420px);
+  aspect-ratio: 1 / 0.86;
+  margin: 0 auto;
+}
+/* The mesh has to grow with the viewport, otherwise it floats as a small
+   island in the middle of a large screen. */
+@media (min-width: 768px) {
+  #mesh { --node: 15px; width: min(100%, 560px); }
+}
+
+#mesh-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+#mesh-lines line {
+  stroke: var(--indigo);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;   /* stays 1px despite the squashed viewBox */
+  opacity: 0;
+  transition: opacity var(--dur-major) var(--expo);
+  transition-delay: var(--d, 0ms);
+}
+#s3.is-in #mesh-lines line { opacity: 0.28; }
+
+/* Wrapper owns placement, inner owns motion. */
+.node {
+  position: absolute;
+  transform: translate3d(-50%, -50%, 0);
+}
+.node-inner {
+  width: var(--node);
+  height: var(--node);
+  border-radius: 9999px;
+  background: var(--indigo);
+  box-shadow: 0 0 16px 3px rgba(99, 102, 241, 0.55);
+  /* --fx/--fy are the vector back to the center dot; JS measures them. */
+  transform: translate3d(var(--fx, 0px), var(--fy, 0px), 0) scale(0.28);
+  opacity: 0;
+  transition:
+    transform 1500ms var(--expo),
+    opacity 700ms var(--expo);
+  transition-delay: var(--d, 0ms);
+}
+#s3.is-in .node-inner {
+  transform: translate3d(0, 0, 0) scale(1);
+  opacity: 1;
+}
+
+/* The origin dot: already at center, so it only pulses and settles. */
+#s3.is-in #node-origin .node-inner { animation: origin-pulse 900ms var(--expo); }
+@keyframes origin-pulse {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.9); }
+  100% { transform: scale(1); }
+}
+
+.node-label {
+  position: absolute;
+  transform: translate3d(-50%, 0, 0);
+  white-space: nowrap;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.625rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  opacity: 0;
+  transition: opacity var(--dur-minor) var(--expo);
+  transition-delay: var(--d, 0ms);
+}
+#s3.is-in .node-label { opacity: 1; }
+@media (min-width: 640px) { .node-label { font-size: 0.75rem; } }
+
+/* Data moving through the mesh. Each particle is a straight
+   translate between two nodes — pure transform, so it stays on
+   the compositor even with six of them running. */
+.particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  margin: -1.5px 0 0 -1.5px;
+  border-radius: 9999px;
+  background: #a5b4fc;
+  box-shadow: 0 0 6px 1px rgba(99, 102, 241, 0.8);
+  opacity: 0;
+}
+
+/* ============================================================
+   SCENE 4 — THE CLOSE
+   ============================================================ */
+#close-glow {
+  position: absolute;
+  top: -18%;
+  left: 50%;
+  width: min(140vw, 900px);
+  height: min(90vh, 620px);
+  transform: translate3d(-50%, 0, 0);
+  border-radius: 9999px;
+  background: radial-gradient(
+    ellipse at 50% 30%,
+    rgba(99, 102, 241, 0.9) 0%,
+    rgba(99, 102, 241, 0.35) 35%,
+    rgba(99, 102, 241, 0) 70%
+  );
+  filter: blur(80px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1600ms var(--expo);
+}
+#s4.is-in #close-glow { opacity: 0.15; }
+
+.cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+  padding-bottom: 6px;
+}
+.cta::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--indigo);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 500ms var(--expo);
+}
+.cta:hover::after,
+.cta:focus-visible::after { transform: scaleX(1); }
+.cta .arrow { transition: transform var(--dur-minor) var(--expo); }
+.cta:hover .arrow,
+.cta:focus-visible .arrow { transform: translate3d(5px, 0, 0); }
+
+.cta-soft {
+  color: var(--ink-3);
+  font-size: 0.875rem;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(82, 82, 91, 0.45);
+  padding-bottom: 2px;
+  transition: color var(--dur-minor) var(--expo),
+              border-color var(--dur-minor) var(--expo);
+}
+.cta-soft:hover,
+.cta-soft:focus-visible { color: var(--ink-2); border-color: var(--ink-2); }
+
+:focus-visible { outline: 1px solid var(--indigo); outline-offset: 6px; }
+
+/* ------------------------------------------------------------
+   LOOPING-ANIMATION GATE
+   Every infinite animation is paused by default and runs only while
+   its scene has played AND is on screen. Expressed as a single rule
+   per animation — two competing rules (one to start, one to pause)
+   invite specificity bugs, and inline styles from JS would outrank
+   both. Off-screen scenes cost zero frames.
+   ------------------------------------------------------------ */
+#orb-breathe,
+.ring,
+.particle,
+.cue-rail::after { animation-play-state: paused; }
+
+#s1:not(.paused) .cue-rail::after,
+#s2.is-in:not(.paused) #orb-breathe,
+#s2.is-in:not(.paused) .ring,
+#s3.is-in:not(.paused) .particle { animation-play-state: running; }
+
+/* ------------------------------------------------------------
+   REDUCED MOTION
+   Final states, immediately. Scoped rather than a blanket `*` so
+   the layout transforms (the -50% centering) survive.
+   ------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  #scroller { scroll-snap-type: none; scroll-behavior: auto; }
+
+  [data-reveal],
+  #brand,
+  .node-label,
+  #close-glow,
+  #mesh-lines line {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  #mesh-lines line { opacity: 0.28 !important; }
+  #close-glow { opacity: 0.15 !important; }
+
+  #orb-grow { transform: scale(1) !important; opacity: 1 !important; transition: none !important; }
+  .node-inner {
+    transform: translate3d(0, 0, 0) scale(1) !important;
+    opacity: 1 !important;
+    transition: none !important;
+    animation: none !important;
+  }
+  .ring, #orb-breathe, .particle, .cue-rail::after { animation: none !important; }
+  .ring { opacity: 0.12 !important; transform: scale(1.6) !important; }
+  .particle { opacity: 0 !important; }
+}
+</style>
+</head>
+
+<body>
+<div id="noise" aria-hidden="true"></div>
+
+<main id="scroller">
+
+  <!-- ========== SCENE 1 — THE OPENING ========== -->
+  <section class="scene" id="s1">
+    <div id="brand">NoirFlow</div>
+
+    <div class="wrap text-center">
+      <h1 class="t-hero">
+        <span class="block" data-reveal="up" style="--d:400ms">Most businesses</span>
+        <span class="block" data-reveal="up" style="--d:1600ms">aren't ready for what's coming.</span>
+      </h1>
+      <p class="t-body mt-8 text-base" data-reveal="fade"
+         style="color:var(--ink-3); --d:2900ms">We build them for it.</p>
+    </div>
+
+    <div id="scroll-cue" aria-hidden="true" data-reveal="fade" style="--d:3800ms">
+      <div class="cue-rail"></div>
+      <span class="t-label" style="letter-spacing:0.15em;font-size:0.6875rem">scroll</span>
+    </div>
+  </section>
+
+  <!-- ========== SCENE 2 — THE PRESENCE ========== -->
+  <section class="scene" id="s2">
+    <div class="wrap flex flex-col items-center text-center">
+
+      <h2 class="t-scene" data-reveal="up" style="--d:1700ms">A website that thinks.</h2>
+
+      <div id="orb-stage" class="my-12 sm:my-16" aria-hidden="true">
+        <div id="orb-grow">
+          <div id="orb-breathe">
+            <div class="orb-halo"></div>
+            <div class="orb-bloom"></div>
+            <div class="orb-core"></div>
+          </div>
+        </div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+      </div>
+
+      <p class="t-body text-base sm:text-lg max-w-sm" data-reveal="fade" style="--d:2500ms">
+        Answers questions. Books appointments. Learns your business.
+      </p>
+    </div>
+  </section>
+
+  <!-- ========== SCENE 3 — THE MULTIPLICATION ========== -->
+  <section class="scene" id="s3">
+    <div class="wrap flex flex-col items-center text-center">
+
+      <h2 class="t-scene mb-10 sm:mb-12" data-reveal="up" style="--d:1200ms">Then a team of them.</h2>
+
+      <div id="mesh">
+        <svg id="mesh-lines" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
+        <!-- nodes, labels and particles are composed from MESH below -->
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========== SCENE 4 — THE CLOSE ========== -->
+  <section class="scene" id="s4">
+    <div id="close-glow" aria-hidden="true"></div>
+
+    <div class="wrap flex flex-col items-center text-center relative">
+      <h2 class="t-mark" data-reveal="up" style="--d:0ms">NoirFlow</h2>
+
+      <p class="t-body mt-7 text-lg sm:text-xl" data-reveal="up"
+         style="max-width:500px; --d:800ms">
+        The infrastructure for what your business becomes next.
+      </p>
+
+      <div class="mt-12" data-reveal="fade" style="--d:1200ms">
+        <a class="cta" href="../smart-clinic-dashboard/">
+          See what we've built
+          <span class="arrow" aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+
+      <div class="mt-7" data-reveal="fade" style="--d:1500ms">
+        <a class="cta-soft" href="https://noirflow.ai/book">or talk to Anshuman</a>
+      </div>
+    </div>
+
+    <div class="absolute text-center" data-reveal="fade"
+         style="left:0; right:0; bottom:max(26px, env(safe-area-inset-bottom)); --d:1900ms">
+      <span class="t-label" style="color:var(--ink-4);font-size:0.625rem">Built in Bhubaneswar</span>
+    </div>
+  </section>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ==========================================================
+     SCENE 3 GEOMETRY
+     One source of truth. Coordinates are percentages of the mesh
+     box, deliberately off-grid so the network reads organic.
+     ========================================================== */
+  var MESH = {
+    nodes: [
+      { id: "origin",  label: "Support",    x: 47, y: 50 },
+      { id: "sales",   label: "Sales",      x: 19, y: 18 },
+      { id: "research",label: "Research",   x: 77, y: 25 },
+      { id: "design",  label: "Design",     x: 23, y: 82 },
+      { id: "ops",     label: "Operations", x: 81, y: 71 }
+    ],
+    // Drawn in this order, staggered 200ms apart.
+    links: [
+      ["origin", "sales"],
+      ["origin", "research"],
+      ["origin", "design"],
+      ["origin", "ops"],
+      ["sales", "research"],
+      ["design", "ops"],
+      ["research", "ops"]
+    ],
+    // from, to, seconds, delay seconds — low density on purpose
+    particles: [
+      ["origin", "sales",    3.2, 0.0],
+      ["research", "origin", 4.1, 1.1],
+      ["origin", "ops",      3.6, 2.2],
+      ["design", "origin",   4.4, 0.6],
+      ["sales", "research",  5.0, 3.0],
+      ["ops", "design",      4.8, 1.8]
+    ]
+  };
+
+  var meshEl = document.getElementById("mesh");
+  var linesEl = document.getElementById("mesh-lines");
+  var byId = {};
+  MESH.nodes.forEach(function (n) { byId[n.id] = n; });
+
+  var NODE_BASE_DELAY = 1500;  // after the origin dot has pulsed
+  var LINE_BASE_DELAY = 2600;
+  var LABEL_BASE_DELAY = 3400;
+
+  function buildMesh() {
+    // --- links ---
+    MESH.links.forEach(function (pair, i) {
+      var a = byId[pair[0]], b = byId[pair[1]];
+      var line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", a.x); line.setAttribute("y1", a.y);
+      line.setAttribute("x2", b.x); line.setAttribute("y2", b.y);
+      line.style.setProperty("--d", (LINE_BASE_DELAY + i * 200) + "ms");
+      linesEl.appendChild(line);
+    });
+
+    // --- nodes + labels ---
+    MESH.nodes.forEach(function (n, i) {
+      var node = document.createElement("div");
+      node.className = "node";
+      node.id = "node-" + n.id;
+      node.style.left = n.x + "%";
+      node.style.top = n.y + "%";
+
+      var inner = document.createElement("div");
+      inner.className = "node-inner";
+      // The origin dot is already home; the others fly out from it.
+      inner.style.setProperty("--d", n.id === "origin" ? "0ms" : (NODE_BASE_DELAY + i * 90) + "ms");
+      node.appendChild(inner);
+      meshEl.appendChild(node);
+
+      var label = document.createElement("div");
+      label.className = "node-label";
+      label.textContent = n.label;
+      label.style.left = n.x + "%";
+      label.style.top = "calc(" + n.y + "% + 16px)";
+      label.style.setProperty("--d", (LABEL_BASE_DELAY + i * 120) + "ms");
+      meshEl.appendChild(label);
+    });
+  }
+
+  /* Particle travel is a straight translate between two nodes, so the
+     px delta depends on the measured box. Recomputed on resize until
+     the scene has played, then left alone. */
+  var particleEls = [];
+  var keyframeSheet = document.createElement("style");
+  document.head.appendChild(keyframeSheet);
+
+  function buildParticles() {
+    MESH.particles.forEach(function (p, i) {
+      var from = byId[p[0]];
+      var el = document.createElement("div");
+      el.className = "particle";
+      el.style.left = from.x + "%";
+      el.style.top = from.y + "%";
+      // Timing only. Play/pause is owned entirely by the CSS gate above —
+      // an inline play-state here would outrank every stylesheet rule.
+      el.style.animationName = "particle-" + i;
+      el.style.animationDuration = p[2] + "s";
+      el.style.animationDelay = p[3] + "s";
+      el.style.animationTimingFunction = "linear";
+      el.style.animationIterationCount = "infinite";
+      meshEl.appendChild(el);
+      particleEls.push(el);
+    });
+    writeParticleKeyframes();
+  }
+
+  function writeParticleKeyframes() {
+    var w = meshEl.clientWidth;
+    var h = meshEl.clientHeight;
+    if (!w || !h) return;
+
+    var css = MESH.particles.map(function (p, i) {
+      var a = byId[p[0]], b = byId[p[1]];
+      var dx = ((b.x - a.x) / 100 * w).toFixed(1);
+      var dy = ((b.y - a.y) / 100 * h).toFixed(1);
+      return "@keyframes particle-" + i + "{" +
+        "0%{transform:translate3d(0,0,0);opacity:0}" +
+        "12%{opacity:.85}" +
+        "82%{opacity:.85}" +
+        "100%{transform:translate3d(" + dx + "px," + dy + "px,0);opacity:0}}";
+    }).join("");
+
+    keyframeSheet.textContent = css;
+  }
+
+  /* The split: each node needs the vector pointing back to the origin
+     dot, in pixels, as its starting offset. */
+  function measureSplitVectors() {
+    var w = meshEl.clientWidth;
+    var h = meshEl.clientHeight;
+    if (!w || !h) return;
+    var origin = byId.origin;
+
+    MESH.nodes.forEach(function (n) {
+      var inner = document.querySelector("#node-" + n.id + " .node-inner");
+      if (!inner) return;
+      inner.style.setProperty("--fx", ((origin.x - n.x) / 100 * w).toFixed(1) + "px");
+      inner.style.setProperty("--fy", ((origin.y - n.y) / 100 * h).toFixed(1) + "px");
+    });
+  }
+
+  buildMesh();
+  buildParticles();
+  measureSplitVectors();
+
+  /* ==========================================================
+     OBSERVERS
+     revealObs  — fires a scene once, then lets go of it.
+     playObs    — pauses infinite animations while off-screen.
+     ========================================================== */
+  var scroller = document.getElementById("scroller");
+  var scenes = Array.prototype.slice.call(document.querySelectorAll(".scene"));
+  var s3Played = false;
+
+  scenes.forEach(function (s) { s.classList.add("paused"); });
+
+  var revealObs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      if (entry.target.id === "s3") {
+        measureSplitVectors();   // last measurement before the split plays
+        s3Played = true;
+      }
+      entry.target.classList.add("is-in");
+      revealObs.unobserve(entry.target);   // never re-trigger
+    });
+  }, { root: scroller, threshold: 0.5 });
+
+  var playObs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      entry.target.classList.toggle("paused", !entry.isIntersecting);
+    });
+  }, { root: scroller, threshold: 0.01 });
+
+  scenes.forEach(function (s) {
+    if (s.id !== "s1") revealObs.observe(s);
+    playObs.observe(s);
+  });
+
+  // Scene 1 plays on load, not on scroll.
+  requestAnimationFrame(function () {
+    requestAnimationFrame(function () {
+      document.getElementById("s1").classList.add("is-in");
+      document.getElementById("s1").classList.remove("paused");
+    });
+  });
+
+  var resizeTimer;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      writeParticleKeyframes();
+      if (!s3Played) measureSplitVectors();
+    }, 150);
+  });
+
+  if (reduced) {
+    // Land everything immediately; CSS has already stripped the motion.
+    scenes.forEach(function (s) {
+      s.classList.add("is-in");
+      s.classList.add("paused");
+    });
+  }
+})();
+</script>
+</body>
+</html>
