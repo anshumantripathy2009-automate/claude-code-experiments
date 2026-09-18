@@ -98,3 +98,10 @@ For every automation, briefly answer:
 - **Smart Clinic Dashboard** demo at `/demos/smart-clinic-dashboard/` —
   sales weapon showing full clinic AI infrastructure vision, not just
   websites.
+- **NoirFlow story page** at `/demos/noirflow-story/` — brand hero for
+  NoirFlow.ai. Cinematic 4-scene scroll, no images, pure CSS/SVG.
+
+## Internal Tools
+- **Focus Loop** at `/tools/focus-loop/` — Anshuman's personal AI coach,
+  classroom, and NoirFlow advisor. Founder is user #1. Future SaaS candidate
+  for solo founders + students.

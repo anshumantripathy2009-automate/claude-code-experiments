@@ -1,0 +1,2140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Focus Loop</title>
+<meta name="description" content="Your AI focus coach, classroom, and personal advisor." />
+<script>
+  // Light-first: only switch to dark if the user explicitly chose it before.
+  (function () {
+    try {
+      if (localStorage.getItem('focusloop.darkMode') === 'true') {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { darkMode: 'class' };
+</script>
+<style>
+  html, body {
+    background: #ffffff;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  html.dark, html.dark body { background: #0a0a0a; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 9999px; }
+  html.dark ::-webkit-scrollbar-thumb { background: #262626; }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { opacity: 0; animation: fade-in-up 0.35s ease-out forwards; }
+
+  #timer-ring { transition: stroke-dashoffset 0.2s linear; }
+
+  .tab-pill { transition: background-color 150ms ease, color 150ms ease; }
+
+  .chat-bubble-user { border-radius: 10px 10px 2px 10px; }
+  .chat-bubble-coach { border-radius: 10px 10px 10px 2px; }
+
+  @keyframes typing-bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-2px); opacity: 0.9; }
+  }
+  .typing-dot { animation: typing-bounce 1.2s ease-in-out infinite; }
+  .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+
+  .modal-content { transition: opacity 200ms ease-out, transform 200ms ease-out; }
+</style>
+</head>
+<body class="bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 min-h-screen transition-colors duration-300">
+<noscript>
+  <div class="p-6 text-center">Focus Loop requires JavaScript to be enabled.</div>
+</noscript>
+
+<!-- Modal -->
+<div id="modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm p-4" onclick="if(event.target===this) closeModal();">
+  <div id="modal-content" class="modal-content opacity-0 translate-y-2 bg-white dark:bg-neutral-900 rounded-[10px] border border-gray-200 dark:border-neutral-800 shadow-lg max-w-[480px] w-full max-h-[85vh] overflow-y-auto" role="dialog" aria-modal="true"></div>
+</div>
+
+<!-- ===================== IDENTITY SCREEN (first load, not dismissible) ===================== -->
+<div id="identity-screen" class="hidden fixed inset-0 z-[70] bg-white dark:bg-neutral-950 flex flex-col items-center justify-center px-6 text-center">
+  <span class="font-extrabold text-2xl text-indigo-600 dark:text-indigo-400 tracking-tight mb-3">Focus Loop</span>
+  <h1 class="text-xl font-bold text-neutral-900 dark:text-neutral-50 mb-1.5">Welcome to Focus Loop</h1>
+  <p class="text-sm text-gray-500 dark:text-neutral-400 mb-8 max-w-xs leading-relaxed">Your AI focus coach, classroom, and business advisor. Who's using it?</p>
+  <div class="w-full max-w-xs space-y-3">
+    <button onclick="chooseIdentity('anshuman')" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm py-3.5 rounded-lg transition-colors">I'm Anshuman</button>
+    <button onclick="chooseIdentity('new')" class="w-full bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold text-sm py-3.5 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800">I'm new here</button>
+  </div>
+</div>
+
+<!-- ===================== ONBOARDING SCREEN (new users only) ===================== -->
+<div id="onboarding-screen" class="hidden fixed inset-0 z-[70] bg-white dark:bg-neutral-950 flex flex-col">
+  <div class="px-4 pt-5 pb-3 border-b border-gray-100 dark:border-neutral-800 shrink-0">
+    <span class="font-extrabold text-base text-indigo-600 dark:text-indigo-400 tracking-tight">Focus Loop</span>
+    <p id="onboarding-progress" class="text-xs font-medium text-gray-400 dark:text-neutral-500 mt-1">Getting to know you — 0 of 8 questions</p>
+  </div>
+  <div id="onboarding-chat" class="flex-1 overflow-y-auto px-4 py-4 space-y-3"></div>
+  <div class="px-4 pb-5 pt-2 flex gap-2 border-t border-gray-100 dark:border-neutral-800 shrink-0">
+    <input id="onboarding-input" type="text" placeholder="Type your answer..." class="flex-1 text-sm bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg px-3 py-2.5 text-neutral-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-400 transition-colors" onkeydown="if(event.key==='Enter') sendOnboardingMessage();" />
+    <button onclick="sendOnboardingMessage()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-4 rounded-lg transition-colors">Send</button>
+  </div>
+</div>
+
+<div id="app-shell" class="hidden">
+
+<!-- Top Nav -->
+<header class="sticky top-0 z-30 bg-white/95 dark:bg-neutral-950/95 backdrop-blur border-b border-gray-200 dark:border-neutral-800 transition-colors duration-300">
+  <div class="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
+    <span class="font-extrabold text-lg text-indigo-600 dark:text-indigo-400 tracking-tight">Focus Loop</span>
+    <div class="flex items-center gap-1.5">
+      <span id="streak-badge" class="text-xs font-medium text-gray-500 dark:text-neutral-400 mr-1">🔥 0 day streak</span>
+      <button type="button" onclick="toggleSound()" class="text-gray-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:bg-gray-50 dark:hover:bg-neutral-900 rounded-lg p-2 transition-colors" aria-label="Toggle sound">
+        <svg id="icon-sound-on" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+        <svg id="icon-sound-off" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+      </button>
+      <button type="button" onclick="toggleDarkMode()" class="text-gray-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:bg-gray-50 dark:hover:bg-neutral-900 rounded-lg p-2 transition-colors" aria-label="Toggle dark mode">
+        <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+      <button type="button" onclick="openSettingsModal()" class="text-gray-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:bg-gray-50 dark:hover:bg-neutral-900 rounded-lg p-2 transition-colors" aria-label="Settings">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg>
+      </button>
+    </div>
+  </div>
+  <!-- Tab pills -->
+  <div class="max-w-lg mx-auto px-4 pb-3">
+    <div class="flex gap-1.5 bg-gray-50 dark:bg-neutral-900 rounded-lg p-1">
+      <button data-tab="focus" onclick="switchTab('focus')" class="tab-pill flex-1 text-sm font-semibold py-1.5 rounded-lg bg-indigo-600 text-white">Focus</button>
+      <button data-tab="classroom" onclick="switchTab('classroom')" class="tab-pill flex-1 text-sm font-semibold py-1.5 rounded-lg text-gray-500 dark:text-neutral-400">Classroom</button>
+      <button data-tab="advisor" onclick="switchTab('advisor')" class="tab-pill flex-1 text-sm font-semibold py-1.5 rounded-lg text-gray-500 dark:text-neutral-400">Advisor</button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-lg mx-auto px-4 pb-16">
+
+<!-- ===================== FOCUS TAB ===================== -->
+<section id="panel-focus" class="pt-5">
+
+  <!-- Timer ring -->
+  <div class="relative w-56 h-56 mx-auto mt-2">
+    <svg viewBox="0 0 200 200" class="w-56 h-56 -rotate-90">
+      <circle cx="100" cy="100" r="90" stroke-width="10" class="fill-none stroke-gray-100 dark:stroke-neutral-800"/>
+      <circle id="timer-ring" cx="100" cy="100" r="90" stroke-width="10" stroke-linecap="round" class="fill-none stroke-indigo-600 dark:stroke-indigo-500"/>
+    </svg>
+    <div class="absolute inset-0 flex flex-col items-center justify-center px-8 text-center">
+      <span id="timer-phase-label" class="text-[11px] font-semibold uppercase tracking-wide text-gray-400 dark:text-neutral-500 mb-1">Ready</span>
+      <span id="timer-display" class="text-4xl font-bold tabular-nums text-neutral-900 dark:text-neutral-50">25:00</span>
+      <span id="timer-goal-label" class="text-xs text-gray-500 dark:text-neutral-400 mt-1.5 leading-snug line-clamp-2"></span>
+    </div>
+  </div>
+
+  <!-- STATE A: Ready -->
+  <div id="focus-state-ready" class="mt-6 fade-in">
+    <label class="block text-base font-semibold text-neutral-900 dark:text-neutral-50 mb-2">What are you working on?</label>
+    <textarea id="sprint-goal" rows="2" placeholder="e.g. Draft the Master Skin Clinic follow-up DM" class="w-full text-sm bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg px-3 py-2.5 text-neutral-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-400 transition-colors resize-none"></textarea>
+    <label class="block text-xs text-gray-400 dark:text-neutral-500 mt-3 mb-1.5">Where were you leaking time before this? (optional)</label>
+    <input id="sprint-leak" type="text" placeholder="Instagram, YouTube, anxiety scroll..." class="w-full text-sm bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg px-3 py-2 text-neutral-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-400 transition-colors" />
+    <button onclick="startSprint()" class="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm py-3 rounded-lg transition-colors">Start 25 min sprint</button>
+  </div>
+
+  <!-- STATE B: In sprint -->
+  <div id="focus-state-sprint" class="mt-6 hidden fade-in">
+    <div id="kickoff-message" class="text-sm text-neutral-700 dark:text-neutral-300 bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 rounded-[10px] px-3.5 py-3 mb-4 leading-relaxed"></div>
+    <div class="flex gap-2">
+      <button id="pause-btn" onclick="togglePauseSprint()" class="flex-1 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold text-sm py-2.5 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800">Pause</button>
+      <button onclick="giveUpSprint()" class="flex-1 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-red-600 dark:text-red-400 font-semibold text-sm py-2.5 rounded-lg transition-colors hover:bg-red-50 dark:hover:bg-red-500/10">Give up</button>
+    </div>
+  </div>
+
+  <!-- Break phase -->
+  <div id="focus-state-break" class="mt-6 hidden fade-in text-center">
+    <p class="text-sm text-gray-500 dark:text-neutral-400 mb-4">Short break. Stand up, breathe, don't open Instagram.</p>
+    <button onclick="skipBreak()" class="text-xs font-medium text-gray-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-200 underline">Skip break</button>
+  </div>
+
+  <!-- STATE C: Review -->
+  <div id="focus-state-review" class="mt-6 hidden fade-in">
+    <p class="text-base font-semibold text-neutral-900 dark:text-neutral-50 mb-3">How did it go?</p>
+    <div class="grid grid-cols-3 gap-2" id="outcome-buttons">
+      <button data-outcome="Nailed" onclick="pickOutcome('Nailed')" class="outcome-btn flex flex-col items-center gap-1 py-3 rounded-[10px] border-2 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
+        <span class="text-xl">✅</span><span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">Nailed</span>
+      </button>
+      <button data-outcome="Partial" onclick="pickOutcome('Partial')" class="outcome-btn flex flex-col items-center gap-1 py-3 rounded-[10px] border-2 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
+        <span class="text-xl">⚠️</span><span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">Partial</span>
+      </button>
+      <button data-outcome="Failed" onclick="pickOutcome('Failed')" class="outcome-btn flex flex-col items-center gap-1 py-3 rounded-[10px] border-2 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
+        <span class="text-xl">❌</span><span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">Failed</span>
+      </button>
+    </div>
+    <textarea id="review-reason" rows="2" placeholder="One sentence why? (optional)" class="w-full mt-3 text-sm bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg px-3 py-2.5 text-neutral-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-400 transition-colors resize-none"></textarea>
+    <button onclick="submitReview()" class="mt-3 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm py-3 rounded-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed" id="submit-review-btn" disabled>Submit</button>
+    <div id="review-response" class="mt-3 text-sm text-neutral-700 dark:text-neutral-300 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20 rounded-[10px] px-3.5 py-3 hidden leading-relaxed"></div>
+  </div>
+
+  <!-- Today's log -->
+  <div class="mt-8">
+    <div class="flex items-center justify-between mb-2.5">
+      <h2 class="text-sm font-bold text-neutral-900 dark:text-neutral-50">Today</h2>
+      <span id="today-count" class="text-xs text-gray-400 dark:text-neutral-500"></span>
+    </div>
+    <div id="today-log" class="bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-[10px] divide-y divide-gray-100 dark:divide-neutral-800 overflow-hidden"></div>
+    <button id="end-day-btn" onclick="openEndOfDayReview()" class="hidden mt-3 w-full bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold text-sm py-2.5 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800">End day + get pattern analysis</button>
+  </div>
+
+  <!-- Week view -->
+  <div class="mt-8 mb-4">
+    <h2 class="text-sm font-bold text-neutral-900 dark:text-neutral-50 mb-2.5">This week</h2>
+    <div id="week-view" class="grid grid-cols-7 gap-1.5"></div>
+  </div>
+
+</section>
+
+<!-- ===================== CLASSROOM TAB ===================== -->
+<section id="panel-classroom" class="pt-5 hidden">
+
+  <div class="mb-6">
+    <button onclick="toggleLearningProfilePanel()" class="w-full flex items-center justify-between text-sm font-bold text-neutral-900 dark:text-neutral-50 mb-2.5">
+      <span>What I already know</span>
+      <svg id="learning-profile-chevron" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="learning-profile-panel" class="hidden space-y-2"></div>
+  </div>
+
+  <!-- VIEW A: main topic list -->
+  <div id="classroom-view-topics">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-base font-semibold text-neutral-900 dark:text-neutral-50">Classroom</h2>
+      <button onclick="suggestTopic()" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">Suggest topic for me</button>
+    </div>
+    <div id="topic-grid" class="grid grid-cols-2 gap-2.5"></div>
+  </div>
+
+  <!-- VIEW B: sub-topic list inside a main topic -->
+  <div id="classroom-view-subtopics" class="hidden mt-2">
+    <button onclick="backToTopicsView()" class="text-xs font-medium text-gray-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-200 mb-3 flex items-center gap-1">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      <span>All topics · <span id="subtopic-breadcrumb-topic" class="font-semibold text-neutral-600 dark:text-neutral-300"></span></span>
+    </button>
+    <div id="subtopic-list" class="space-y-2 mb-3"></div>
+    <button onclick="openAddSubTopicModal(currentMainTopic)" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm py-3 rounded-lg transition-colors">+ Add sub-topic</button>
+  </div>
+
+  <!-- VIEW C: lessons inside a sub-topic -->
+  <div id="classroom-view-lesson" class="hidden mt-2">
+    <button onclick="backToSubTopicsView()" class="text-xs font-medium text-gray-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-200 mb-3 flex items-center gap-1">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      <span><span id="lesson-breadcrumb-topic"></span> · <span id="lesson-breadcrumb-subtopic" class="font-semibold text-neutral-600 dark:text-neutral-300"></span></span>
+    </button>
+
+    <div id="lesson-cap-warning" class="hidden text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-lg px-3 py-2.5 leading-relaxed mb-3"></div>
+
+    <div class="bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-[10px] p-4">
+      <p id="lesson-topic-label" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide mb-2"></p>
+      <div id="lesson-content" class="text-sm text-neutral-700 dark:text-neutral-300"></div>
+    </div>
+
+    <p class="text-xs font-medium text-gray-400 dark:text-neutral-500 mt-4 mb-2">How well did that land?</p>
+    <div class="grid grid-cols-3 gap-2 mb-3" id="lesson-feedback-buttons">
+      <button data-feedback="clear" onclick="submitLessonUnderstanding('clear')" class="lesson-feedback-btn flex flex-col items-center gap-1 py-2.5 rounded-[10px] border-2 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
+        <span class="text-lg">✅</span><span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">Got it</span>
+      </button>
+      <button data-feedback="partial" onclick="submitLessonUnderstanding('partial')" class="lesson-feedback-btn flex flex-col items-center gap-1 py-2.5 rounded-[10px] border-2 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
+        <span class="text-lg">🤔</span><span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">Partial</span>
+      </button>
+      <button data-feedback="lost" onclick="submitLessonUnderstanding('lost')" class="lesson-feedback-btn flex flex-col items-center gap-1 py-2.5 rounded-[10px] border-2 border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 transition-colors">
+        <span class="text-lg">❌</span><span class="text-xs font-medium text-neutral-700 dark:text-neutral-300">Lost</span>
+      </button>
+    </div>
+
+    <div class="flex gap-2 mb-3">
+      <button id="prev-lesson-btn" onclick="prevLesson()" class="flex-1 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold text-sm py-2.5 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed">← Previous lesson</button>
+      <div id="next-lesson-wrap" class="flex-1"></div>
+    </div>
+
+    <button onclick="toggleFollowUp()" class="w-full bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 text-neutral-800 dark:text-neutral-200 font-semibold text-sm py-2.5 rounded-lg transition-colors hover:bg-gray-50 dark:hover:bg-neutral-800 mb-3">Ask a follow-up</button>
+    <div id="follow-up-box" class="hidden mb-3">
+      <div id="follow-up-thread" class="space-y-2 mb-2"></div>
+      <div class="flex gap-2">
+        <input id="follow-up-input" type="text" placeholder="Ask a clarifying question..." class="flex-1 text-sm bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg px-3 py-2 text-neutral-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-400 transition-colors" onkeydown="if(event.key==='Enter') sendFollowUp();" />
+        <button onclick="sendFollowUp()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold px-3.5 rounded-lg transition-colors">Ask</button>
+      </div>
+    </div>
+
+    <button onclick="toggleSubtopicLessonHistory()" class="w-full flex items-center justify-between text-sm font-bold text-neutral-900 dark:text-neutral-50 mb-2.5">
+      <span>Past lessons in this sub-topic</span>
+      <svg id="subtopic-lesson-history-chevron" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </button>
+    <div id="subtopic-lesson-history" class="hidden bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-[10px] divide-y divide-gray-100 dark:divide-neutral-800 overflow-hidden mb-4"></div>
+  </div>
+
+</section>
+
+<!-- ===================== ADVISOR TAB ===================== -->
+<section id="panel-advisor" class="pt-5 hidden flex flex-col" style="min-height: calc(100vh - 130px);">
+
+  <div class="flex items-center justify-between mb-3">
+    <button onclick="togglePastSessions()" class="text-xs font-medium text-gray-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-200">Past sessions</button>
+    <button onclick="newAdvisorSession()" class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300">New session</button>
+  </div>
+
+  <div id="past-sessions-list" class="hidden bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-[10px] divide-y divide-gray-100 dark:divide-neutral-800 overflow-hidden mb-3"></div>
+
+  <div id="advisor-chat" class="flex-1 space-y-3 mb-3 overflow-y-auto"></div>
+
+  <div id="advisor-quick" class="grid grid-cols-2 gap-1.5 mb-2.5">
+    <button onclick="sendAdvisorMessage('What should I build next?')" class="text-xs font-medium text-left text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg px-2.5 py-2 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors">What should I build next?</button>
+    <button onclick="sendAdvisorMessage('How do I handle this client situation?')" class="text-xs font-medium text-left text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg px-2.5 py-2 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors">Handle a client situation</button>
+    <button onclick="sendAdvisorMessage('Review my current strategy.')" class="text-xs font-medium text-left text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg px-2.5 py-2 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors">Review my strategy</button>
+    <button onclick="sendAdvisorMessage('What am I ignoring right now?')" class="text-xs font-medium text-left text-neutral-700 dark:text-neutral-300 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg px-2.5 py-2 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors">What am I ignoring?</button>
+  </div>
+
+  <div class="sticky bottom-0 bg-white dark:bg-neutral-950 pt-1 pb-4 flex gap-2">
+    <input id="advisor-input" type="text" placeholder="Ask your co-founder..." class="flex-1 text-sm bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg px-3 py-2.5 text-neutral-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-400 transition-colors" onkeydown="if(event.key==='Enter') sendAdvisorMessage();" />
+    <button onclick="sendAdvisorMessage()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm px-4 rounded-lg transition-colors">Send</button>
+  </div>
+
+</section>
+
+</main>
+
+</div><!-- /#app-shell -->
+
+<script>
+/* =========================================================
+   CONSTANTS + PROMPTS
+   ========================================================= */
+const VALID_LEVELS = ['beginner', 'intermediate', 'advanced'];
+
+const ANSHUMAN_BASE_SYSTEM_PROMPT = `You are Focus Loop — Anshuman Tripathy's personal AI coach, classroom teacher, and NoirFlow business advisor. You are NOT a generic AI. You know him deeply. Speak like a mentor who has watched him build for months and has skin in his success.
+
+ABOUT ANSHUMAN:
+- 19 years old, first-year college student in Bhubaneswar, Odisha, India
+- Founder of NoirFlow AI, an AI + digital infrastructure agency
+- Co-founder: Somyaranjan Sahoo (supportive friend, not operator)
+- Operates entirely from Android phone using Claude Pro + Claude Code — no laptop, no external budget
+- Getting laptop around Feb 2027; until then in build-not-sell mode
+- Access pattern: online in stretches (some days, 3-4 hrs at uncle's, 6-7 day full windows every 45 days), offline for 15-45 day academic periods
+
+NOIRFLOW CURRENT STATE:
+- Live: 3 portfolio sites (Smile Dental, Aurum Realty, FitZone Gym scaffolded)
+- Live: AI receptionist 'Riya' — WhatsApp/Telegram, Hinglish, Gemini brain, Supabase memory, Google Sheets logging
+- Live: Smart Clinic Dashboard — multi-industry demo with tabs (Overview, Website, AI Agents, Automations, AI Systems), dark mode, business switcher
+- Offer ladder: Website Starter, Website + AI Receptionist (Growth), Full AI System (Premium) — prices TBD
+- Prospect list: 16 dental/skin clinics across BBSR, Cuttack, Puri in Notion Command Center
+- Sent first cold DM to Master Skin Clinic; hasn't sent follow-up wave yet — offline windows make cold outreach hard right now
+- Sales OS docs, Notion Command Center, English-first outreach scripts all built
+
+HIS MENTALITY (be aware, don't coddle):
+- Ambitious: wants to be multi-crore founder by 30
+- Compares self to peers with supercars — poisoning himself on Instagram
+- Perfectionist: gets distracted building when should sell
+- Pattern he named: 'I chase complex tools when simple ones work'
+- Pattern he named: 'I get distracted by building when I should sell'
+- Wants brutally honest feedback, no soft-pedaling
+- Wants to be pushed back on when about to make bad calls
+- Responds to direct, decisive guidance — never lists of options
+- Handles technical depth fine — never dumb things down
+- Under pressure: ships hard, executes when things break
+
+YOUR VOICE:
+- Direct and decisive. Never hedge. Never 'it depends'.
+- Warm but firm. You care because you have skin in this.
+- Never generic. Every response ties to his specific reality.
+- Push back when he's wrong. Don't cave just because he pushed once.
+- Celebrate real wins specifically (not generic hype).
+- Match his energy — fast when he's fast, real when he's stuck.
+- Never soften bad news.
+- Phrase things as 'our business' / 'we're doing' for NoirFlow.
+
+You are three things in one:
+1. His FOCUS COACH during sprints
+2. His CLASSROOM TEACHER for daily learning
+3. His NOIRFLOW ADVISOR for business questions`;
+
+const ANSHUMAN_DEFAULT_LEARNING_PROFILE = [
+  { topic: 'AI & Tech', level: 'intermediate', knows: 'Builds with Claude Code and Gemini daily from an Android phone; comfortable directing AI agents, still learning to read and write code directly.' },
+  { topic: 'Business & Sales', level: 'beginner', knows: 'Has NoirFlow live with real automations and a prospect list, but hasn’t closed a paid client yet — mostly building, not selling.' },
+  { topic: 'Personal Brand & Positioning', level: 'beginner', knows: 'No public presence built yet for NoirFlow; compares himself to peers on Instagram instead of posting his own work.' },
+  { topic: 'Finance & Money Mindset', level: 'beginner', knows: 'No revenue yet from NoirFlow; operating on zero external budget.' },
+  { topic: 'Founder Mental Game', level: 'intermediate', knows: 'Ships hard under pressure and names his own patterns (perfectionism, chasing complex tools), but still gets distracted building when he should be selling.' },
+  { topic: 'Tools Deep Dive', level: 'intermediate', knows: 'Daily user of Claude Code, Claude Agent SDK, Gemini API, Supabase, Vercel, and n8n at a working level.' },
+];
+
+const TOPIC_ICON_MAP = {
+  'AI & Tech': '🤖',
+  'Business & Sales': '💼',
+  'Personal Brand & Positioning': '✨',
+  'Finance & Money Mindset': '💰',
+  'Founder Mental Game': '🧠',
+  'Tools Deep Dive': '🛠️',
+};
+function topicIcon(topicName) {
+  return TOPIC_ICON_MAP[topicName] || '📘';
+}
+
+const ONBOARDING_SYSTEM_PROMPT = `[SYSTEM]
+You are Focus Loop onboarding. Your job right now is to have a 5-8 minute natural conversation with a new user to build their profile. You will ask ONE question at a time and wait for their reply before the next. Do not send multiple questions in one message.
+
+Questions to work through, in order:
+
+1. 'Hey, welcome. What should I call you?'
+2. 'What are you working on right now? Could be a business, a job, a project, studies — whatever's taking your energy.'
+3. 'How old are you?'
+4. 'What's your current situation with tools and setup — phone only, laptop, both? What software do you actually use daily?'
+5. 'What are you actively trying to learn right now? Give me your top 2-3 areas — could be broad like 'AI & Tech' or specific like 'Python' or 'cold email copywriting'. Broad or specific both fine — you'll build detailed learning tracks inside these later.'
+6. 'For each of those topics — what do you ALREADY know? What have you tried or built? Just a sentence per topic, your own words.'
+7. 'Where do you usually leak time or lose focus? Instagram, YouTube, anxiety scrolling, overthinking — call it out honestly.'
+8. 'Last one — what does a great day look like for you? What would you have shipped, learned, or done by end of it?'
+
+After the last answer, respond:
+'Locked in. Building your profile now.'
+
+Then output a JSON block wrapped in <PROFILE_JSON></PROFILE_JSON> tags with this exact shape:
+
+{
+  "name": string,
+  "working_on": string,
+  "age": number,
+  "setup": string,
+  "learning_topics": [{ "topic": string, "level": "beginner" | "intermediate" | "advanced", "knows": string, "parent_topic": string | null }],
+  "time_leaks": [string],
+  "great_day": string
+}
+
+The 'level' field: YOU infer it from what they said in question 6. If they mention shipping things → intermediate or advanced. If they say 'just starting' → beginner. Don't ask them to self-assess level, YOU judge it from their answer.
+
+The 'parent_topic' field: classify each answer from question 5. The six broad categories are: 'AI & Tech', 'Business & Sales', 'Personal Brand & Positioning', 'Finance & Money Mindset', 'Founder Mental Game', 'Tools Deep Dive'. If their answer for a topic already IS one of these six broad categories (or maps cleanly onto one, e.g. 'coding' → 'AI & Tech'), set "topic" to that exact canonical name and "parent_topic" to null. If instead their answer names something SPECIFIC (a tool, skill, or niche subject — e.g. 'Python', 'RAG systems', 'cold email copywriting'), keep "topic" as their specific term and set "parent_topic" to whichever of the six broad categories it best fits under.
+
+Rules:
+- Never dump all 8 questions at once. ONE per message.
+- Feel human — react briefly to their answers before the next question ('Nice, that's a real project.' — 5 words max, then next question).
+- If they give a vague answer, ask one clarifier before moving on.
+- No lists. No headers. Talk like a person.`;
+
+function buildDynamicBaseSystemPrompt(profile) {
+  const topicsStr =
+    (profile.learning_topics || [])
+      .map((t) => `${t.topic} (${t.level}) — knows: ${t.knows || 'not specified'}`)
+      .join('; ') || 'Not specified yet.';
+  const leaksStr = (profile.time_leaks || []).join(', ') || 'Not specified yet.';
+  return `You are Focus Loop — ${profile.name}'s personal AI coach, classroom teacher, and personal advisor. You are NOT a generic AI. You know them from onboarding.
+
+ABOUT ${profile.name}:
+- Age: ${profile.age || 'not specified'}
+- Currently working on: ${profile.working_on || 'not specified'}
+- Setup: ${profile.setup || 'not specified'}
+- Learning right now: ${topicsStr}
+- Time leaks they self-reported: ${leaksStr}
+- Their definition of a great day: ${profile.great_day || 'not specified'}
+
+YOUR VOICE:
+- Direct and decisive. Never hedge.
+- Warm but firm. You care.
+- Never generic — every response ties to their specific reality above.
+- Push back when they're wrong. Don't cave.
+- Celebrate real wins specifically, not generically.
+- Match their energy — fast when fast, real when stuck.
+
+You are three things:
+1. Their FOCUS COACH during sprints
+2. Their CLASSROOM TEACHER for adaptive learning
+3. Their ADVISOR for whatever they're building`;
+}
+
+function getBaseSystemPrompt() {
+  if (userType === 'anshuman') return ANSHUMAN_BASE_SYSTEM_PROMPT;
+  const profile = getLS('focusloop.userProfile', null);
+  if (!profile) return ANSHUMAN_BASE_SYSTEM_PROMPT; // shouldn't happen — onboarding gate guarantees a profile first
+  return buildDynamicBaseSystemPrompt(profile);
+}
+
+const SPRINT_SECONDS = 25 * 60;
+const BREAK_SECONDS = 5 * 60;
+const RING_RADIUS = 90;
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
+
+const FALLBACKS = {
+  kickoff: '25 minutes. One thing. Go.',
+  end: 'Logged. Next.',
+  lesson: 'Coach offline. Try again.',
+  advisor: 'Offline. Retry.',
+  eod: 'Analysis unavailable. Try again in a bit.',
+  followup: 'Coach offline. Try again.',
+  onboarding: "Connection hiccup — can you say that again?",
+};
+
+/* =========================================================
+   STORAGE HELPERS
+   ========================================================= */
+function getLS(key, fallback) {
+  try {
+    const v = localStorage.getItem(key);
+    return v === null ? fallback : JSON.parse(v);
+  } catch (e) {
+    return fallback;
+  }
+}
+function setLS(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {}
+}
+
+let sprints = getLS('focusloop.sprints', []);
+let journal = getLS('focusloop.journal', []);
+let classroom = getLS('focusloop.classroom', []);
+let advisorSessions = getLS('focusloop.advisor', []);
+let soundOn = getLS('focusloop.soundOn', true);
+let vibrationOn = getLS('focusloop.vibrationOn', true);
+let timer = getLS('focusloop.currentSprint', null); // { phase, goal, leak, startTime, duration, paused, pausedAt }
+
+let userType = getLS('focusloop.userType', null); // 'anshuman' | 'new' | null
+let learningProfile = getLS('focusloop.learningProfile', null); // [{ topic, level, knows }] — main topics
+let subTopics = getLS('focusloop.subTopics', {}); // { [mainTopic]: [subTopicName, ...] }
+let learningLog = getLS('focusloop.learningLog', {}); // { [mainTopic]: { [subTopic]: [{ lessonNumber, date, conceptTaught, understanding, content, followUps }] } }
+// May still be the pre-upgrade flat array shape on disk (migrateClassroomData() below fixes that on boot).
+let dailyLessonCap = getLS('focusloop.dailyLessonCap', 10);
+let onboardingMessages = getLS('focusloop.onboardingChat', []); // [{ role, content }]
+
+let currentAdvisorSessionId = null;
+let currentMainTopic = null; // Classroom nav: which main topic is open (View B/C)
+let currentSubTopic = null; // Classroom nav: which sub-topic is open (View C)
+let currentLessonIndex = null; // Classroom nav: index into learningLog[mainTopic][subTopic] currently shown
+let rafHandle = null;
+
+/* =========================================================
+   GENERIC UTILS
+   ========================================================= */
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+function todayStr(d) {
+  const date = d || new Date();
+  return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+}
+function formatClock(seconds) {
+  const s = Math.max(0, Math.ceil(seconds));
+  const m = Math.floor(s / 60);
+  const r = s % 60;
+  return String(m).padStart(2, '0') + ':' + String(r).padStart(2, '0');
+}
+function truncate(str, n) {
+  if (!str) return '';
+  return str.length > n ? str.slice(0, n - 1) + '…' : str;
+}
+function escapeHtml(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// Short, on-screen version of a failed Gemini call's real reason. Anshuman is
+// phone-only (no laptop until Feb 2027), so a browser-console error is
+// invisible to him — this puts the actual status/message right on the
+// screen next to the fallback text instead of requiring DevTools or the
+// Vercel dashboard to see why something went offline.
+function describeGeminiError(err) {
+  const msg = err && err.message ? String(err.message) : 'Unknown error';
+  return truncate(msg, 160);
+}
+function errorDetailHTML(detail) {
+  if (!detail) return '';
+  return `<div class="mt-1.5 text-[11px] text-gray-400 dark:text-neutral-500 font-mono leading-snug break-words">${escapeHtml(detail)}</div>`;
+}
+
+/* =========================================================
+   GEMINI CALL
+   ========================================================= */
+async function callGemini({ prompt, history, useSearch, systemPromptOverride }) {
+  const systemPrompt = systemPromptOverride || getBaseSystemPrompt();
+  const res = await fetch('/api/chat', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ systemPrompt, prompt, history, useSearch: !!useSearch }),
+  });
+  if (!res.ok) {
+    let detail = '';
+    try {
+      const errBody = await res.json();
+      detail = errBody.error || '';
+    } catch (e) {}
+    console.error('[focus-loop] Gemini call failed:', res.status, detail);
+    throw new Error('API error ' + res.status + (detail ? ': ' + detail : ''));
+  }
+  const data = await res.json();
+  if (!data.reply) throw new Error('Empty reply');
+  return data.reply.trim();
+}
+
+/* =========================================================
+   THEME + SOUND
+   ========================================================= */
+function toggleDarkMode() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  setLS('focusloop.darkMode', isDark);
+  updateThemeIcon();
+}
+function updateThemeIcon() {
+  const isDark = document.documentElement.classList.contains('dark');
+  document.getElementById('icon-sun').classList.toggle('hidden', isDark);
+  document.getElementById('icon-moon').classList.toggle('hidden', !isDark);
+}
+function toggleSound() {
+  soundOn = !soundOn;
+  setLS('focusloop.soundOn', soundOn);
+  updateSoundIcon();
+}
+function toggleVibration() {
+  vibrationOn = !vibrationOn;
+  setLS('focusloop.vibrationOn', vibrationOn);
+}
+function updateSoundIcon() {
+  document.getElementById('icon-sound-on').classList.toggle('hidden', !soundOn);
+  document.getElementById('icon-sound-off').classList.toggle('hidden', soundOn);
+}
+function playChime(freq) {
+  if (!soundOn) return;
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + 0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.4);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.42);
+  } catch (e) {}
+}
+function vibrate(pattern) {
+  if (!vibrationOn) return;
+  try {
+    if (navigator.vibrate) navigator.vibrate(pattern);
+  } catch (e) {}
+}
+
+/* =========================================================
+   TAB SWITCHING
+   ========================================================= */
+function switchTab(tab) {
+  ['focus', 'classroom', 'advisor'].forEach((t) => {
+    document.getElementById('panel-' + t).classList.toggle('hidden', t !== tab);
+    const pill = document.querySelector('[data-tab="' + t + '"]');
+    if (t === tab) {
+      pill.classList.add('bg-indigo-600', 'text-white');
+      pill.classList.remove('text-gray-500', 'dark:text-neutral-400');
+    } else {
+      pill.classList.remove('bg-indigo-600', 'text-white');
+      pill.classList.add('text-gray-500', 'dark:text-neutral-400');
+    }
+  });
+  if (tab === 'advisor') scrollAdvisorToBottom();
+}
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+function openModal(innerHtml) {
+  const overlay = document.getElementById('modal-overlay');
+  const content = document.getElementById('modal-content');
+  content.innerHTML = innerHtml;
+  overlay.classList.remove('hidden');
+  overlay.classList.add('flex');
+  requestAnimationFrame(() => {
+    content.classList.remove('opacity-0', 'translate-y-2');
+  });
+}
+function closeModal() {
+  const overlay = document.getElementById('modal-overlay');
+  const content = document.getElementById('modal-content');
+  content.classList.add('opacity-0', 'translate-y-2');
+  setTimeout(() => {
+    overlay.classList.add('hidden');
+    overlay.classList.remove('flex');
+  }, 150);
+}
+
+/* =========================================================
+   TIMER ENGINE (Focus tab)
+   ========================================================= */
+function elapsedSeconds(t) {
+  const effectiveNow = t.paused ? t.pausedAt : Date.now();
+  return (effectiveNow - t.startTime) / 1000;
+}
+function saveTimer() {
+  setLS('focusloop.currentSprint', timer);
+}
+function clearTimer() {
+  timer = null;
+  setLS('focusloop.currentSprint', null);
+}
+function setRingProgress(remaining, duration) {
+  const ring = document.getElementById('timer-ring');
+  const progress = Math.max(0, Math.min(1, remaining / duration));
+  ring.style.strokeDasharray = RING_CIRCUMFERENCE;
+  ring.style.strokeDashoffset = RING_CIRCUMFERENCE * (1 - progress);
+}
+
+function tick() {
+  if (!timer) return;
+  const remaining = timer.duration - elapsedSeconds(timer);
+  document.getElementById('timer-display').textContent = formatClock(remaining);
+  setRingProgress(remaining, timer.duration);
+  if (remaining <= 0) {
+    onPhaseComplete();
+    return;
+  }
+  rafHandle = requestAnimationFrame(tick);
+}
+
+function startSprint() {
+  const goalEl = document.getElementById('sprint-goal');
+  const leakEl = document.getElementById('sprint-leak');
+  const goal = goalEl.value.trim();
+  if (!goal) {
+    goalEl.focus();
+    return;
+  }
+  const leak = leakEl.value.trim();
+  timer = { phase: 'sprint', goal, leak, startTime: Date.now(), duration: SPRINT_SECONDS, paused: false, pausedAt: null, kickoffMessage: '' };
+  saveTimer();
+  renderFocusPhase();
+  fetchKickoff(goal, leak);
+  if (rafHandle) cancelAnimationFrame(rafHandle);
+  tick();
+}
+
+async function fetchKickoff(goal, leak) {
+  const box = document.getElementById('kickoff-message');
+  box.innerHTML = '<span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400"></span>';
+  const prompt = `${getBaseSystemPrompt()}
+MODE: Focus Coach.
+They just started a 25-min sprint. Goal: '${goal}'.
+Time-leak they reported before starting: '${leak || 'none reported'}'.
+Give a 1-2 sentence kickoff message. Specific to their goal and situation. Direct. Warm. No fluff. No emoji. End with a period.`;
+  let msg, errDetail = '';
+  try {
+    msg = await callGemini({ prompt });
+  } catch (e) {
+    msg = FALLBACKS.kickoff;
+    errDetail = describeGeminiError(e);
+  }
+  if (timer && timer.phase === 'sprint') {
+    timer.kickoffMessage = msg;
+    saveTimer();
+    box.innerHTML = escapeHtml(msg) + errorDetailHTML(errDetail);
+  }
+}
+
+function togglePauseSprint() {
+  if (!timer) return;
+  const btn = document.getElementById('pause-btn');
+  if (timer.paused) {
+    const pausedDuration = Date.now() - timer.pausedAt;
+    timer.startTime += pausedDuration;
+    timer.paused = false;
+    timer.pausedAt = null;
+    btn.textContent = 'Pause';
+    saveTimer();
+    if (rafHandle) cancelAnimationFrame(rafHandle);
+    tick();
+  } else {
+    timer.paused = true;
+    timer.pausedAt = Date.now();
+    btn.textContent = 'Resume';
+    saveTimer();
+  }
+}
+
+function giveUpSprint() {
+  if (!timer) return;
+  if (rafHandle) cancelAnimationFrame(rafHandle);
+  const t = timer;
+  clearTimer();
+  enterReviewState(t.goal, t.leak, t.kickoffMessage || '');
+}
+
+function onPhaseComplete() {
+  if (rafHandle) cancelAnimationFrame(rafHandle);
+  if (!timer) return;
+  if (timer.phase === 'sprint') {
+    playChime(880);
+    vibrate([200, 80, 200]);
+    const t = timer;
+    clearTimer();
+    enterReviewState(t.goal, t.leak, t.kickoffMessage || '');
+  } else if (timer.phase === 'break') {
+    playChime(660);
+    vibrate([150]);
+    clearTimer();
+    renderFocusPhase();
+  }
+}
+
+function skipBreak() {
+  if (rafHandle) cancelAnimationFrame(rafHandle);
+  clearTimer();
+  renderFocusPhase();
+}
+
+let pendingReview = { goal: '', leak: '', kickoffMessage: '', outcome: null };
+
+function enterReviewState(goal, leak, kickoffMessage) {
+  pendingReview = { goal, leak, kickoffMessage, outcome: null };
+  document.getElementById('review-reason').value = '';
+  document.getElementById('review-response').classList.add('hidden');
+  document.getElementById('review-response').textContent = '';
+  document.querySelectorAll('.outcome-btn').forEach((b) => b.classList.remove('border-indigo-600', 'bg-indigo-50', 'dark:bg-indigo-500/10'));
+  document.getElementById('submit-review-btn').disabled = true;
+  document.getElementById('timer-phase-label').textContent = 'Review';
+  document.getElementById('timer-display').textContent = '--:--';
+  document.getElementById('timer-goal-label').textContent = truncate(goal, 60);
+  setRingProgress(0, 1);
+  showFocusState('review');
+}
+
+function pickOutcome(outcome) {
+  pendingReview.outcome = outcome;
+  document.querySelectorAll('.outcome-btn').forEach((b) => {
+    const active = b.dataset.outcome === outcome;
+    b.classList.toggle('border-indigo-600', active);
+    b.classList.toggle('bg-indigo-50', active);
+    b.classList.toggle('dark:bg-indigo-500/10', active);
+  });
+  document.getElementById('submit-review-btn').disabled = false;
+}
+
+async function submitReview() {
+  if (!pendingReview.outcome) return;
+  const reason = document.getElementById('review-reason').value.trim();
+  const btn = document.getElementById('submit-review-btn');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+
+  const prompt = `${getBaseSystemPrompt()}
+MODE: Focus Coach.
+They just finished a 25-min sprint on '${pendingReview.goal}'. They marked it '${pendingReview.outcome}' and said: '${reason || 'no reason given'}'.
+Give ONE sentence response. Max 20 words. If nailed: brief acknowledgment. If partial: name adjustment. If failed: real, not soft. No shaming.`;
+
+  let endMessage, errDetail = '';
+  try {
+    endMessage = await callGemini({ prompt });
+  } catch (e) {
+    endMessage = FALLBACKS.end;
+    errDetail = describeGeminiError(e);
+  }
+
+  const now = new Date();
+  sprints.push({
+    id: uid(),
+    date: todayStr(now),
+    time: now.toTimeString().slice(0, 5),
+    goal: pendingReview.goal,
+    leak: pendingReview.leak,
+    outcome: pendingReview.outcome,
+    reason,
+    kickoffMessage: pendingReview.kickoffMessage,
+    endMessage,
+  });
+  setLS('focusloop.sprints', sprints);
+
+  const responseBox = document.getElementById('review-response');
+  responseBox.innerHTML = escapeHtml(endMessage) + errorDetailHTML(errDetail);
+  responseBox.classList.remove('hidden');
+  btn.textContent = 'Submit';
+
+  renderTodayLog();
+  renderWeekView();
+  renderStreak();
+
+  setTimeout(() => {
+    timer = { phase: 'break', goal: '', leak: '', startTime: Date.now(), duration: BREAK_SECONDS, paused: false, pausedAt: null };
+    saveTimer();
+    renderFocusPhase();
+    if (rafHandle) cancelAnimationFrame(rafHandle);
+    tick();
+  }, 900);
+}
+
+function showFocusState(state) {
+  document.getElementById('focus-state-ready').classList.toggle('hidden', state !== 'ready');
+  document.getElementById('focus-state-sprint').classList.toggle('hidden', state !== 'sprint');
+  document.getElementById('focus-state-break').classList.toggle('hidden', state !== 'break');
+  document.getElementById('focus-state-review').classList.toggle('hidden', state !== 'review');
+}
+
+function renderFocusPhase() {
+  if (timer && timer.phase === 'sprint') {
+    document.getElementById('timer-phase-label').textContent = 'Focus';
+    document.getElementById('timer-goal-label').textContent = truncate(timer.goal, 60);
+    document.getElementById('kickoff-message').textContent = timer.kickoffMessage || '';
+    document.getElementById('pause-btn').textContent = timer.paused ? 'Resume' : 'Pause';
+    showFocusState('sprint');
+  } else if (timer && timer.phase === 'break') {
+    document.getElementById('timer-phase-label').textContent = 'Break';
+    document.getElementById('timer-goal-label').textContent = '';
+    showFocusState('break');
+  } else {
+    document.getElementById('timer-phase-label').textContent = 'Ready';
+    document.getElementById('timer-display').textContent = formatClock(SPRINT_SECONDS);
+    document.getElementById('timer-goal-label').textContent = '';
+    setRingProgress(SPRINT_SECONDS, SPRINT_SECONDS);
+    showFocusState('ready');
+    const goalEl = document.getElementById('sprint-goal');
+    goalEl.value = '';
+    document.getElementById('sprint-leak').value = '';
+    try { goalEl.focus(); } catch (e) {}
+  }
+}
+
+function recoverTimerOnLoad() {
+  if (!timer) {
+    renderFocusPhase();
+    return;
+  }
+  const remaining = timer.duration - elapsedSeconds(timer);
+  if (remaining <= 0) {
+    // Phase already finished while we were away.
+    if (timer.phase === 'sprint') {
+      const t = timer;
+      clearTimer();
+      enterReviewState(t.goal, t.leak, t.kickoffMessage || '');
+    } else {
+      clearTimer();
+      renderFocusPhase();
+    }
+    return;
+  }
+  renderFocusPhase();
+  tick();
+}
+
+/* =========================================================
+   TODAY'S LOG + WEEK VIEW + STREAK
+   ========================================================= */
+const OUTCOME_ICON = { Nailed: '✅', Partial: '⚠️', Failed: '❌' };
+
+function renderTodayLog() {
+  const today = todayStr();
+  const todaySprints = sprints.filter((s) => s.date === today).sort((a, b) => a.time.localeCompare(b.time));
+  const logEl = document.getElementById('today-log');
+  document.getElementById('today-count').textContent = todaySprints.length ? todaySprints.length + ' sprint' + (todaySprints.length === 1 ? '' : 's') : '';
+
+  if (!todaySprints.length) {
+    logEl.innerHTML = '<div class="px-4 py-6 text-center text-sm text-gray-400 dark:text-neutral-500">No sprints yet today. First one hits hardest.</div>';
+  } else {
+    logEl.innerHTML = todaySprints
+      .map(
+        (s) => `
+      <div class="px-4 py-3">
+        <div class="flex items-start justify-between gap-3">
+          <div class="min-w-0">
+            <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200 truncate">${escapeHtml(truncate(s.goal, 40))}</p>
+            ${s.reason ? `<p class="text-xs text-gray-400 dark:text-neutral-500 mt-0.5">${escapeHtml(s.reason)}</p>` : ''}
+            ${s.leak ? `<p class="text-[11px] text-gray-300 dark:text-neutral-600 mt-0.5">Leaked to: ${escapeHtml(s.leak)}</p>` : ''}
+          </div>
+          <div class="text-right shrink-0">
+            <span class="text-lg leading-none">${OUTCOME_ICON[s.outcome] || ''}</span>
+            <p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-1">${s.time}</p>
+          </div>
+        </div>
+      </div>`
+      )
+      .join('');
+  }
+
+  document.getElementById('end-day-btn').classList.toggle('hidden', todaySprints.length < 3);
+}
+
+function computeStreak() {
+  let streak = 0;
+  const d = new Date();
+  for (let i = 0; i < 365; i++) {
+    const dateStr = todayStr(d);
+    const count = sprints.filter((s) => s.date === dateStr).length;
+    if (i === 0) {
+      if (count >= 3) streak++;
+    } else {
+      if (count >= 3) streak++;
+      else break;
+    }
+    d.setDate(d.getDate() - 1);
+  }
+  return streak;
+}
+
+function renderStreak() {
+  const streak = computeStreak();
+  setLS('focusloop.streak', streak);
+  document.getElementById('streak-badge').textContent = '🔥 ' + streak + ' day streak';
+}
+
+function dayColorClass(daySprints) {
+  if (!daySprints.length) return 'bg-gray-100 dark:bg-neutral-800 text-gray-400 dark:text-neutral-500';
+  if (daySprints.length < 3) return 'bg-red-100 dark:bg-red-500/10 text-red-500 dark:text-red-400 animate-pulse';
+  const nailed = daySprints.filter((s) => s.outcome === 'Nailed').length;
+  const ratio = nailed / daySprints.length;
+  if (ratio >= 0.66) return 'bg-emerald-100 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400';
+  if (ratio >= 0.34) return 'bg-amber-100 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400';
+  return 'bg-red-100 dark:bg-red-500/10 text-red-600 dark:text-red-400';
+}
+
+function renderWeekView() {
+  const wrap = document.getElementById('week-view');
+  const cells = [];
+  const d = new Date();
+  d.setDate(d.getDate() - 6);
+  for (let i = 0; i < 7; i++) {
+    const dateStr = todayStr(d);
+    const daySprints = sprints.filter((s) => s.date === dateStr);
+    const dayNum = d.getDate();
+    const colorClass = dayColorClass(daySprints);
+    cells.push(`
+      <button onclick="openDayAnalysis('${dateStr}')" class="flex flex-col items-center justify-center py-2.5 rounded-[10px] ${colorClass} transition-colors">
+        <span class="text-[10px] font-medium opacity-70">${'SMTWTFS'[d.getDay()]}</span>
+        <span class="text-sm font-bold mt-0.5">${dayNum}</span>
+      </button>
+    `);
+    d.setDate(d.getDate() + 1);
+  }
+  wrap.innerHTML = cells.join('');
+}
+
+function openDayAnalysis(dateStr) {
+  const entry = journal.find((j) => j.date === dateStr);
+  const daySprints = sprints.filter((s) => s.date === dateStr);
+  const label = new Date(dateStr + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+  let body;
+  if (entry) {
+    body = `<p class="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">${escapeHtml(entry.patternAnalysis)}</p>`;
+  } else if (daySprints.length) {
+    body = `<p class="text-sm text-gray-400 dark:text-neutral-500">${daySprints.length} sprint${daySprints.length === 1 ? '' : 's'} logged, but no pattern analysis was saved for this day.</p>`;
+  } else {
+    body = `<p class="text-sm text-gray-400 dark:text-neutral-500">No sprints logged this day.</p>`;
+  }
+  openModal(`
+    <div class="p-5">
+      <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide mb-1">${label}</p>
+      ${body}
+      <button onclick="closeModal()" class="mt-4 w-full bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 font-semibold text-sm py-2.5 rounded-lg">Close</button>
+    </div>
+  `);
+}
+
+async function openEndOfDayReview() {
+  const today = todayStr();
+  const todaySprints = sprints.filter((s) => s.date === today);
+  openModal(`
+    <div class="p-5">
+      <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide mb-2">Today's pattern</p>
+      <div id="eod-content" class="text-sm text-neutral-700 dark:text-neutral-300 leading-relaxed">
+        <span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+      </div>
+      <button onclick="closeModal()" class="mt-4 w-full bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 font-semibold text-sm py-2.5 rounded-lg">Close</button>
+    </div>
+  `);
+
+  const prompt = `${getBaseSystemPrompt()}
+MODE: End-of-day analyst.
+Here is their full sprint log for today: ${JSON.stringify(todaySprints)}.
+In 3-4 sentences, identify ONE clear pattern. Be specific — cite the sprints. Include what killed their focus (if they reported leaks) and what worked. If fewer than 5 sprints, be honest that patterns aren't clear yet. Read the data like a coach who cares. No generic advice.`;
+
+  let analysis, errDetail = '';
+  try {
+    analysis = await callGemini({ prompt });
+  } catch (e) {
+    analysis = FALLBACKS.eod;
+    errDetail = describeGeminiError(e);
+  }
+
+  const contentEl = document.getElementById('eod-content');
+  if (contentEl) contentEl.innerHTML = escapeHtml(analysis) + errorDetailHTML(errDetail);
+
+  const existingIdx = journal.findIndex((j) => j.date === today);
+  if (existingIdx >= 0) journal[existingIdx].patternAnalysis = analysis;
+  else journal.push({ date: today, patternAnalysis: analysis });
+  setLS('focusloop.journal', journal);
+  renderWeekView();
+}
+
+/* =========================================================
+   CLASSROOM TAB
+   ========================================================= */
+const FEEDBACK_ICON = { clear: '✅', partial: '🤔', lost: '❌' };
+
+/* ---- One-time migration: old flat learningLog array -> nested { mainTopic: { subTopic: [lessons] } } ---- */
+function migrateClassroomData() {
+  if (!Array.isArray(learningLog)) return; // already migrated (or a brand-new install)
+  const nestedLog = {};
+  const subs = {};
+  const byTopic = {};
+  classroom.forEach((entry) => {
+    if (!entry || !entry.topic) return;
+    (byTopic[entry.topic] = byTopic[entry.topic] || []).push(entry);
+  });
+  Object.keys(byTopic).forEach((topic) => {
+    nestedLog[topic] = {
+      '(General)': byTopic[topic].map((entry, i) => ({
+        lessonNumber: i + 1,
+        date: entry.date,
+        conceptTaught: truncate(firstLine(entry.content).replace(/^#+\s*/, '').replace(/\*\*/g, ''), 80),
+        understanding: entry.feedback || null,
+        content: entry.content,
+        followUps: entry.followUps || [],
+      })),
+    };
+    subs[topic] = ['(General)'];
+  });
+  learningLog = nestedLog;
+  subTopics = { ...subs, ...subTopics };
+  setLS('focusloop.learningLog', learningLog);
+  setLS('focusloop.subTopics', subTopics);
+}
+
+function getSubTopicLessons(mainTopic, subTopic) {
+  return (learningLog[mainTopic] && learningLog[mainTopic][subTopic]) || [];
+}
+
+function topicStats(mainTopic) {
+  const subs = learningLog[mainTopic] || {};
+  const subCount = Object.keys(subs).length;
+  const lessonCount = Object.values(subs).reduce((sum, arr) => sum + arr.length, 0);
+  return { subCount, lessonCount };
+}
+
+/* ---- Daily lesson cap ---- */
+function getDailyLessonCountRecord() {
+  const rec = getLS('focusloop.dailyLessonCount', { date: todayStr(), count: 0 });
+  if (rec.date !== todayStr()) return { date: todayStr(), count: 0 };
+  return rec;
+}
+function dailyLessonStatus() {
+  const rec = getDailyLessonCountRecord();
+  return { cap: dailyLessonCap, count: rec.count, remaining: dailyLessonCap - rec.count };
+}
+function incrementDailyLessonCount() {
+  const rec = getDailyLessonCountRecord();
+  rec.count += 1;
+  setLS('focusloop.dailyLessonCount', rec);
+}
+function updateDailyLessonCap(value) {
+  let n = parseInt(value, 10);
+  if (!Number.isFinite(n)) n = 10;
+  n = Math.max(3, Math.min(20, n));
+  dailyLessonCap = n;
+  setLS('focusloop.dailyLessonCap', dailyLessonCap);
+}
+
+/* ---- VIEW A: main topic list ---- */
+function renderTopicGrid() {
+  const grid = document.getElementById('topic-grid');
+  if (!learningProfile || !learningProfile.length) {
+    grid.innerHTML = '<p class="col-span-2 text-sm text-gray-400 dark:text-neutral-500 px-1 py-4 text-center">No topics yet.</p>';
+    return;
+  }
+  grid.innerHTML = learningProfile
+    .map((t) => {
+      const stats = topicStats(t.topic);
+      return `
+    <button onclick="openTopic('${t.topic.replace(/'/g, "\\'")}')" class="flex flex-col items-start gap-2 p-3.5 rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors text-left">
+      <span class="text-xl">${topicIcon(t.topic)}</span>
+      <span class="text-xs font-semibold text-neutral-800 dark:text-neutral-200 leading-snug">${escapeHtml(t.topic)}</span>
+      <span class="text-[11px] text-gray-400 dark:text-neutral-500">${stats.subCount} sub-topic${stats.subCount === 1 ? '' : 's'} · ${stats.lessonCount} lesson${stats.lessonCount === 1 ? '' : 's'}</span>
+    </button>`;
+    })
+    .join('');
+}
+
+function showClassroomView(view) {
+  document.getElementById('classroom-view-topics').classList.toggle('hidden', view !== 'topics');
+  document.getElementById('classroom-view-subtopics').classList.toggle('hidden', view !== 'subtopics');
+  document.getElementById('classroom-view-lesson').classList.toggle('hidden', view !== 'lesson');
+}
+
+function backToTopicsView() {
+  currentMainTopic = null;
+  currentSubTopic = null;
+  currentLessonIndex = null;
+  showClassroomView('topics');
+  renderTopicGrid();
+}
+
+/* ---- VIEW B: sub-topic list inside a main topic ---- */
+function openTopic(mainTopic) {
+  currentMainTopic = mainTopic;
+  currentSubTopic = null;
+  currentLessonIndex = null;
+  showClassroomView('subtopics');
+  renderSubTopicList(mainTopic);
+}
+
+function backToSubTopicsView() {
+  currentSubTopic = null;
+  currentLessonIndex = null;
+  showClassroomView('subtopics');
+  renderSubTopicList(currentMainTopic);
+}
+
+function renderSubTopicList(mainTopic) {
+  document.getElementById('subtopic-breadcrumb-topic').textContent = mainTopic;
+  const wrap = document.getElementById('subtopic-list');
+  const names = subTopics[mainTopic] || [];
+  if (!names.length) {
+    wrap.innerHTML = '<div class="px-4 py-6 text-center text-sm text-gray-400 dark:text-neutral-500 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-[10px]">No sub-topics yet. Add one to start a learning track.</div>';
+    return;
+  }
+  wrap.innerHTML = names
+    .map((name) => {
+      const lessons = getSubTopicLessons(mainTopic, name);
+      const lastDate = lessons.length ? lessons[lessons.length - 1].date : 'Not started';
+      const trend = lessons
+        .slice(-5)
+        .map((l) => FEEDBACK_ICON[l.understanding] || '⚪')
+        .join(' ');
+      return `
+    <button onclick="openSubTopic('${mainTopic.replace(/'/g, "\\'")}', '${name.replace(/'/g, "\\'")}')" class="w-full text-left px-4 py-3 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-[10px] hover:border-indigo-300 dark:hover:border-indigo-600 transition-colors flex items-center justify-between gap-3">
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200 truncate">${escapeHtml(name)}</p>
+        <p class="text-xs text-gray-400 dark:text-neutral-500 mt-0.5">${lessons.length ? 'Lesson ' + lessons.length + ' of ongoing' : 'Not started'} · ${lastDate}</p>
+      </div>
+      <span class="text-xs shrink-0">${trend}</span>
+    </button>`;
+    })
+    .join('');
+}
+
+function openAddSubTopicModal(mainTopic) {
+  if (!mainTopic) return;
+  openModal(`
+    <div class="p-5">
+      <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide mb-2">New sub-topic in ${escapeHtml(mainTopic)}</p>
+      <label class="block text-sm font-semibold text-neutral-900 dark:text-neutral-50 mb-2">What do you want to learn inside ${escapeHtml(mainTopic)}?</label>
+      <textarea id="new-subtopic-input" rows="2" placeholder="e.g. Python, RAG, cold email copywriting..." class="w-full text-sm bg-gray-50 dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg px-3 py-2.5 text-neutral-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-400 transition-colors resize-none"></textarea>
+      <div class="flex gap-2 mt-3">
+        <button onclick="closeModal()" class="flex-1 bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 font-semibold text-sm py-2.5 rounded-lg">Cancel</button>
+        <button onclick="createSubTopic('${mainTopic.replace(/'/g, "\\'")}')" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm py-2.5 rounded-lg transition-colors">Create</button>
+      </div>
+    </div>
+  `);
+  setTimeout(() => {
+    const el = document.getElementById('new-subtopic-input');
+    if (el) el.focus();
+  }, 50);
+}
+
+function createSubTopic(mainTopic) {
+  const input = document.getElementById('new-subtopic-input');
+  const name = (input ? input.value : '').trim();
+  if (!name) return;
+  closeModal();
+  if (!subTopics[mainTopic]) subTopics[mainTopic] = [];
+  if (!subTopics[mainTopic].includes(name)) subTopics[mainTopic].push(name);
+  setLS('focusloop.subTopics', subTopics);
+  if (!learningLog[mainTopic]) learningLog[mainTopic] = {};
+  if (!learningLog[mainTopic][name]) learningLog[mainTopic][name] = [];
+  setLS('focusloop.learningLog', learningLog);
+  openSubTopic(mainTopic, name);
+}
+
+/* ---- VIEW C: lessons inside a sub-topic ---- */
+function openSubTopic(mainTopic, subTopic) {
+  currentMainTopic = mainTopic;
+  currentSubTopic = subTopic;
+  const lessons = getSubTopicLessons(mainTopic, subTopic);
+  currentLessonIndex = lessons.length ? lessons.length - 1 : null;
+  showClassroomView('lesson');
+  renderSubTopicLessonView();
+  if (!lessons.length) generateNextLesson(mainTopic, subTopic);
+}
+
+function countTrailingLost(lessons) {
+  let n = 0;
+  for (let i = lessons.length - 1; i >= 0; i--) {
+    if (lessons[i].understanding === 'lost') n++;
+    else break;
+  }
+  return n;
+}
+
+async function generateNextLesson(mainTopic, subTopic) {
+  const status = dailyLessonStatus();
+  if (status.remaining <= 0) {
+    currentLessonIndex = getSubTopicLessons(mainTopic, subTopic).length - 1;
+    renderSubTopicLessonView();
+    return;
+  }
+
+  const lessons = getSubTopicLessons(mainTopic, subTopic);
+  const lessonNumber = lessons.length + 1;
+  const profileEntry = (learningProfile || []).find((t) => t.topic === mainTopic) || { level: 'beginner', knows: '' };
+  const profile = userType === 'new' ? getLS('focusloop.userProfile', null) : null;
+  const workingOn = profile && profile.working_on ? profile.working_on : '';
+  const lostStreak = countTrailingLost(lessons);
+
+  const historyBlock = lessons.length
+    ? lessons.map((l) => `Lesson ${l.lessonNumber} (${l.date}): ${l.conceptTaught} — understanding: ${l.understanding || 'not rated'}`).join('\n')
+    : 'No prior lessons in this sub-topic yet.';
+
+  const taskBlock =
+    lessonNumber === 1
+      ? `- This is Lesson 1 for a brand new sub-topic:
+  Start with a diagnostic. Ask 1-2 quick questions to gauge where they are IN THIS SPECIFIC SUB-TOPIC (main topic level isn't always the same as sub-topic level — someone advanced in ${mainTopic} may be beginner in this). Then teach the true foundational concept for their assessed level.`
+      : `- This is Lesson ${lessonNumber} (N > 1):
+  Read every prior lesson in this sub-topic above. Identify what was taught, what they marked understanding as. Pick the NEXT logical concept in the natural progression of this sub-topic.
+  * If last lesson was 'clear' → advance to next concept
+  * If last lesson was 'partial' → reinforce same concept from a different angle
+  * If last lesson was 'lost' → go simpler, re-teach prerequisite`;
+
+  const lostBlock =
+    lostStreak >= 3
+      ? `\n- They have marked ${lostStreak} lessons in a row as 'lost' on this sub-topic: explicitly suggest they pause this sub-topic and try a foundational prerequisite instead. Name what prerequisite specifically.`
+      : '';
+
+  const prompt = `${getBaseSystemPrompt()}
+
+MODE: Classroom teacher — ADAPTIVE + SEQUENTIAL mode.
+
+Main topic: '${mainTopic}'
+Sub-topic: '${subTopic}'
+Current position: Lesson ${lessonNumber} in this sub-topic
+User's overall level in ${mainTopic}: ${profileEntry.level}
+What they already know in ${mainTopic}: ${profileEntry.knows || 'Not specified yet.'}
+
+FULL LESSON HISTORY FOR THIS SUB-TOPIC:
+${historyBlock}
+
+YOUR TASK:
+${taskBlock}${lostBlock}
+
+LESSON STRUCTURE:
+- Sub-topic + lesson number label at top (e.g. '${subTopic} · Lesson ${lessonNumber}')
+- 1 sentence: what this lesson builds on from last lesson (reference specifically, e.g. 'You got list comprehensions last lesson. Now we build on that with...')${lessonNumber === 1 ? ' — skip this for Lesson 1, there is nothing before it.' : ''}
+- Core teaching: ONE concept, clearly explained
+- Concrete example — ${workingOn ? `tie the example to their project: '${workingOn}'.` : 'if user has a project (from their profile), tie the example to their project.'}
+- 'Try this in your next Focus sprint' — one applied action
+- Max 400 words. Tight.
+
+RULES:
+- ONE concept per lesson, always
+- Sequential — never skip prerequisites
+- Never repeat something they already understood in this sub-topic
+- Reference prior lessons explicitly to build continuity
+- Direct, warm, mentor tone
+
+At end of lesson output the sub-topic breadcrumb again so frontend can confirm parsing:
+<META>subtopic:${subTopic}|lesson:${lessonNumber}</META>`;
+
+  let content, ok = true, errDetail = '';
+  try {
+    content = await callGemini({ prompt, useSearch: true });
+  } catch (e) {
+    content = FALLBACKS.lesson;
+    ok = false;
+    errDetail = describeGeminiError(e);
+  }
+  const displayContent = content.replace(/<META>[\s\S]*?<\/META>\s*$/, '').trim();
+
+  const lessonRecord = {
+    lessonNumber,
+    date: todayStr(),
+    conceptTaught: truncate(firstLine(displayContent).replace(/^#+\s*/, '').replace(/\*\*/g, ''), 80),
+    understanding: null,
+    content: displayContent,
+    followUps: [],
+  };
+  if (!learningLog[mainTopic]) learningLog[mainTopic] = {};
+  if (!learningLog[mainTopic][subTopic]) learningLog[mainTopic][subTopic] = [];
+  learningLog[mainTopic][subTopic].push(lessonRecord);
+  setLS('focusloop.learningLog', learningLog);
+  // Only a real lesson counts against the daily cap — a failed call didn't
+  // actually teach anything, so it shouldn't eat one of the day's 10 slots.
+  if (ok) incrementDailyLessonCount();
+
+  currentMainTopic = mainTopic;
+  currentSubTopic = subTopic;
+  currentLessonIndex = learningLog[mainTopic][subTopic].length - 1;
+  renderSubTopicLessonView();
+  if (errDetail) {
+    const contentEl = document.getElementById('lesson-content');
+    if (contentEl) contentEl.innerHTML += errorDetailHTML(errDetail);
+  }
+}
+
+function handleNextLesson() {
+  const lessons = getSubTopicLessons(currentMainTopic, currentSubTopic);
+  if (currentLessonIndex < lessons.length - 1) {
+    currentLessonIndex++;
+    renderSubTopicLessonView();
+  } else {
+    generateNextLesson(currentMainTopic, currentSubTopic);
+  }
+}
+
+function prevLesson() {
+  if (currentLessonIndex > 0) {
+    currentLessonIndex--;
+    renderSubTopicLessonView();
+  }
+}
+
+function jumpToLesson(index) {
+  currentLessonIndex = index;
+  renderSubTopicLessonView();
+}
+
+function submitLessonUnderstanding(value) {
+  const lessons = getSubTopicLessons(currentMainTopic, currentSubTopic);
+  const lesson = lessons[currentLessonIndex];
+  if (!lesson) return;
+  lesson.understanding = value;
+  setLS('focusloop.learningLog', learningLog);
+  renderSubTopicLessonView();
+}
+
+function renderSubTopicLessonView() {
+  document.getElementById('lesson-breadcrumb-topic').textContent = currentMainTopic || '';
+  document.getElementById('lesson-breadcrumb-subtopic').textContent = currentSubTopic || '';
+
+  const lessons = getSubTopicLessons(currentMainTopic, currentSubTopic);
+  const lesson = currentLessonIndex != null ? lessons[currentLessonIndex] : undefined;
+  const status = dailyLessonStatus();
+
+  const contentEl = document.getElementById('lesson-content');
+  const labelEl = document.getElementById('lesson-topic-label');
+
+  if (!lesson) {
+    if (status.remaining <= 0) {
+      labelEl.textContent = currentSubTopic + ' · Not started';
+      contentEl.innerHTML = '<p class="text-sm text-gray-400 dark:text-neutral-500">Daily lesson cap reached. Come back tomorrow to start this sub-topic.</p>';
+    } else {
+      labelEl.textContent = currentSubTopic + ' · Generating Lesson 1...';
+      contentEl.innerHTML =
+        '<span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-indigo-400"></span>';
+    }
+  } else {
+    labelEl.textContent = currentSubTopic + ' · Lesson ' + lesson.lessonNumber;
+    contentEl.innerHTML = renderLessonHTML(lesson.content);
+  }
+
+  document.querySelectorAll('.lesson-feedback-btn').forEach((b) => {
+    const active = !!lesson && b.dataset.feedback === lesson.understanding;
+    b.classList.toggle('border-indigo-600', active);
+    b.classList.toggle('bg-indigo-50', active);
+    b.classList.toggle('dark:bg-indigo-500/10', active);
+  });
+
+  document.getElementById('prev-lesson-btn').disabled = !lesson || currentLessonIndex <= 0;
+
+  const atTip = !lesson || currentLessonIndex === lessons.length - 1;
+  const nextWrap = document.getElementById('next-lesson-wrap');
+  if (atTip && status.remaining <= 0) {
+    nextWrap.innerHTML = `<p class="text-xs text-center text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 rounded-lg px-3 py-2.5 leading-relaxed">Daily cap reached (${status.cap} lessons). Come back tomorrow — your brain needs sleep to lock in what you learned. You can still review past lessons.</p>`;
+  } else if (!lesson) {
+    nextWrap.innerHTML = '';
+  } else {
+    nextWrap.innerHTML = `<button id="next-lesson-btn" onclick="handleNextLesson()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold text-sm py-2.5 rounded-lg transition-colors">Next lesson →</button>`;
+  }
+
+  const warningEl = document.getElementById('lesson-cap-warning');
+  if (atTip && status.remaining > 0 && status.remaining <= 2) {
+    warningEl.classList.remove('hidden');
+    warningEl.textContent = `You've studied ${status.count} lessons today. Great pace — but consider giving your brain time to consolidate. ${status.remaining} more lesson${status.remaining === 1 ? '' : 's'} available today.`;
+  } else {
+    warningEl.classList.add('hidden');
+  }
+
+  document.getElementById('follow-up-box').classList.add('hidden');
+  document.getElementById('follow-up-thread').innerHTML = lesson
+    ? (lesson.followUps || [])
+        .map(
+          (f) => `
+    <div class="text-sm bg-indigo-600 text-white chat-bubble-user px-3 py-2 ml-8">${escapeHtml(f.question)}</div>
+    <div class="text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3 py-2 mr-8">${escapeHtml(f.answer)}</div>`
+        )
+        .join('')
+    : '';
+
+  renderPastLessonsList(lessons);
+}
+
+function toggleSubtopicLessonHistory() {
+  const box = document.getElementById('subtopic-lesson-history');
+  const chevron = document.getElementById('subtopic-lesson-history-chevron');
+  const willShow = box.classList.contains('hidden');
+  box.classList.toggle('hidden');
+  chevron.style.transform = willShow ? 'rotate(180deg)' : 'rotate(0deg)';
+}
+
+function renderPastLessonsList(lessons) {
+  const box = document.getElementById('subtopic-lesson-history');
+  if (!lessons.length) {
+    box.innerHTML = '<div class="px-4 py-4 text-center text-sm text-gray-400 dark:text-neutral-500">No lessons yet.</div>';
+    return;
+  }
+  box.innerHTML = [...lessons]
+    .reverse()
+    .map((l, idx) => {
+      const realIndex = lessons.length - 1 - idx;
+      return `
+    <button onclick="jumpToLesson(${realIndex})" class="w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors flex items-center justify-between gap-3 ${realIndex === currentLessonIndex ? 'bg-indigo-50 dark:bg-indigo-500/10' : ''}">
+      <div class="min-w-0">
+        <p class="text-sm font-medium text-neutral-800 dark:text-neutral-200 truncate">Lesson ${l.lessonNumber}: ${escapeHtml(truncate(l.conceptTaught, 40))}</p>
+        <p class="text-xs text-gray-400 dark:text-neutral-500 mt-0.5">${l.date}</p>
+      </div>
+      <span class="text-base shrink-0">${FEEDBACK_ICON[l.understanding] || ''}</span>
+    </button>`;
+    })
+    .join('');
+}
+
+function toggleFollowUp() {
+  document.getElementById('follow-up-box').classList.toggle('hidden');
+  document.getElementById('follow-up-input').focus();
+}
+
+async function sendFollowUp() {
+  const input = document.getElementById('follow-up-input');
+  const question = input.value.trim();
+  const lessons = getSubTopicLessons(currentMainTopic, currentSubTopic);
+  const lesson = currentLessonIndex != null ? lessons[currentLessonIndex] : undefined;
+  if (!question || !lesson) return;
+  input.value = '';
+
+  const thread = document.getElementById('follow-up-thread');
+  thread.innerHTML += `<div class="text-sm bg-indigo-600 text-white chat-bubble-user px-3 py-2 ml-8">${escapeHtml(question)}</div>`;
+  const loadingId = 'fu-loading-' + uid();
+  thread.innerHTML += `<div id="${loadingId}" class="text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3 py-2 mr-8"><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400"></span></div>`;
+
+  const prompt = `${getBaseSystemPrompt()}
+MODE: Classroom teacher (follow-up).
+Sub-topic: '${currentSubTopic}' (main topic: '${currentMainTopic}').
+Lesson content: ${lesson.content}.
+Their follow-up question: '${question}'.
+Answer directly in 2-4 sentences. Reference the lesson. No fluff.`;
+
+  let answer, errDetail = '';
+  try {
+    answer = await callGemini({ prompt, useSearch: true });
+  } catch (e) {
+    answer = FALLBACKS.followup;
+    errDetail = describeGeminiError(e);
+  }
+
+  const loadingEl = document.getElementById(loadingId);
+  if (loadingEl) loadingEl.outerHTML = `<div class="text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3 py-2 mr-8">${escapeHtml(answer)}${errorDetailHTML(errDetail)}</div>`;
+
+  lesson.followUps = lesson.followUps || [];
+  lesson.followUps.push({ question, answer });
+  setLS('focusloop.learningLog', learningLog);
+}
+
+/* ---- Learning profile: editable "What I already know" (main-topic level) ---- */
+function toggleLearningProfilePanel() {
+  const box = document.getElementById('learning-profile-panel');
+  const chevron = document.getElementById('learning-profile-chevron');
+  const willShow = box.classList.contains('hidden');
+  box.classList.toggle('hidden');
+  chevron.style.transform = willShow ? 'rotate(180deg)' : 'rotate(0deg)';
+  if (willShow) renderLearningProfilePanel();
+}
+
+function expandLearningProfile() {
+  const box = document.getElementById('learning-profile-panel');
+  const chevron = document.getElementById('learning-profile-chevron');
+  box.classList.remove('hidden');
+  chevron.style.transform = 'rotate(180deg)';
+  renderLearningProfilePanel();
+  box.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function renderLearningProfilePanel() {
+  const panel = document.getElementById('learning-profile-panel');
+  if (!learningProfile || !learningProfile.length) {
+    panel.innerHTML = '<p class="text-sm text-gray-400 dark:text-neutral-500 px-1">No topics yet.</p>';
+    return;
+  }
+  panel.innerHTML = learningProfile
+    .map(
+      (t, i) => `
+    <div class="bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-[10px] p-3">
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <p class="text-sm font-semibold text-neutral-800 dark:text-neutral-200">${escapeHtml(t.topic)}</p>
+        <select onchange="updateLearningProfileLevel(${i}, this.value)" class="text-xs bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-md px-2 py-1 text-neutral-700 dark:text-neutral-300">
+          <option value="beginner" ${t.level === 'beginner' ? 'selected' : ''}>Beginner</option>
+          <option value="intermediate" ${t.level === 'intermediate' ? 'selected' : ''}>Intermediate</option>
+          <option value="advanced" ${t.level === 'advanced' ? 'selected' : ''}>Advanced</option>
+        </select>
+      </div>
+      <textarea onblur="updateLearningProfileKnows(${i}, this.value)" rows="2" placeholder="What do you already know about this?" class="w-full text-xs bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-md px-2 py-1.5 text-neutral-700 dark:text-neutral-300 placeholder:text-gray-400 dark:placeholder:text-neutral-500 resize-none">${escapeHtml(t.knows)}</textarea>
+    </div>`
+    )
+    .join('');
+}
+
+function updateLearningProfileLevel(i, value) {
+  if (!learningProfile[i]) return;
+  learningProfile[i].level = VALID_LEVELS.includes(value) ? value : 'beginner';
+  setLS('focusloop.learningProfile', learningProfile);
+}
+function updateLearningProfileKnows(i, value) {
+  if (!learningProfile[i]) return;
+  learningProfile[i].knows = value;
+  setLS('focusloop.learningProfile', learningProfile);
+}
+
+function recentSprintSummary() {
+  const recent = sprints.slice(-10);
+  if (!recent.length) return 'No sprints logged yet.';
+  const nailed = recent.filter((s) => s.outcome === 'Nailed').length;
+  const leaks = recent.map((s) => s.leak).filter(Boolean);
+  return `${recent.length} recent sprints, ${nailed} nailed. Reported time-leaks: ${leaks.length ? leaks.join(', ') : 'none reported'}.`;
+}
+
+function pastTopicsList() {
+  const rows = [];
+  Object.keys(learningLog).forEach((topic) => {
+    Object.keys(learningLog[topic] || {}).forEach((sub) => {
+      (learningLog[topic][sub] || []).forEach((l) => rows.push({ date: l.date, label: `${topic} > ${sub} (Lesson ${l.lessonNumber})` }));
+    });
+  });
+  rows.sort((a, b) => a.date.localeCompare(b.date));
+  const recent = rows.slice(-7).map((r) => r.date + ': ' + r.label);
+  return recent.length ? recent.join('; ') : 'No lessons yet.';
+}
+
+function firstLine(text) {
+  return (text || '').split('\n').find((l) => l.trim()) || '';
+}
+
+async function suggestTopic() {
+  const btn = event.currentTarget;
+  const originalText = btn.textContent;
+  btn.textContent = 'Thinking...';
+  btn.disabled = true;
+
+  const topicNames = (learningProfile || []).map((t) => t.topic);
+
+  const prompt = `${getBaseSystemPrompt()}
+MODE: Classroom teacher (topic picker).
+Their classroom history (last 7 lessons): ${pastTopicsList()}.
+Recent sprint patterns: ${recentSprintSummary()}.
+Pick exactly ONE topic from this list that fits what they need to learn right now: ${topicNames.join(', ')}.
+Reply with ONLY the exact topic name from the list, nothing else.`;
+
+  let picked;
+  try {
+    const reply = await callGemini({ prompt });
+    picked = topicNames.find((name) => reply.toLowerCase().includes(name.toLowerCase()));
+  } catch (e) {
+    picked = null;
+  }
+
+  btn.textContent = originalText;
+  btn.disabled = false;
+
+  if (!picked) {
+    const leastStudied = topicNames.slice().sort((a, b) => topicStats(a).lessonCount - topicStats(b).lessonCount);
+    picked = leastStudied[0];
+  }
+  if (picked) openTopic(picked);
+}
+
+function renderLessonHTML(text) {
+  let esc = escapeHtml(text);
+  esc = esc.replace(/^#### (.*)$/gm, '<h5 class="font-semibold text-sm mt-3 mb-1">$1</h5>');
+  esc = esc.replace(/^### (.*)$/gm, '<h4 class="font-semibold text-sm mt-4 mb-1">$1</h4>');
+  esc = esc.replace(/^## (.*)$/gm, '<h3 class="font-bold text-base mt-4 mb-1.5">$1</h3>');
+  esc = esc.replace(/^# (.*)$/gm, '<h2 class="font-bold text-lg mt-4 mb-2">$1</h2>');
+  esc = esc.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  esc = esc.replace(/^[-*] (.*)$/gm, '<li class="ml-4 list-disc">$1</li>');
+  esc = esc.replace(/(<li[^>]*>.*<\/li>\n?)+/g, (m) => '<ul class="my-2 space-y-1">' + m + '</ul>');
+  esc = esc
+    .split(/\n\n+/)
+    .map((block) => {
+      if (/^<h[2-5]|^<ul/.test(block.trim())) return block;
+      return '<p class="mb-3 leading-relaxed">' + block.replace(/\n/g, '<br>') + '</p>';
+    })
+    .join('');
+  return esc;
+}
+
+/* =========================================================
+   ADVISOR TAB
+   ========================================================= */
+function getOrCreateAdvisorSession() {
+  if (currentAdvisorSessionId) {
+    const existing = advisorSessions.find((s) => s.sessionId === currentAdvisorSessionId);
+    if (existing) return existing;
+  }
+  if (advisorSessions.length) {
+    currentAdvisorSessionId = advisorSessions[advisorSessions.length - 1].sessionId;
+    return advisorSessions[advisorSessions.length - 1];
+  }
+  return newAdvisorSession(true);
+}
+
+function newAdvisorSession(silent) {
+  const session = { sessionId: uid(), date: todayStr(), messages: [] };
+  advisorSessions.push(session);
+  setLS('focusloop.advisor', advisorSessions);
+  currentAdvisorSessionId = session.sessionId;
+  renderAdvisorChat();
+  if (!silent) document.getElementById('advisor-input').focus();
+  return session;
+}
+
+function renderAdvisorChat() {
+  const session = getOrCreateAdvisorSession();
+  const chatEl = document.getElementById('advisor-chat');
+  if (!session.messages.length) {
+    chatEl.innerHTML = `<p class="text-sm text-gray-400 dark:text-neutral-500 text-center pt-8">${escapeHtml(emptyAdvisorPlaceholder())}</p>`;
+    return;
+  }
+  chatEl.innerHTML = session.messages
+    .map((m) =>
+      m.role === 'user'
+        ? `<div class="flex justify-end"><div class="max-w-[85%] text-sm bg-indigo-600 text-white chat-bubble-user px-3.5 py-2.5">${escapeHtml(m.content)}</div></div>`
+        : `<div class="flex justify-start"><div class="max-w-[85%] text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3.5 py-2.5">${escapeHtml(m.content)}</div></div>`
+    )
+    .join('');
+  scrollAdvisorToBottom();
+}
+
+function scrollAdvisorToBottom() {
+  const chatEl = document.getElementById('advisor-chat');
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function todaySprintsSummaryForAdvisor() {
+  const today = todayStr();
+  const todaySprints = sprints.filter((s) => s.date === today);
+  if (!todaySprints.length) return 'No sprints logged today yet.';
+  return todaySprints.map((s) => `${s.outcome}: ${s.goal}`).join('; ');
+}
+
+function emptyAdvisorPlaceholder() {
+  return userType === 'anshuman'
+    ? 'Ask me anything about NoirFlow. I know where we actually stand.'
+    : "Ask me anything about what you're building. I know where you actually stand.";
+}
+
+function buildAdvisorPrompt(message, chatHistorySummary) {
+  const base = getBaseSystemPrompt();
+  if (userType === 'anshuman') {
+    return `${base}
+MODE: NoirFlow Business Advisor.
+Recent context — today's sprints: ${todaySprintsSummaryForAdvisor()}.
+Chat history this session: ${chatHistorySummary}.
+Anshuman just asked: '${message}'.
+
+Respond as his co-founder-in-spirit. Direct. Specific to NoirFlow's actual state. Push back if his premise is weak. Cite specifics — his prospects, his offers, his deals, his patterns. If he's about to make a bad call (scope creep, premature building, avoiding sales), stop him. If you don't know something factual (current market rates, new tools), use Google Search to check before answering.
+
+Never generic. Never a list of 5 options unless he asks. Pick a direction, defend it.`;
+  }
+  return `${base}
+MODE: Personal Advisor for what they're working on.
+Recent context — today's sprints: ${todaySprintsSummaryForAdvisor()}.
+Chat history this session: ${chatHistorySummary}.
+User just asked: '${message}'.
+
+Respond as a mentor with skin in their game. Direct, specific to THEIR situation (see profile above). Push back on weak premises. Use Google Search if factual info is needed (degrade gracefully if unavailable).`;
+}
+
+async function sendAdvisorMessage(presetText) {
+  const input = document.getElementById('advisor-input');
+  const message = (presetText !== undefined && typeof presetText === 'string' ? presetText : input.value).trim();
+  if (!message) return;
+  input.value = '';
+
+  const session = getOrCreateAdvisorSession();
+  session.messages.push({ role: 'user', content: message, timestamp: Date.now() });
+  setLS('focusloop.advisor', advisorSessions);
+  renderAdvisorChat();
+
+  const chatEl = document.getElementById('advisor-chat');
+  const loadingId = 'adv-loading-' + uid();
+  chatEl.innerHTML += `<div id="${loadingId}" class="flex justify-start"><div class="max-w-[85%] text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3.5 py-2.5"><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400"></span></div></div>`;
+  scrollAdvisorToBottom();
+
+  const userLabel = userType === 'anshuman' ? 'Anshuman: ' : 'User: ';
+  const chatHistorySummary = session.messages
+    .slice(-8, -1)
+    .map((m) => (m.role === 'user' ? userLabel : 'You: ') + m.content)
+    .join(' | ') || 'No prior messages this session.';
+
+  const prompt = buildAdvisorPrompt(message, chatHistorySummary);
+
+  const historyForApi = session.messages.slice(0, -1).slice(-10).map((m) => ({ role: m.role, text: m.content }));
+
+  let reply, errDetail = '';
+  try {
+    reply = await callGemini({ prompt, history: historyForApi, useSearch: true });
+  } catch (e) {
+    reply = FALLBACKS.advisor;
+    errDetail = describeGeminiError(e);
+  }
+
+  const loadingEl = document.getElementById(loadingId);
+  if (loadingEl) loadingEl.remove();
+
+  session.messages.push({ role: 'assistant', content: reply, timestamp: Date.now() });
+  setLS('focusloop.advisor', advisorSessions);
+  renderAdvisorChat();
+  if (errDetail) {
+    document.getElementById('advisor-chat').innerHTML += `<div class="flex justify-start"><div class="max-w-[85%]">${errorDetailHTML(errDetail)}</div></div>`;
+    scrollAdvisorToBottom();
+  }
+}
+
+function togglePastSessions() {
+  const box = document.getElementById('past-sessions-list');
+  const willShow = box.classList.contains('hidden');
+  box.classList.toggle('hidden');
+  if (willShow) {
+    if (!advisorSessions.length) {
+      box.innerHTML = '<div class="px-4 py-4 text-center text-sm text-gray-400 dark:text-neutral-500">No past sessions yet.</div>';
+      return;
+    }
+    box.innerHTML = [...advisorSessions]
+      .reverse()
+      .map(
+        (s) => `
+      <button onclick="loadAdvisorSession('${s.sessionId}')" class="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors flex items-center justify-between gap-2">
+        <span class="text-sm text-neutral-700 dark:text-neutral-300">${s.date}</span>
+        <span class="text-xs text-gray-400 dark:text-neutral-500">${s.messages.length} msg${s.messages.length === 1 ? '' : 's'}</span>
+      </button>`
+      )
+      .join('');
+  }
+}
+
+function loadAdvisorSession(sessionId) {
+  currentAdvisorSessionId = sessionId;
+  renderAdvisorChat();
+  document.getElementById('past-sessions-list').classList.add('hidden');
+}
+
+/* =========================================================
+   IDENTITY + ONBOARDING
+   ========================================================= */
+function chooseIdentity(type) {
+  userType = type;
+  setLS('focusloop.userType', type);
+  document.getElementById('identity-screen').classList.add('hidden');
+  if (type === 'anshuman') {
+    ensureLearningProfileSeeded();
+    initMainApp();
+  } else {
+    showOnboardingScreen();
+  }
+}
+
+function ensureLearningProfileSeeded() {
+  learningProfile = getLS('focusloop.learningProfile', null);
+  if (learningProfile) return;
+  if (userType === 'anshuman') {
+    learningProfile = ANSHUMAN_DEFAULT_LEARNING_PROFILE.map((t) => ({ ...t }));
+  } else {
+    const profile = getLS('focusloop.userProfile', null);
+    learningProfile =
+      profile && Array.isArray(profile.learning_topics) && profile.learning_topics.length
+        ? profile.learning_topics.map((t) => ({
+            topic: t.topic,
+            level: VALID_LEVELS.includes(t.level) ? t.level : 'beginner',
+            knows: t.knows || '',
+          }))
+        : [{ topic: 'General', level: 'beginner', knows: '' }];
+  }
+  setLS('focusloop.learningProfile', learningProfile);
+}
+
+function showOnboardingScreen() {
+  document.getElementById('onboarding-screen').classList.remove('hidden');
+  startOnboarding();
+}
+
+function renderOnboardingProgress() {
+  const answered = Math.min(onboardingMessages.filter((m) => m.role === 'user').length, 8);
+  document.getElementById('onboarding-progress').textContent = `Getting to know you — ${answered} of 8 questions`;
+}
+
+function renderOnboardingChat() {
+  const chatEl = document.getElementById('onboarding-chat');
+  chatEl.innerHTML = onboardingMessages
+    .map((m) =>
+      m.role === 'user'
+        ? `<div class="flex justify-end"><div class="max-w-[85%] text-sm bg-indigo-600 text-white chat-bubble-user px-3.5 py-2.5">${escapeHtml(m.content)}</div></div>`
+        : `<div class="flex justify-start"><div class="max-w-[85%] text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3.5 py-2.5">${escapeHtml(m.content)}</div></div>`
+    )
+    .join('');
+  chatEl.scrollTop = chatEl.scrollHeight;
+  renderOnboardingProgress();
+}
+
+function showOnboardingTyping() {
+  const chatEl = document.getElementById('onboarding-chat');
+  chatEl.innerHTML += `<div id="onboarding-typing" class="flex justify-start"><div class="max-w-[85%] text-sm bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 chat-bubble-coach px-3.5 py-2.5"><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400 mr-1"></span><span class="typing-dot inline-block w-1.5 h-1.5 rounded-full bg-gray-400"></span></div></div>`;
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+function hideOnboardingTyping() {
+  const el = document.getElementById('onboarding-typing');
+  if (el) el.remove();
+}
+
+async function startOnboarding() {
+  onboardingMessages = getLS('focusloop.onboardingChat', []);
+  if (!onboardingMessages.length) {
+    renderOnboardingChat();
+    showOnboardingTyping();
+    let reply;
+    try {
+      reply = await callGemini({
+        prompt: 'Begin the onboarding conversation now with your first question, exactly as instructed.',
+        history: [],
+        systemPromptOverride: ONBOARDING_SYSTEM_PROMPT,
+      });
+    } catch (e) {
+      reply = "Hey, welcome. What should I call you?";
+    }
+    hideOnboardingTyping();
+    onboardingMessages.push({ role: 'assistant', content: reply });
+    setLS('focusloop.onboardingChat', onboardingMessages);
+  }
+  renderOnboardingChat();
+  try { document.getElementById('onboarding-input').focus(); } catch (e) {}
+}
+
+async function sendOnboardingMessage() {
+  const input = document.getElementById('onboarding-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  onboardingMessages.push({ role: 'user', content: text });
+  setLS('focusloop.onboardingChat', onboardingMessages);
+  renderOnboardingChat();
+  showOnboardingTyping();
+
+  const historyForApi = onboardingMessages.slice(0, -1).map((m) => ({ role: m.role, text: m.content }));
+  let reply;
+  try {
+    reply = await callGemini({ prompt: text, history: historyForApi, systemPromptOverride: ONBOARDING_SYSTEM_PROMPT });
+  } catch (e) {
+    reply = FALLBACKS.onboarding;
+  }
+  hideOnboardingTyping();
+
+  onboardingMessages.push({ role: 'assistant', content: reply });
+  setLS('focusloop.onboardingChat', onboardingMessages);
+  renderOnboardingChat();
+
+  const profileMatch = reply.match(/<PROFILE_JSON>([\s\S]*?)<\/PROFILE_JSON>/);
+  if (profileMatch) {
+    tryFinishOnboarding(profileMatch[1]);
+  }
+}
+
+function tryFinishOnboarding(jsonText) {
+  let parsed;
+  try {
+    parsed = JSON.parse(jsonText.trim());
+  } catch (e) {
+    parsed = null;
+  }
+
+  const valid = parsed && typeof parsed === 'object' && typeof parsed.name === 'string' && parsed.name.trim() && Array.isArray(parsed.learning_topics);
+  if (!valid) {
+    // Robust fallback per spec: don't crash, ask them to redo the last couple answers.
+    onboardingMessages.push({
+      role: 'assistant',
+      content: "I didn't catch all of that clearly — mind answering the last couple questions again? What are you learning right now, and what do you already know about it?",
+    });
+    setLS('focusloop.onboardingChat', onboardingMessages);
+    renderOnboardingChat();
+    return;
+  }
+
+  const learningTopics = parsed.learning_topics
+    .map((t) => ({
+      topic: String((t && t.topic) || '').trim(),
+      level: VALID_LEVELS.includes(t && t.level) ? t.level : 'beginner',
+      knows: typeof (t && t.knows) === 'string' ? t.knows : '',
+      parent_topic: typeof (t && t.parent_topic) === 'string' ? t.parent_topic.trim() : '',
+    }))
+    .filter((t) => t.topic);
+
+  const profile = {
+    name: String(parsed.name).trim(),
+    working_on: typeof parsed.working_on === 'string' ? parsed.working_on : '',
+    age: Number.isFinite(Number(parsed.age)) ? Number(parsed.age) : null,
+    setup: typeof parsed.setup === 'string' ? parsed.setup : '',
+    learning_topics: learningTopics.length ? learningTopics : [{ topic: 'General', level: 'beginner', knows: '', parent_topic: '' }],
+    time_leaks: Array.isArray(parsed.time_leaks) ? parsed.time_leaks.filter((x) => typeof x === 'string') : [],
+    great_day: typeof parsed.great_day === 'string' ? parsed.great_day : '',
+  };
+
+  setLS('focusloop.userProfile', profile);
+  localStorage.removeItem('focusloop.onboardingChat');
+
+  // Broad answers (parent_topic null) become main topics in the learning profile.
+  // Specific answers (parent_topic set, e.g. 'Python' -> 'AI & Tech') become
+  // sub-topics nested under that main topic instead — the main topic still
+  // gets a profile entry so it shows up in the Classroom tab.
+  const mainTopicsMap = {};
+  const subTopicsMap = {};
+  profile.learning_topics.forEach((t) => {
+    if (t.parent_topic) {
+      if (!mainTopicsMap[t.parent_topic]) mainTopicsMap[t.parent_topic] = { topic: t.parent_topic, level: t.level, knows: '' };
+      (subTopicsMap[t.parent_topic] = subTopicsMap[t.parent_topic] || []).push(t.topic);
+    } else {
+      mainTopicsMap[t.topic] = { topic: t.topic, level: t.level, knows: t.knows };
+    }
+  });
+
+  learningProfile = Object.values(mainTopicsMap);
+  setLS('focusloop.learningProfile', learningProfile);
+
+  subTopics = subTopicsMap;
+  setLS('focusloop.subTopics', subTopics);
+
+  learningLog = {};
+  Object.keys(subTopics).forEach((parent) => {
+    learningLog[parent] = {};
+    subTopics[parent].forEach((name) => {
+      learningLog[parent][name] = [];
+    });
+  });
+  setLS('focusloop.learningLog', learningLog);
+
+  document.getElementById('onboarding-screen').classList.add('hidden');
+  initMainApp();
+}
+
+/* =========================================================
+   SETTINGS
+   ========================================================= */
+function settingsToggleRow(label, checked, onclickFn) {
+  return `<button onclick="${onclickFn}" class="w-full flex items-center justify-between text-sm font-medium text-neutral-700 dark:text-neutral-300 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors">
+    <span>${label}</span>
+    <span class="w-9 h-5 rounded-full ${checked ? 'bg-indigo-600' : 'bg-gray-200 dark:bg-neutral-700'} relative transition-colors shrink-0">
+      <span class="absolute top-0.5 ${checked ? 'right-0.5' : 'left-0.5'} w-4 h-4 rounded-full bg-white transition-all"></span>
+    </span>
+  </button>`;
+}
+
+function openSettingsModal() {
+  openModal(`
+    <div class="p-5">
+      <p class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 uppercase tracking-wide mb-3">Settings</p>
+      <div class="space-y-1 mb-4">
+        ${settingsToggleRow('Sound', soundOn, 'toggleSoundSetting()')}
+        ${settingsToggleRow('Vibration', vibrationOn, 'toggleVibrationSetting()')}
+        ${settingsToggleRow('Dark mode', document.documentElement.classList.contains('dark'), 'toggleDarkModeSetting()')}
+        <label class="w-full flex items-center justify-between text-sm font-medium text-neutral-700 dark:text-neutral-300 px-3 py-2.5 rounded-lg">
+          <span>Daily lesson cap</span>
+          <input type="number" min="3" max="20" value="${dailyLessonCap}" onchange="updateDailyLessonCap(this.value)" class="w-16 text-sm text-center bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-md px-2 py-1 text-neutral-700 dark:text-neutral-300" />
+        </label>
+      </div>
+      <button onclick="closeModal(); switchTab('classroom'); expandLearningProfile();" class="w-full text-left text-sm font-medium text-neutral-700 dark:text-neutral-300 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors mb-1">Edit learning profile</button>
+      <button onclick="exportUserData()" class="w-full text-left text-sm font-medium text-neutral-700 dark:text-neutral-300 px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-neutral-800 transition-colors mb-1">Export my data</button>
+      <button onclick="confirmSwitchUser()" class="w-full text-left text-sm font-medium text-red-600 dark:text-red-400 px-3 py-2.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors">Switch user (resets everything)</button>
+      <button onclick="closeModal()" class="mt-4 w-full bg-gray-50 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 font-semibold text-sm py-2.5 rounded-lg">Close</button>
+    </div>
+  `);
+}
+
+function toggleSoundSetting() {
+  toggleSound();
+  openSettingsModal();
+}
+function toggleVibrationSetting() {
+  toggleVibration();
+  openSettingsModal();
+}
+function toggleDarkModeSetting() {
+  toggleDarkMode();
+  openSettingsModal();
+}
+
+function confirmSwitchUser() {
+  closeModal();
+  const ok = confirm('Switch user? This clears all data — sprints, lessons, chats, profile — and starts fresh. This cannot be undone.');
+  if (ok) resetAllFocusLoopData();
+}
+
+function resetAllFocusLoopData() {
+  Object.keys(localStorage)
+    .filter((k) => k.startsWith('focusloop.'))
+    .forEach((k) => localStorage.removeItem(k));
+  location.reload();
+}
+
+function exportUserData() {
+  const data = {};
+  Object.keys(localStorage)
+    .filter((k) => k.startsWith('focusloop.'))
+    .forEach((k) => {
+      try {
+        data[k] = JSON.parse(localStorage.getItem(k));
+      } catch (e) {
+        data[k] = localStorage.getItem(k);
+      }
+    });
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'focus-loop-export-' + todayStr() + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  closeModal();
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+function initMainApp() {
+  document.getElementById('app-shell').classList.remove('hidden');
+  updateThemeIcon();
+  updateSoundIcon();
+  renderTodayLog();
+  renderWeekView();
+  renderStreak();
+  showClassroomView('topics');
+  renderTopicGrid();
+  getOrCreateAdvisorSession();
+  renderAdvisorChat();
+  recoverTimerOnLoad();
+}
+
+function boot() {
+  migrateClassroomData();
+  if (!userType) {
+    document.getElementById('identity-screen').classList.remove('hidden');
+    return;
+  }
+  if (userType === 'new' && !getLS('focusloop.userProfile', null)) {
+    showOnboardingScreen();
+    return;
+  }
+  ensureLearningProfileSeeded();
+  initMainApp();
+}
+boot();
+</script>
+</body>
+</html>
