@@ -565,7 +565,9 @@ async function callGemini({ prompt, history, useSearch, systemPromptOverride }) 
     let detail = '';
     try {
       const errBody = await res.json();
-      detail = errBody.error || '';
+      // api/chat.js returns a generic `error` in production and only adds a
+      // real `detail` when DEBUG_ERRORS=1 is set in the Vercel env.
+      detail = errBody.detail || errBody.error || '';
     } catch (e) {}
     console.error('[focus-loop] Gemini call failed:', res.status, detail);
     throw new Error('API error ' + res.status + (detail ? ': ' + detail : ''));
