@@ -17,34 +17,37 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
 /* ============================================================
-   FitZone Gym — single-file site
-   Hand-written CSS (no framework) to keep total page weight
-   well under 100KB and first paint under 1s on 4G.
+   FitZone Gym — single-file site (v2)
+   Hand-written CSS, zero image files. Every "photo", poster and
+   motif below is CSS or inline SVG.
+   All motion is transform/opacity only, so scrolling stays at
+   60fps on mid-range Android.
    ============================================================ */
 
 /* ---------- Design tokens ---------- */
 :root{
   --bg:#0a0a0a;
-  --bg-warm:#0d0c0b;          /* near-black with a touch of warmth */
   --surface:#171717;          /* zinc-900 */
   --surface-2:#1c1c1c;
+  --panel:#0c0c0c;            /* alternating section base */
   --border:#27272a;           /* zinc-800 */
+  --hair:#1c1c1c;             /* inner dividers */
   --white:#ffffff;
   --zinc-400:#a1a1aa;
   --zinc-500:#71717a;
   --zinc-600:#52525b;
   --lime:#a3e635;             /* signature accent */
   --lime-dim:rgba(163,230,53,.14);
-  --orange:#fb923c;           /* single warm accent — energy indicator */
+  --orange:#fb923c;           /* single warm accent */
 
   --r-card:12px;
   --r-btn:8px;
 
-  --gut:20px;                 /* mobile side gutter */
+  --gut:20px;
   --maxw:1200px;
 
   --ease:cubic-bezier(.22,1,.36,1);
@@ -57,26 +60,21 @@ body{
   background:var(--bg);
   color:var(--white);
   font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
-  font-size:16px;
-  line-height:1.6;
-  font-weight:400;
+  font-size:16px;line-height:1.6;font-weight:400;
   -webkit-font-smoothing:antialiased;
   text-rendering:optimizeLegibility;
   overflow-x:hidden;
 }
-img,svg{display:block;max-width:100%}
+svg{display:block}
 a{color:inherit;text-decoration:none}
-button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer;text-align:left}
 ul{list-style:none}
 table{border-collapse:collapse;width:100%}
 
-/* ---------- Focus ---------- */
 :focus{outline:none}
-:focus-visible{
-  outline:2px solid var(--lime);
-  outline-offset:3px;
-  border-radius:4px;
-}
+:focus-visible{outline:2px solid var(--lime);outline-offset:3px;border-radius:4px}
+
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 
 .skip{
   position:absolute;left:var(--gut);top:-60px;z-index:200;
@@ -86,152 +84,119 @@ table{border-collapse:collapse;width:100%}
 }
 .skip:focus{top:14px}
 
-/* ---------- Typography helpers ---------- */
-.h-display{
-  font-weight:600;
-  letter-spacing:-.04em;
-  line-height:1.04;
-}
-.label{
-  font-size:11px;
-  font-weight:500;
-  text-transform:uppercase;
-  letter-spacing:.15em;
-  color:var(--zinc-500);
-}
+/* icon sprite helper */
+.ic{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:1.6;
+    stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ic-f{fill:currentColor;stroke:none}
+
+/* ---------- Type helpers ---------- */
+.h-display{font-weight:600;letter-spacing:-.04em;line-height:1.04}
+.label{font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.15em;color:var(--zinc-500)}
 .mono{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
-.muted{color:var(--zinc-400)}
-.dim{color:var(--zinc-600)}
-.lime{color:var(--lime)}
 
 /* ---------- Layout ---------- */
-.wrap{
-  width:100%;
-  max-width:var(--maxw);
-  margin-inline:auto;
-  padding-inline:var(--gut);
-}
+.wrap{width:100%;max-width:var(--maxw);margin-inline:auto;padding-inline:var(--gut)}
 section{position:relative}
 .sec{padding-block:88px}
+.sec-alt{background:var(--panel);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
 
 .sec-head{max-width:640px;margin-bottom:44px}
-.sec-head h2{
-  font-size:clamp(30px,6.4vw,48px);
-  margin:14px 0 14px;
-}
+.sec-head h2{font-size:clamp(30px,6.4vw,48px);margin:14px 0 14px}
 .sec-head p{color:var(--zinc-400);font-size:17px;max-width:46ch}
 
 /* ---------- Buttons ---------- */
 .btn{
+  position:relative;overflow:hidden;
   display:inline-flex;align-items:center;justify-content:center;gap:9px;
-  min-height:48px;
-  padding:13px 24px;
-  border-radius:var(--r-btn);
+  min-height:48px;padding:13px 24px;border-radius:var(--r-btn);
   font-size:15px;font-weight:600;letter-spacing:-.01em;
   border:1px solid transparent;
   transition:transform .25s var(--ease),box-shadow .25s var(--ease),
-             background-color .25s var(--ease),border-color .25s var(--ease),
-             color .25s var(--ease);
-  will-change:transform;
+             background-color .25s var(--ease),border-color .25s var(--ease),color .25s var(--ease);
 }
+/* light sweep across the button on hover */
+.btn::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(105deg,transparent 38%,rgba(255,255,255,.28) 50%,transparent 62%);
+  transform:translateX(-110%);
+  transition:transform .65s var(--ease);
+  pointer-events:none;
+}
+.btn:hover::after{transform:translateX(110%)}
 .btn-primary{background:var(--lime);color:#0a0a0a;border-color:var(--lime)}
-.btn-primary:hover{
-  transform:scale(1.02);
-  box-shadow:0 0 0 1px rgba(163,230,53,.5),0 10px 34px -8px rgba(163,230,53,.45);
-}
+.btn-primary:hover{transform:scale(1.02);box-shadow:0 0 0 1px rgba(163,230,53,.5),0 10px 34px -8px rgba(163,230,53,.45)}
 .btn-ghost{background:transparent;color:var(--white);border-color:#3f3f46}
-.btn-ghost:hover{
-  transform:scale(1.02);
-  border-color:var(--lime);
-  color:var(--lime);
-  box-shadow:0 0 28px -12px rgba(163,230,53,.6);
-}
+.btn-ghost:hover{transform:scale(1.02);border-color:var(--lime);color:var(--lime);box-shadow:0 0 28px -12px rgba(163,230,53,.6)}
 .btn-sm{min-height:40px;padding:9px 16px;font-size:13.5px}
 .btn-lg{min-height:56px;padding:17px 32px;font-size:16.5px}
-.btn .arw{transition:transform .25s var(--ease)}
-.btn:hover .arw{transform:translateX(3px)}
+.btn .ic{font-size:16px;transition:transform .25s var(--ease)}
+.btn:hover .ic{transform:translateX(3px)}
 
-/* Text link with arrow */
-.tlink{
-  display:inline-flex;align-items:center;gap:6px;
-  font-size:13.5px;font-weight:500;color:var(--zinc-400);
-  transition:color .2s var(--ease);
-}
-.tlink svg{transition:transform .25s var(--ease)}
+.tlink{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:500;color:var(--zinc-400);transition:color .2s var(--ease)}
+.tlink .ic{font-size:13px;stroke-width:2;transition:transform .25s var(--ease)}
 .tlink:hover{color:var(--lime)}
-.tlink:hover svg{transform:translateX(3px)}
+.tlink:hover .ic{transform:translateX(3px)}
 
 /* ============================================================
-   HEADER
+   SCROLL PROGRESS + HEADER
    ============================================================ */
+.prog{
+  position:fixed;top:0;left:0;z-index:101;
+  width:100%;height:2px;background:var(--lime);
+  transform:scaleX(0);transform-origin:0 50%;
+  will-change:transform;
+}
+
 .hdr{
   position:fixed;inset:0 0 auto 0;z-index:100;
-  background:transparent;
-  border-bottom:1px solid transparent;
-  transition:background-color .3s var(--ease),border-color .3s var(--ease),
-             backdrop-filter .3s var(--ease);
+  background:transparent;border-bottom:1px solid transparent;
+  transition:background-color .3s var(--ease),border-color .3s var(--ease);
 }
 .hdr.stuck{
   background:rgba(10,10,10,.88);
-  backdrop-filter:blur(14px);
-  -webkit-backdrop-filter:blur(14px);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   border-bottom-color:var(--border);
 }
-.hdr-in{
-  display:flex;align-items:center;justify-content:space-between;
-  height:72px;
-}
-.mark{
-  font-size:19px;font-weight:600;letter-spacing:-.03em;
-  color:var(--white);
-}
+.hdr-in{display:flex;align-items:center;justify-content:space-between;height:72px}
+.mark{font-size:19px;font-weight:600;letter-spacing:-.03em;color:var(--white)}
 .mark span{color:var(--lime)}
 
-.nav{display:none;align-items:center;gap:30px}
-.nav a{
-  font-size:14px;font-weight:500;color:var(--zinc-400);
-  transition:color .2s var(--ease);
+.nav{display:none;align-items:center;gap:28px}
+.nav a{position:relative;font-size:14px;font-weight:500;color:var(--zinc-400);transition:color .2s var(--ease)}
+.nav a::after{
+  content:"";position:absolute;left:0;bottom:-6px;height:1px;width:100%;
+  background:var(--lime);transform:scaleX(0);transform-origin:100% 50%;
+  transition:transform .3s var(--ease);
 }
 .nav a:hover{color:var(--white)}
+.nav a:hover::after{transform:scaleX(1);transform-origin:0 50%}
 
 .hdr-right{display:flex;align-items:center;gap:10px}
-.hdr .btn-primary{display:none}
-.hdr .btn-primary{padding-inline:15px}
+.hdr .btn-primary{display:none;padding-inline:15px}
 
-/* Hamburger */
 .burger{
-  display:inline-flex;flex-direction:column;justify-content:center;gap:5px;
-  width:44px;height:44px;align-items:center;
-  border:1px solid var(--border);border-radius:var(--r-btn);
+  display:inline-flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;
+  width:44px;height:44px;border:1px solid var(--border);border-radius:var(--r-btn);
   background:rgba(23,23,23,.6);
 }
-.burger i{
-  display:block;width:17px;height:1.5px;background:var(--white);
-  transition:transform .3s var(--ease),opacity .2s var(--ease);
-}
+.burger i{display:block;width:17px;height:1.5px;background:var(--white);transition:transform .3s var(--ease),opacity .2s var(--ease)}
 .burger[aria-expanded="true"] i:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
 .burger[aria-expanded="true"] i:nth-child(2){opacity:0}
 .burger[aria-expanded="true"] i:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
 
-/* Mobile drawer */
 .drawer{
   position:fixed;left:0;right:0;top:72px;z-index:99;
   background:rgba(10,10,10,.97);
-  backdrop-filter:blur(16px);
-  -webkit-backdrop-filter:blur(16px);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border-bottom:1px solid var(--border);
-  padding:8px var(--gut) 24px;
-  display:grid;
-  transform:translateY(-12px);
-  opacity:0;visibility:hidden;pointer-events:none;
+  padding:8px var(--gut) 24px;display:grid;
+  transform:translateY(-12px);opacity:0;visibility:hidden;pointer-events:none;
   transition:opacity .25s var(--ease),transform .25s var(--ease),visibility .25s;
 }
 .drawer.open{opacity:1;visibility:visible;transform:none;pointer-events:auto}
 .drawer a{
-  padding:15px 2px;
-  font-size:17px;font-weight:500;letter-spacing:-.02em;
-  border-bottom:1px solid #1c1c1c;
-  color:var(--zinc-400);
+  padding:15px 2px;font-size:17px;font-weight:500;letter-spacing:-.02em;
+  border-bottom:1px solid var(--hair);color:var(--zinc-400);
   transition:color .2s var(--ease);
 }
 .drawer a:hover{color:var(--white)}
@@ -241,27 +206,21 @@ section{position:relative}
    HERO
    ============================================================ */
 .hero{
-  position:relative;
-  min-height:100svh;
-  display:flex;align-items:center;
-  padding-top:96px;padding-bottom:64px;
-  overflow:hidden;
-  /* subtle warm-dark gradient: lighter at top, pure black at the base */
-  background:
-    radial-gradient(120% 78% at 50% -8%, #1a1917 0%, #121110 34%, #0a0a0a 72%);
+  position:relative;min-height:100svh;display:flex;align-items:center;
+  padding-top:96px;padding-bottom:64px;overflow:hidden;
+  background:radial-gradient(120% 78% at 50% -8%, #1a1917 0%, #121110 34%, #0a0a0a 72%);
 }
-/* faint grid overlay, masked so it dissolves toward the bottom */
-.hero::before{
-  content:"";position:absolute;inset:0;
+/* grid overlay lives in its own element so JS can parallax it */
+.hero-grid{
+  position:absolute;inset:-12% 0 0;
   background-image:
     linear-gradient(to right, rgba(255,255,255,.055) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255,255,255,.055) 1px, transparent 1px);
   background-size:64px 64px;
-  -webkit-mask-image:radial-gradient(90% 62% at 50% 22%, #000 0%, transparent 78%);
-  mask-image:radial-gradient(90% 62% at 50% 22%, #000 0%, transparent 78%);
-  pointer-events:none;
+  -webkit-mask-image:radial-gradient(90% 62% at 50% 28%, #000 0%, transparent 78%);
+  mask-image:radial-gradient(90% 62% at 50% 28%, #000 0%, transparent 78%);
+  pointer-events:none;will-change:transform;
 }
-/* single warm accent bloom, top-left */
 .hero::after{
   content:"";position:absolute;left:-14%;top:-12%;
   width:60vw;height:60vw;max-width:620px;max-height:620px;
@@ -270,180 +229,287 @@ section{position:relative}
 }
 .hero-in{position:relative;z-index:2;width:100%}
 
-.hero-eyebrow{
-  display:inline-flex;align-items:center;gap:10px;
-  margin-bottom:26px;
-}
-.pulse{
-  position:relative;width:7px;height:7px;border-radius:50%;
-  background:var(--orange);flex:none;
-}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;margin-bottom:26px}
+.pulse{position:relative;width:7px;height:7px;border-radius:50%;background:var(--orange);flex:none}
 .pulse::after{
   content:"";position:absolute;inset:-4px;border-radius:50%;
-  border:1px solid rgba(251,146,60,.55);
-  animation:ring 2.4s var(--ease) infinite;
+  border:1px solid rgba(251,146,60,.55);animation:ring 2.4s var(--ease) infinite;
 }
-@keyframes ring{
-  0%{transform:scale(.6);opacity:.9}
-  70%{transform:scale(1.55);opacity:0}
-  100%{opacity:0}
-}
+@keyframes ring{0%{transform:scale(.6);opacity:.9}70%{transform:scale(1.55);opacity:0}100%{opacity:0}}
 
-.hero h1{
-  font-size:clamp(44px,12.4vw,104px);
-  max-width:22ch;          /* keeps the headline to two lines on desktop */
-  margin-bottom:26px;
+.hero h1{font-size:clamp(44px,12.4vw,104px);max-width:22ch;margin-bottom:26px}
+/* line-by-line wipe-up reveal */
+.ln{display:block;overflow:hidden}
+.ln > span{display:block;transform:translateY(105%);opacity:0}
+.ready .ln > span{
+  transform:none;opacity:1;
+  transition:transform .95s var(--ease),opacity .7s var(--ease);
 }
-.hero h1 .l2{display:block;color:var(--white)}
-.hero-sub{
-  font-size:clamp(16.5px,4.2vw,20px);
-  color:var(--zinc-400);
-  max-width:34rem;
-  margin-bottom:36px;
-}
+.ready .ln:nth-child(2) > span{transition-delay:.11s}
+
+.hero-sub{font-size:clamp(16.5px,4.2vw,20px);color:var(--zinc-400);max-width:34rem;margin-bottom:36px}
 .hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:30px}
 .hero-cta .btn{flex:1 1 auto;min-width:172px}
-.hero-trust{
-  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
-  font-size:13.5px;color:var(--zinc-500);
-}
+.hero-trust{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px;color:var(--zinc-500)}
 .hero-trust b{color:var(--zinc-400);font-weight:500}
 .hero-trust .sep{color:#3f3f46}
+.hero-trust .ic{font-size:14px;color:var(--lime)}
+
+/* fade the hero copy as it scrolls away */
+.hero-fade{will-change:opacity,transform}
+
+.scroll-cue{
+  position:absolute;left:50%;bottom:26px;transform:translateX(-50%);
+  display:none;flex-direction:column;align-items:center;gap:8px;z-index:2;
+}
+.scroll-cue .label{font-size:9.5px}
+.scroll-cue .bar{width:1px;height:38px;background:linear-gradient(to bottom,var(--lime),transparent);
+  animation:cue 2.2s var(--ease) infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:50% 0}
+  55%{transform:scaleY(1);transform-origin:50% 0}
+  56%{transform:scaleY(1);transform-origin:50% 100%}
+  100%{transform:scaleY(0);transform-origin:50% 100%}}
 
 /* ============================================================
-   STATS BAR
+   STATS
    ============================================================ */
-.stats{
-  background:var(--surface);
-  border-top:1px solid var(--border);
-  border-bottom:1px solid var(--border);
-}
-.stats-grid{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:0;
-  padding-block:8px;
-}
+.stats{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.stats-grid{display:grid;grid-template-columns:1fr;padding-block:8px}
 .stat{padding:26px 4px;position:relative}
 .stat + .stat{border-top:1px solid #222}
-.stat-n{
-  font-size:clamp(24px,6vw,32px);
-  font-weight:700;letter-spacing:-.03em;line-height:1.1;
-  color:var(--white);
-  margin-bottom:8px;
-  white-space:nowrap;
-}
+.stat-n{font-size:clamp(24px,6vw,32px);font-weight:700;letter-spacing:-.03em;line-height:1.1;
+  color:var(--white);margin-bottom:8px;white-space:nowrap}
 .stat-l{font-size:12px}
 
 /* ============================================================
-   PROGRAMS
+   MARQUEE TICKER
+   ============================================================ */
+.marq{overflow:hidden;background:var(--panel);border-bottom:1px solid var(--border);padding-block:17px}
+.marq-track{display:flex;width:max-content;animation:marq 34s linear infinite}
+.marq:hover .marq-track{animation-play-state:paused}
+@keyframes marq{to{transform:translateX(-50%)}}
+.marq-grp{display:flex;align-items:center;flex:none}
+.marq-grp span{
+  display:flex;align-items:center;gap:22px;padding-right:22px;
+  font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.18em;
+  color:var(--zinc-600);white-space:nowrap;
+}
+.marq-grp span::after{content:"";width:5px;height:5px;border-radius:50%;background:var(--lime);opacity:.65;flex:none}
+.marq-grp span:nth-child(even){color:var(--zinc-500)}
+
+/* ============================================================
+   PROGRAM CARDS
    ============================================================ */
 .cards{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
 .card{
-  position:relative;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--r-card);
-  padding:22px 18px 20px;
-  display:flex;flex-direction:column;
+  position:relative;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-card);padding:22px 18px 20px;display:flex;flex-direction:column;
   transition:transform .3s var(--ease),border-color .3s var(--ease),
              box-shadow .3s var(--ease),background-color .3s var(--ease);
-  will-change:transform;
 }
 .card:hover,.card:focus-within{
-  transform:translateY(-4px);
-  border-color:var(--lime);
-  background:var(--surface-2);
+  transform:translateY(-4px);border-color:var(--lime);background:var(--surface-2);
   box-shadow:0 18px 44px -20px rgba(0,0,0,.9),0 0 0 1px rgba(163,230,53,.18);
 }
 .card-ico{
-  width:42px;height:42px;
-  display:grid;place-items:center;
-  border:1px solid var(--border);
-  border-radius:10px;
-  color:var(--lime);
-  margin-bottom:18px;
+  width:42px;height:42px;display:grid;place-items:center;
+  border:1px solid var(--border);border-radius:10px;color:var(--lime);margin-bottom:18px;
   transition:border-color .3s var(--ease),background-color .3s var(--ease);
 }
+.card-ico .ic{font-size:22px;stroke-width:1.5}
 .card:hover .card-ico{border-color:rgba(163,230,53,.4);background:var(--lime-dim)}
-.card h3{
-  font-size:clamp(16px,4vw,19px);
-  font-weight:600;letter-spacing:-.025em;line-height:1.25;
-  margin-bottom:9px;
+/* icons draw themselves in when the card reveals */
+.card-ico .ic path,.card-ico .ic circle{
+  stroke-dasharray:90;stroke-dashoffset:90;
+  transition:stroke-dashoffset 1.1s var(--ease);
 }
+.in .card-ico .ic path,.in .card-ico .ic circle{stroke-dashoffset:0}
+.card h3{font-size:clamp(16px,4vw,19px);font-weight:600;letter-spacing:-.025em;line-height:1.25;margin-bottom:9px}
 .card p{font-size:14px;color:var(--zinc-400);margin-bottom:18px;flex:1}
+
+/* ============================================================
+   WORKOUT POSTERS
+   ============================================================ */
+.posters{display:grid;gap:14px;grid-template-columns:1fr}
+.poster{
+  position:relative;overflow:hidden;display:block;width:100%;
+  aspect-ratio:1/1;border:1px solid var(--border);border-radius:var(--r-card);
+  background:linear-gradient(165deg,#212120 0%,#161616 44%,#101010 100%);
+  transition:transform .35s var(--ease),border-color .3s var(--ease),box-shadow .35s var(--ease);
+}
+.poster:hover{transform:translateY(-5px);border-color:var(--lime);
+  box-shadow:0 26px 60px -28px rgba(0,0,0,1),0 0 0 1px rgba(163,230,53,.2)}
+/* screen-print stripe texture, angle varies per poster */
+.poster::before{
+  content:"";position:absolute;inset:0;
+  background:repeating-linear-gradient(var(--pa,32deg),
+    transparent 0 13px, rgba(163,230,53,.09) 13px 14px);
+  -webkit-mask-image:linear-gradient(200deg,#000 10%,transparent 78%);
+  mask-image:linear-gradient(200deg,#000 10%,transparent 78%);
+  transition:opacity .35s var(--ease);
+}
+.poster:hover::before{opacity:.5}
+
+.poster-face{
+  position:absolute;inset:0;padding:18px;display:flex;flex-direction:column;justify-content:flex-end;
+  background:linear-gradient(to top,rgba(10,10,10,.94) 0%,rgba(10,10,10,.62) 26%,transparent 54%);
+}
+/* oversized ghost numeral bleeding off the top-right */
+.poster-num{
+  position:absolute;top:-8px;right:4px;
+  font-family:'JetBrains Mono',monospace;font-weight:700;
+  font-size:clamp(66px,19vw,104px);line-height:1;letter-spacing:-.06em;
+  color:transparent;-webkit-text-stroke:1.5px rgba(255,255,255,.17);
+  transition:-webkit-text-stroke-color .35s var(--ease),transform .5s var(--ease);
+  pointer-events:none;
+}
+.poster:hover .poster-num{-webkit-text-stroke-color:rgba(163,230,53,.55);transform:translateY(-5px)}
+.poster-motif{
+  position:absolute;top:42%;left:50%;transform:translate(-50%,-50%);
+  width:58%;max-width:152px;color:var(--lime);opacity:.72;
+  transition:transform .55s var(--ease),opacity .35s var(--ease);
+}
+.poster:hover .poster-motif{transform:translate(-50%,-54%) scale(1.07);opacity:1}
+.poster-meta{position:relative;z-index:2}
+.poster-meta h3{
+  font-size:clamp(21px,5.6vw,27px);font-weight:700;letter-spacing:-.04em;
+  text-transform:uppercase;line-height:1;margin:7px 0 8px;
+}
+.poster-meta p{font-size:11.5px;color:var(--zinc-500);line-height:1.45}
+.poster-hint{
+  position:relative;z-index:2;display:flex;align-items:center;gap:6px;
+  margin-top:14px;padding-top:12px;border-top:1px solid var(--hair);
+  font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--lime);
+}
+.poster-hint .ic{font-size:12px;stroke-width:2;transition:transform .3s var(--ease)}
+.poster:hover .poster-hint .ic{transform:translateX(3px)}
+
+/* the session list slides up over the poster */
+.poster-back{
+  position:absolute;inset:0;z-index:3;
+  padding:18px;display:flex;flex-direction:column;
+  background:#0a0a0a;
+  border-top:2px solid var(--lime);
+  transform:translateY(101%);
+  transition:transform .48s var(--ease);
+}
+.poster[aria-expanded="true"] .poster-back{transform:none}
+.poster-back h4{font-size:13.5px;font-weight:600;letter-spacing:-.015em;margin-bottom:12px}
+.poster-back .label{font-size:9.5px;margin-bottom:7px;display:block}
+.poster-back ul{display:flex;flex-direction:column;gap:1px;overflow-y:auto}
+.poster-back li{
+  display:flex;align-items:baseline;justify-content:space-between;gap:8px;
+  padding:7px 0;border-bottom:1px solid var(--hair);
+  font-size:12px;color:var(--zinc-400);line-height:1.3;
+}
+.poster-back li:last-child{border-bottom:none}
+.poster-back li b{font-weight:400;flex:1;min-width:0}
+.poster-back li .rep{
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--lime);
+  white-space:nowrap;flex:none;
+}
+.poster-close{
+  margin-top:auto;padding-top:14px;display:flex;align-items:center;gap:6px;
+  font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--zinc-600);
+}
+
+/* ============================================================
+   FIND YOUR PROGRAM (quiz)
+   ============================================================ */
+.quiz{
+  border:1px solid var(--border);border-radius:var(--r-card);
+  background:linear-gradient(170deg,rgba(163,230,53,.05) 0%,var(--surface) 42%);
+  padding:26px 20px;position:relative;overflow:hidden;
+}
+.quiz-bar{display:flex;align-items:center;gap:12px;margin-bottom:22px}
+.quiz-dots{display:flex;gap:5px}
+.quiz-dots i{width:22px;height:3px;border-radius:2px;background:#2e2e2e;transition:background-color .35s var(--ease)}
+.quiz-dots i.on{background:var(--lime)}
+.quiz-step{display:none}
+.quiz-step.on{display:block;animation:qin .45s var(--ease) both}
+@keyframes qin{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.quiz-q{font-size:clamp(19px,5vw,25px);font-weight:600;letter-spacing:-.035em;line-height:1.2;margin-bottom:18px}
+.quiz-opts{display:grid;gap:9px}
+.opt{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  width:100%;min-height:52px;padding:13px 16px;
+  border:1px solid var(--border);border-radius:var(--r-btn);
+  background:rgba(10,10,10,.5);
+  font-size:15px;font-weight:500;
+  transition:border-color .22s var(--ease),background-color .22s var(--ease),
+             transform .22s var(--ease),color .22s var(--ease);
+}
+.opt .ic{font-size:15px;stroke-width:2;color:var(--zinc-600);transition:color .22s var(--ease),transform .22s var(--ease)}
+.opt:hover{border-color:var(--lime);background:var(--lime-dim);transform:translateX(3px)}
+.opt:hover .ic{color:var(--lime);transform:translateX(2px)}
+
+.quiz-res{display:none}
+.quiz-res.on{display:block;animation:qin .5s var(--ease) both}
+.res-top{display:flex;align-items:center;gap:13px;margin-bottom:16px}
+.res-ico{
+  width:48px;height:48px;flex:none;display:grid;place-items:center;
+  border:1px solid rgba(163,230,53,.4);border-radius:12px;
+  background:var(--lime-dim);color:var(--lime);
+}
+.res-ico .ic{font-size:24px;stroke-width:1.5}
+.res-top h3{font-size:clamp(20px,5.2vw,26px);font-weight:600;letter-spacing:-.035em;line-height:1.15}
+.res-body{font-size:15px;color:var(--zinc-400);margin-bottom:18px}
+.res-grid{display:grid;gap:9px;margin-bottom:20px}
+.res-row{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 15px;border:1px solid var(--border);border-radius:var(--r-btn);
+  background:rgba(10,10,10,.5);font-size:14px;
+}
+.res-row .k{color:var(--zinc-500);font-size:12px;text-transform:uppercase;letter-spacing:.1em}
+.res-row .v{font-weight:600;color:var(--white);text-align:right}
+.res-cta{display:flex;flex-wrap:wrap;gap:10px}
+.res-cta .btn{flex:1 1 auto;min-width:170px}
 
 /* ============================================================
    PRICING
    ============================================================ */
 .plans{display:grid;gap:16px}
 .plan{
-  position:relative;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--r-card);
-  padding:28px 22px;
-  display:flex;flex-direction:column;
+  position:relative;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-card);padding:28px 22px;display:flex;flex-direction:column;
   transition:transform .3s var(--ease),border-color .3s var(--ease),box-shadow .3s var(--ease);
 }
-.plan:hover{
-  transform:translateY(-4px);
-  border-color:var(--lime);
-  box-shadow:0 20px 50px -24px rgba(0,0,0,.95);
-}
+.plan:hover{transform:translateY(-4px);border-color:var(--lime);box-shadow:0 20px 50px -24px rgba(0,0,0,.95)}
 .plan.featured{
   border-color:var(--lime);
   box-shadow:0 0 0 1px rgba(163,230,53,.22),0 0 60px -26px rgba(163,230,53,.55);
   background:linear-gradient(180deg,rgba(163,230,53,.045) 0%,var(--surface) 46%);
 }
 .badge{
-  position:absolute;top:-11px;left:22px;
-  background:var(--lime);color:#0a0a0a;
+  position:absolute;top:-11px;left:22px;background:var(--lime);color:#0a0a0a;
   font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
   padding:5px 11px;border-radius:999px;
 }
-.plan-name{font-size:14px;font-weight:600;letter-spacing:-.01em;margin-bottom:14px}
-.price{
-  font-size:clamp(32px,8vw,40px);
-  font-weight:700;letter-spacing:-.045em;line-height:1;
-  color:var(--white);
-}
+.plan-name{font-size:11px;margin-bottom:14px}
+.price{font-size:clamp(32px,8vw,40px);font-weight:700;letter-spacing:-.045em;line-height:1;color:var(--white)}
 .price small{font-size:14px;font-weight:400;color:var(--zinc-500);letter-spacing:0}
 .price-note{font-size:12.5px;color:var(--zinc-600);margin-top:8px}
 .plan-tag{font-size:14px;color:var(--zinc-400);margin:16px 0 20px}
 .feats{display:grid;gap:11px;margin-bottom:26px;flex:1}
-.feats li{
-  display:flex;gap:10px;align-items:flex-start;
-  font-size:14px;color:var(--zinc-400);
-}
-.feats svg{flex:none;margin-top:4px;color:var(--lime)}
+.feats li{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--zinc-400)}
+.feats .ic{font-size:14px;stroke-width:2.4;margin-top:4px;color:var(--lime)}
 .plan .btn{width:100%}
 
 /* ============================================================
-   TRAINERS
+   COACHES
    ============================================================ */
 .coaches{display:grid;gap:16px}
 .coach{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--r-card);
-  overflow:hidden;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);overflow:hidden;
   transition:transform .3s var(--ease),border-color .3s var(--ease),box-shadow .3s var(--ease);
 }
-.coach:hover,.coach:focus-within{
-  transform:translateY(-4px);
-  border-color:var(--lime);
-  box-shadow:0 20px 50px -24px rgba(0,0,0,.95);
-}
-/* placeholder "photo" block — gradient + oversized initials */
+.coach:hover,.coach:focus-within{transform:translateY(-4px);border-color:var(--lime);box-shadow:0 20px 50px -24px rgba(0,0,0,.95)}
 .coach-img{
-  position:relative;
-  aspect-ratio:4/3;
-  display:grid;place-items:center;
-  background:
-    radial-gradient(120% 100% at 30% 0%, #232321 0%, #141414 52%, #0d0d0d 100%);
+  position:relative;aspect-ratio:4/3;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(120% 100% at 30% 0%, #232321 0%, #141414 52%, #0d0d0d 100%);
   border-bottom:1px solid var(--border);
-  overflow:hidden;
 }
 .coach-img::before{
   content:"";position:absolute;inset:0;
@@ -455,124 +521,130 @@ section{position:relative}
   mask-image:linear-gradient(to bottom,#000,transparent);
 }
 .coach-init{
-  position:relative;
-  font-size:clamp(48px,13vw,62px);
-  font-weight:700;letter-spacing:-.06em;
-  color:var(--lime);
-  opacity:.9;
-  transition:transform .4s var(--ease),opacity .3s var(--ease);
+  position:relative;font-size:clamp(48px,13vw,62px);font-weight:700;letter-spacing:-.06em;
+  color:var(--lime);opacity:.9;transition:transform .45s var(--ease),opacity .3s var(--ease);
 }
-.coach:hover .coach-init{transform:scale(1.06);opacity:1}
-.coach-tag{
-  position:absolute;bottom:10px;left:12px;
-  font-size:10px;letter-spacing:.14em;text-transform:uppercase;
-  color:var(--zinc-600);
-}
+.coach:hover .coach-init{transform:scale(1.07);opacity:1}
+.coach-tag{position:absolute;bottom:10px;left:12px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--zinc-600)}
 .coach-body{padding:20px 18px}
 .coach-body h3{font-size:19px;font-weight:600;letter-spacing:-.03em;margin-bottom:7px}
 .coach-role{margin-bottom:12px;color:var(--lime);opacity:.85}
 .coach-body p{font-size:14px;color:var(--zinc-400);margin-bottom:16px}
 
 /* ============================================================
+   GYM SPACE GALLERY
+   ============================================================ */
+.spaces{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.space{
+  position:relative;overflow:hidden;aspect-ratio:1/1;
+  border:1px solid var(--border);border-radius:var(--r-card);
+  background:radial-gradient(130% 110% at 70% 10%, #1e1e1c 0%, #131313 55%, #0c0c0c 100%);
+  display:flex;flex-direction:column;justify-content:flex-end;padding:15px;
+  transition:border-color .3s var(--ease),transform .35s var(--ease);
+}
+.space:hover{border-color:var(--lime);transform:translateY(-4px)}
+.space-art{
+  position:absolute;inset:0;display:grid;place-items:center;
+  color:var(--lime);opacity:.22;
+  transition:transform .6s var(--ease),opacity .35s var(--ease);
+}
+.space-art svg{width:56%;max-width:150px}
+.space:hover .space-art{transform:scale(1.1) rotate(-2deg);opacity:.5}
+.space::after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(8,8,8,.92) 0%,rgba(8,8,8,.25) 46%,transparent 72%);
+}
+.space-meta{position:relative;z-index:2}
+.space-meta h3{font-size:14.5px;font-weight:600;letter-spacing:-.025em;margin-bottom:3px}
+.space-meta p{font-size:11.5px;color:var(--zinc-500)}
+
+/* ============================================================
    SCHEDULE
    ============================================================ */
-.sched-wrap{
-  border:1px solid var(--border);
-  border-radius:var(--r-card);
-  background:var(--surface);
-  overflow:hidden;
-}
-/* desktop table */
+.sched-wrap{border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);overflow:hidden}
 .sched-table{display:none}
-.sched-table th,.sched-table td{
-  padding:16px 10px;
-  text-align:center;
-  border-bottom:1px solid #202020;
-  font-size:13.5px;
-}
+.sched-table th,.sched-table td{padding:16px 10px;text-align:center;border-bottom:1px solid #202020;font-size:13.5px}
 .sched-table thead th{
   font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.15em;
-  color:var(--zinc-500);
-  background:#131313;
-  border-bottom:1px solid var(--border);
+  color:var(--zinc-500);background:#131313;border-bottom:1px solid var(--border);
+  transition:color .25s var(--ease),background-color .25s var(--ease);
 }
 .sched-table tbody tr:last-child td{border-bottom:none}
 .sched-table tbody tr:hover td{background:rgba(163,230,53,.035)}
 .sched-time{
-  font-family:'JetBrains Mono',monospace;
-  font-size:12.5px !important;
-  color:var(--white);
-  text-align:left !important;
-  white-space:nowrap;
-  background:#131313;
-  border-right:1px solid var(--border);
-  padding-left:18px !important;
+  font-family:'JetBrains Mono',monospace;font-size:12.5px !important;color:var(--white);
+  text-align:left !important;white-space:nowrap;background:#131313;
+  border-right:1px solid var(--border);padding-left:18px !important;
 }
 .cls{
-  display:inline-block;
-  padding:5px 11px;border-radius:999px;
-  border:1px solid transparent;
-  color:var(--zinc-400);
-  font-weight:500;
+  display:inline-block;padding:5px 11px;border-radius:999px;border:1px solid transparent;
+  color:var(--zinc-400);font-weight:500;cursor:default;
   transition:color .2s var(--ease),border-color .2s var(--ease),background-color .2s var(--ease);
-  cursor:default;
 }
 .cls:hover{color:var(--lime);border-color:rgba(163,230,53,.35);background:var(--lime-dim)}
 .cls.off{color:#3f3f46}
 .cls.off:hover{color:#3f3f46;border-color:transparent;background:none}
+/* today's column */
+.sched-table th.today{color:var(--lime);background:rgba(163,230,53,.07)}
+.sched-table td.today{background:rgba(163,230,53,.045)}
+.sched-table td.today .cls:not(.off){color:var(--white)}
 
-/* mobile day cards */
 .sched-days{display:grid}
-.day{padding:18px;border-bottom:1px solid #202020}
+.day{padding:18px;border-bottom:1px solid #202020;transition:background-color .3s var(--ease)}
 .day:last-child{border-bottom:none}
-.day-h{
-  display:flex;align-items:baseline;justify-content:space-between;
-  margin-bottom:12px;
-}
+.day.today{background:rgba(163,230,53,.05)}
+.day-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
 .day-h strong{font-size:15px;font-weight:600;letter-spacing:-.02em}
-.day-row{
-  display:flex;align-items:center;justify-content:space-between;gap:14px;
-  padding:8px 0;
-  border-top:1px solid #1a1a1a;
+.day.today .day-h strong{color:var(--lime)}
+.today-chip{
+  display:none;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+  background:var(--lime);color:#0a0a0a;padding:3px 8px;border-radius:999px;
 }
+.day.today .today-chip,.sched-note .today-chip{display:inline-block}
+.day-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:8px 0;border-top:1px solid var(--hair)}
 .day-row:first-of-type{border-top:none}
-.day-row .t{
-  font-family:'JetBrains Mono',monospace;
-  font-size:12px;color:var(--zinc-500);white-space:nowrap;
-}
+.day-row .t{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--zinc-500);white-space:nowrap}
 .day-row .c{font-size:14px;font-weight:500;color:var(--white)}
-.day.rest .day-note{font-size:13.5px;color:var(--zinc-600)}
+.day-note{font-size:13.5px;color:var(--zinc-600)}
+.sched-note{margin-top:16px;display:flex;align-items:center;gap:9px;font-size:13px;color:var(--zinc-500)}
 
 /* ============================================================
    TESTIMONIALS
    ============================================================ */
 .quotes{display:grid;gap:14px}
 .quote{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--r-card);
-  padding:24px 20px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--r-card);padding:24px 20px;
   transition:transform .3s var(--ease),border-color .3s var(--ease),box-shadow .3s var(--ease);
 }
-.quote:hover{
-  transform:translateY(-4px);
-  border-color:var(--lime);
-  box-shadow:0 20px 50px -24px rgba(0,0,0,.95);
-}
+.quote:hover{transform:translateY(-4px);border-color:var(--lime);box-shadow:0 20px 50px -24px rgba(0,0,0,.95)}
 .stars{display:flex;gap:3px;margin-bottom:16px;color:var(--lime)}
-.quote blockquote{
-  font-size:16px;font-style:italic;line-height:1.55;letter-spacing:-.015em;
-  color:var(--white);margin-bottom:18px;
-}
+.stars .ic{font-size:15px}
+.quote blockquote{font-size:16px;font-style:italic;line-height:1.55;letter-spacing:-.015em;color:var(--white);margin-bottom:18px}
 .quote figcaption{font-size:13px;color:var(--zinc-500)}
 .quote figcaption b{color:var(--zinc-400);font-weight:500}
-.reviews-link{
-  display:inline-flex;align-items:center;gap:9px;
-  margin-top:26px;
-  font-size:14px;color:var(--zinc-400);
-  transition:color .2s var(--ease);
-}
+.reviews-link{display:inline-flex;align-items:center;gap:9px;margin-top:26px;font-size:14px;color:var(--zinc-400);transition:color .2s var(--ease)}
+.reviews-link .ic{font-size:16px}
 .reviews-link:hover{color:var(--lime)}
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+.faq{display:grid;gap:10px;max-width:780px}
+.qa{border:1px solid var(--border);border-radius:var(--r-card);background:var(--surface);overflow:hidden;
+  transition:border-color .25s var(--ease)}
+.qa:hover{border-color:#3a3a3a}
+.qa[aria-expanded="true"],.qa.open{border-color:rgba(163,230,53,.35)}
+.qa-q{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  width:100%;padding:18px 18px;min-height:56px;
+  font-size:15.5px;font-weight:500;letter-spacing:-.02em;
+}
+.qa-q .ic{font-size:17px;stroke-width:2;color:var(--zinc-500);transition:transform .35s var(--ease),color .25s var(--ease)}
+.qa.open .qa-q .ic{transform:rotate(180deg);color:var(--lime)}
+.qa-a{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s var(--ease)}
+.qa.open .qa-a{grid-template-rows:1fr}
+.qa-a > div{overflow:hidden}
+.qa-a p{padding:0 18px 20px;font-size:14.5px;color:var(--zinc-400);max-width:62ch}
 
 /* ============================================================
    LOCATION
@@ -583,13 +655,9 @@ section{position:relative}
 .loc-item p,.loc-item a{font-size:16px;color:var(--white);line-height:1.5}
 .loc-item a:hover{color:var(--lime)}
 .map{
-  position:relative;
-  aspect-ratio:4/3;
-  border:1px solid var(--border);
-  border-radius:var(--r-card);
+  position:relative;aspect-ratio:4/3;border:1px solid var(--border);border-radius:var(--r-card);
   background:radial-gradient(110% 90% at 50% 40%, #1a1a1a 0%, #111 55%, #0c0c0c 100%);
-  overflow:hidden;
-  display:grid;place-items:center;
+  overflow:hidden;display:grid;place-items:center;
 }
 .map::before{
   content:"";position:absolute;inset:0;
@@ -598,7 +666,6 @@ section{position:relative}
     linear-gradient(to bottom, rgba(255,255,255,.045) 1px, transparent 1px);
   background-size:40px 40px;
 }
-/* a couple of faint "roads" so it reads as a map, not a texture */
 .map::after{
   content:"";position:absolute;inset:0;
   background:
@@ -606,26 +673,13 @@ section{position:relative}
     linear-gradient(15deg, transparent 63%, rgba(255,255,255,.06) 63%, rgba(255,255,255,.06) 63.9%, transparent 63.9%);
 }
 .pin{position:relative;z-index:2;display:grid;place-items:center;justify-items:center}
-.pin-dot{
-  position:relative;
-  width:14px;height:14px;border-radius:50%;
-  background:var(--lime);
-  box-shadow:0 0 0 5px rgba(163,230,53,.18),0 0 26px rgba(163,230,53,.5);
-}
-.pin-dot::after{
-  content:"";position:absolute;inset:-11px;border-radius:50%;
-  border:1px solid rgba(163,230,53,.5);
-  animation:ring 2.8s var(--ease) infinite;
-}
-.pin-label{
-  margin-top:16px;
-  font-size:12px;font-weight:600;letter-spacing:.06em;
-  background:rgba(10,10,10,.85);
-  border:1px solid var(--border);
-  border-radius:999px;
-  padding:7px 14px;
-  white-space:nowrap;
-}
+.pin-dot{width:14px;height:14px;border-radius:50%;background:var(--lime);position:relative;
+  box-shadow:0 0 0 5px rgba(163,230,53,.18),0 0 26px rgba(163,230,53,.5)}
+.pin-dot::after{content:"";position:absolute;inset:-11px;border-radius:50%;
+  border:1px solid rgba(163,230,53,.5);animation:ring 2.8s var(--ease) infinite}
+.pin-label{margin-top:16px;font-size:12px;font-weight:600;letter-spacing:.06em;
+  background:rgba(10,10,10,.85);border:1px solid var(--border);border-radius:999px;
+  padding:7px 14px;white-space:nowrap}
 .map-note{margin-top:12px;font-size:13px;color:var(--zinc-600);text-align:center}
 
 /* ============================================================
@@ -634,19 +688,10 @@ section{position:relative}
 .final{
   border-top:1px solid var(--border);
   background:radial-gradient(100% 120% at 50% 100%, #161513 0%, #0c0c0b 48%, #0a0a0a 100%);
-  text-align:center;
-  padding-block:100px;
-  overflow:hidden;
+  text-align:center;padding-block:100px;overflow:hidden;
 }
-.final h2{
-  font-size:clamp(42px,13vw,104px);
-  margin-bottom:22px;
-}
-.final p{
-  font-size:clamp(16px,4.2vw,19px);
-  color:var(--zinc-400);
-  max-width:30rem;margin:0 auto 36px;
-}
+.final h2{font-size:clamp(42px,13vw,104px);margin-bottom:22px}
+.final p{font-size:clamp(16px,4.2vw,19px);color:var(--zinc-400);max-width:30rem;margin:0 auto 36px}
 .final .btn{margin-bottom:20px}
 .final .fine{font-size:13px;color:var(--zinc-600)}
 
@@ -658,26 +703,18 @@ section{position:relative}
 .ftr-brand p{font-size:14px;color:var(--zinc-500);max-width:30ch;margin-top:14px}
 .ftr-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px}
 .ftr-col h4{margin-bottom:14px}
-.ftr-col a{
-  display:block;padding:5px 0;
-  font-size:14px;color:var(--zinc-500);
-  transition:color .2s var(--ease);
-}
+.ftr-col a{display:block;padding:5px 0;font-size:14px;color:var(--zinc-500);transition:color .2s var(--ease)}
 .ftr-col a:hover{color:var(--lime)}
 .socials{display:flex;gap:10px;margin-top:20px}
 .socials a{
-  width:40px;height:40px;
-  display:grid;place-items:center;
-  border:1px solid var(--border);border-radius:10px;
-  color:var(--zinc-500);
+  width:40px;height:40px;display:grid;place-items:center;
+  border:1px solid var(--border);border-radius:10px;color:var(--zinc-500);
   transition:color .2s var(--ease),border-color .2s var(--ease),transform .25s var(--ease);
 }
+.socials .ic{font-size:18px}
 .socials a:hover{color:var(--lime);border-color:var(--lime);transform:translateY(-2px)}
-.ftr-btm{
-  border-top:1px solid #1a1a1a;padding-top:24px;
-  display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;
-  font-size:12.5px;color:var(--zinc-600);
-}
+.ftr-btm{border-top:1px solid var(--hair);padding-top:24px;display:flex;flex-wrap:wrap;gap:8px;
+  justify-content:space-between;font-size:12.5px;color:var(--zinc-600)}
 .ftr-btm a{color:var(--zinc-500);transition:color .2s var(--ease)}
 .ftr-btm a:hover{color:var(--lime)}
 
@@ -686,25 +723,30 @@ section{position:relative}
    ============================================================ */
 .totop{
   position:fixed;right:16px;bottom:16px;z-index:90;
-  width:46px;height:46px;
-  display:grid;place-items:center;
-  border:1px solid var(--border);border-radius:12px;
-  background:rgba(23,23,23,.92);
-  backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px);
-  color:var(--lime);
+  width:46px;height:46px;display:grid;place-items:center;
+  border:1px solid var(--border);border-radius:12px;background:rgba(23,23,23,.92);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:var(--lime);
   opacity:0;visibility:hidden;transform:translateY(10px);
-  transition:opacity .3s var(--ease),transform .3s var(--ease),
-             visibility .3s,border-color .2s var(--ease),box-shadow .2s var(--ease);
+  transition:opacity .3s var(--ease),transform .3s var(--ease),visibility .3s,
+             border-color .2s var(--ease),box-shadow .2s var(--ease);
 }
+.totop .ic{font-size:18px;stroke-width:2}
 .totop.show{opacity:1;visibility:visible;transform:none}
 .totop:hover{border-color:var(--lime);box-shadow:0 0 26px -10px rgba(163,230,53,.7)}
 
 /* ============================================================
-   SCROLL REVEAL
+   SCROLL REVEAL (+ stagger for grid children)
    ============================================================ */
 .rv{opacity:0;transform:translateY(18px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
 .rv.in{opacity:1;transform:none}
+.stag > *{opacity:0;transform:translateY(22px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.stag.in > *{opacity:1;transform:none}
+.stag.in > *:nth-child(1){transition-delay:.04s}
+.stag.in > *:nth-child(2){transition-delay:.10s}
+.stag.in > *:nth-child(3){transition-delay:.16s}
+.stag.in > *:nth-child(4){transition-delay:.22s}
+.stag.in > *:nth-child(5){transition-delay:.28s}
+.stag.in > *:nth-child(6){transition-delay:.34s}
 
 /* ============================================================
    BREAKPOINTS
@@ -719,7 +761,6 @@ section{position:relative}
   .stats-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .stat{padding:34px 22px}
   .stat + .stat{border-top:none;border-left:1px solid var(--border)}
-  /* thin lime divider accent between stats */
   .stat + .stat::before{
     content:"";position:absolute;left:-1px;top:50%;transform:translateY(-50%);
     width:1px;height:34px;background:var(--lime);opacity:.75;
@@ -727,8 +768,12 @@ section{position:relative}
   .card{padding:26px 22px 24px}
   .quotes{grid-template-columns:repeat(2,minmax(0,1fr))}
   .coaches{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .posters{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .poster{aspect-ratio:3/4}
+  .spaces{grid-template-columns:repeat(4,minmax(0,1fr))}
   .hero-cta .btn{flex:0 0 auto}
   .ftr-cols{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .quiz{padding:34px 30px}
 }
 
 @media (min-width:900px){
@@ -736,15 +781,17 @@ section{position:relative}
   .sec{padding-block:120px}
   .sec-head{margin-bottom:56px}
   .nav{display:flex}
-  .hdr .btn-primary{display:inline-flex}
   .burger{display:none}
   .drawer{display:none !important}
+  .scroll-cue{display:flex}
   .cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+  .posters{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
   .plans{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:stretch}
   .plan.featured{transform:scale(1.025)}
   .plan.featured:hover{transform:scale(1.025) translateY(-4px)}
   .coaches{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
   .quotes{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+  .spaces{gap:16px}
   .loc{grid-template-columns:1fr 1fr;gap:56px;align-items:start}
   .sched-table{display:table}
   .sched-days{display:none}
@@ -752,10 +799,12 @@ section{position:relative}
   .final{padding-block:140px}
   .ftr-top{grid-template-columns:1fr 1.5fr;gap:60px}
   .totop{right:28px;bottom:28px}
+  .quiz{padding:44px 40px}
+  .quiz-opts{gap:10px}
 }
 
 /* ============================================================
-   REDUCED MOTION
+   REDUCED MOTION — kill everything decorative
    ============================================================ */
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
@@ -764,14 +813,45 @@ section{position:relative}
     animation-iteration-count:1 !important;
     transition-duration:.001ms !important;
   }
-  .rv{opacity:1;transform:none}
-  .btn:hover,.card:hover,.plan:hover,.coach:hover,.quote:hover{transform:none}
+  .rv,.stag > *{opacity:1;transform:none}
+  .ln > span{transform:none;opacity:1}
+  .marq-track{animation:none}
+  .btn::after{display:none}
+  .btn:hover,.card:hover,.plan:hover,.coach:hover,.quote:hover,.poster:hover,.space:hover{transform:none}
 }
 </style>
 </head>
 
 <body>
 <a class="skip" href="#main">Skip to content</a>
+
+<!-- ============================================================
+     ICON SPRITE — defined once, referenced with <use> everywhere.
+     Keeps the page small and the icon set consistent.
+     ============================================================ -->
+<svg class="sr" aria-hidden="true" focusable="false"><defs>
+  <symbol id="i-arr" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-chk" viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6.5"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></symbol>
+  <symbol id="i-dumbbell" viewBox="0 0 24 24"><path d="M6.5 6.5v11M3 9v6M17.5 6.5v11M21 9v6M6.5 12h11"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M2 12h4l3-8 4 16 3-8h6"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5c0-4.1 3.4-7.5 7.5-7.5s7.5 3.4 7.5 7.5"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M2.5 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M16 5.3a3.2 3.2 0 0 1 0 5.9M18.2 14.6a6.5 6.5 0 0 1 3.3 5.9"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M4 20C4 11.2 10.2 5 20 4c1 9.8-5.2 16-16 16z"/><path d="M4.5 19.5 12.5 11.5"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 1 1-2.5-6"/><path d="M20.5 2.8V6.5H16.8"/></symbol>
+  <symbol id="i-ig" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-yt" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4.5"/><path d="M10.2 9.2l4.8 2.8-4.8 2.8z"/></symbol>
+  <symbol id="i-g" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+    <path d="M21.6 12.23c0-.72-.06-1.4-.18-2.06H12v3.9h5.38a4.6 4.6 0 0 1-2 3.02v2.5h3.23c1.89-1.74 2.98-4.3 2.98-7.36z" opacity=".95"/>
+    <path d="M12 22c2.7 0 4.96-.9 6.61-2.41l-3.23-2.5c-.9.6-2.05.96-3.38.96-2.6 0-4.8-1.75-5.59-4.1H3.08v2.58A10 10 0 0 0 12 22z" opacity=".75"/>
+    <path d="M6.41 13.95a5.99 5.99 0 0 1 0-3.84V7.53H3.08a10 10 0 0 0 0 8.98l3.33-2.56z" opacity=".55"/>
+    <path d="M12 5.98c1.47 0 2.79.5 3.83 1.5l2.86-2.86C16.95 2.99 14.7 2 12 2a10 10 0 0 0-8.92 5.53l3.33 2.58C7.2 7.73 9.4 5.98 12 5.98z" opacity=".85"/>
+  </symbol>
+</defs></svg>
+
+<div class="prog" id="prog" aria-hidden="true"></div>
 
 <!-- ============================================================
      HEADER
@@ -781,10 +861,11 @@ section{position:relative}
     <a href="#top" class="mark" aria-label="FitZone Gym — home">FIT<span>ZONE</span></a>
 
     <nav class="nav" aria-label="Primary">
-      <a href="#top">Home</a>
       <a href="#programs">Programs</a>
-      <a href="#trainers">Trainers</a>
+      <a href="#posters">Workouts</a>
+      <a href="#finder">Find Yours</a>
       <a href="#membership">Membership</a>
+      <a href="#trainers">Coaches</a>
       <a href="#contact">Contact</a>
     </nav>
 
@@ -799,13 +880,14 @@ section{position:relative}
   </div>
 </header>
 
-<!-- Mobile drawer -->
 <div class="drawer" id="drawer">
-  <a href="#top">Home</a>
   <a href="#programs">Programs</a>
-  <a href="#trainers">Trainers</a>
+  <a href="#posters">Workouts</a>
+  <a href="#finder">Find Your Program</a>
   <a href="#membership">Membership</a>
+  <a href="#trainers">Coaches</a>
   <a href="#schedule">Schedule</a>
+  <a href="#faq">FAQ</a>
   <a href="#contact">Contact</a>
   <a class="btn btn-primary"
      href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20book%20a%20free%20trial%20session."
@@ -818,37 +900,49 @@ section{position:relative}
      HERO
      ============================================================ -->
 <section class="hero" id="top">
+  <div class="hero-grid" id="heroGrid" aria-hidden="true"></div>
+
   <div class="wrap hero-in">
-    <p class="hero-eyebrow label"><span class="pulse" aria-hidden="true"></span>Bhubaneswar · Since 2023</p>
+    <div class="hero-fade" id="heroFade">
+      <p class="hero-eyebrow label"><span class="pulse" aria-hidden="true"></span>Bhubaneswar · Since 2023</p>
 
-    <h1 class="h-display">Train like it matters.<span class="l2">Because it does.</span></h1>
+      <h1 class="h-display">
+        <span class="ln"><span>Train like it matters.</span></span>
+        <span class="ln"><span>Because it does.</span></span>
+      </h1>
 
-    <p class="hero-sub">Serious strength, conditioning, and mobility training. No mirror flexing. No wasted reps.</p>
+      <p class="hero-sub">Serious strength, conditioning, and mobility training. No mirror flexing. No wasted reps.</p>
 
-    <div class="hero-cta">
-      <a class="btn btn-primary btn-lg"
-         href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20start%20a%20free%20trial."
-         target="_blank" rel="noopener">
-        Start Free Trial <span class="arw" aria-hidden="true">&rarr;</span>
-      </a>
-      <a class="btn btn-ghost btn-lg" href="#programs">See Programs</a>
+      <div class="hero-cta">
+        <a class="btn btn-primary btn-lg"
+           href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20start%20a%20free%20trial."
+           target="_blank" rel="noopener">
+          Start Free Trial <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg>
+        </a>
+        <a class="btn btn-ghost btn-lg" href="#programs">See Programs</a>
+      </div>
+
+      <p class="hero-trust">
+        <svg class="ic ic-f" aria-hidden="true"><use href="#i-star"/></svg>
+        <b>4.8</b><span class="sep">·</span><b>240+ Members</b><span class="sep">·</span><b>3 Certified Coaches</b>
+      </p>
     </div>
+  </div>
 
-    <p class="hero-trust">
-      <span class="lime" aria-hidden="true">&#9733;</span>
-      <b>4.8</b><span class="sep">·</span><b>240+ Members</b><span class="sep">·</span><b>3 Certified Coaches</b>
-    </p>
+  <div class="scroll-cue" aria-hidden="true">
+    <span class="label">Scroll</span>
+    <span class="bar"></span>
   </div>
 </section>
 
 <!-- ============================================================
-     STATS BAR
+     STATS
      ============================================================ -->
 <section class="stats" aria-label="Gym at a glance">
   <div class="wrap">
-    <div class="stats-grid">
+    <div class="stats-grid rv" id="stats">
       <div class="stat">
-        <p class="stat-n mono">240+</p>
+        <p class="stat-n mono" data-count="240" data-suffix="+">0+</p>
         <p class="stat-l label">Active Members</p>
       </div>
       <div class="stat">
@@ -856,12 +950,28 @@ section{position:relative}
         <p class="stat-l label">Every Single Day</p>
       </div>
       <div class="stat">
-        <p class="stat-n mono">3</p>
+        <p class="stat-n mono" data-count="3">0</p>
         <p class="stat-l label">Certified Coaches</p>
       </div>
     </div>
   </div>
 </section>
+
+<!-- ============================================================
+     MARQUEE
+     ============================================================ -->
+<div class="marq" aria-hidden="true">
+  <div class="marq-track">
+    <div class="marq-grp">
+      <span>Strength</span><span>Conditioning</span><span>Powerlifting</span><span>Mobility</span>
+      <span>Boxing</span><span>CrossFit</span><span>Yoga</span><span>Recovery</span><span>Nutrition</span>
+    </div>
+    <div class="marq-grp">
+      <span>Strength</span><span>Conditioning</span><span>Powerlifting</span><span>Mobility</span>
+      <span>Boxing</span><span>CrossFit</span><span>Yoga</span><span>Recovery</span><span>Nutrition</span>
+    </div>
+  </div>
+</div>
 
 <!-- ============================================================
      PROGRAMS
@@ -874,85 +984,48 @@ section{position:relative}
       <p>Pick your path. Or combine them.</p>
     </div>
 
-    <div class="cards rv">
+    <div class="cards stag">
 
       <article class="card">
-        <span class="card-ico" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-            <path d="M6.5 6.5v11M3 9v6M17.5 6.5v11M21 9v6M6.5 12h11"/>
-          </svg>
-        </span>
+        <span class="card-ico" aria-hidden="true"><svg class="ic"><use href="#i-dumbbell"/></svg></span>
         <h3>Strength Training</h3>
         <p>Compound lifts. Progressive overload. Real results.</p>
-        <a class="tlink" href="#membership">Learn more
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </a>
+        <a class="tlink" href="#posters">See the session <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></a>
       </article>
 
       <article class="card">
-        <span class="card-ico" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M2 12h4l3-8 4 16 3-8h6"/>
-          </svg>
-        </span>
+        <span class="card-ico" aria-hidden="true"><svg class="ic"><use href="#i-pulse"/></svg></span>
         <h3>HIIT &amp; Conditioning</h3>
         <p>45-minute sessions. Fat loss and endurance. High intensity.</p>
-        <a class="tlink" href="#schedule">Learn more
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </a>
+        <a class="tlink" href="#posters">See the session <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></a>
       </article>
 
       <article class="card">
-        <span class="card-ico" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5c0-4.1 3.4-7.5 7.5-7.5s7.5 3.4 7.5 7.5"/>
-          </svg>
-        </span>
+        <span class="card-ico" aria-hidden="true"><svg class="ic"><use href="#i-user"/></svg></span>
         <h3>Personal Training</h3>
         <p>One-on-one coaching. Tailored to your goals and body.</p>
-        <a class="tlink" href="#trainers">Learn more
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </a>
+        <a class="tlink" href="#trainers">Meet the coaches <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></a>
       </article>
 
       <article class="card">
-        <span class="card-ico" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="9" cy="8" r="3.2"/><path d="M2.5 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/>
-            <path d="M16 5.3a3.2 3.2 0 0 1 0 5.9M18.2 14.6a6.5 6.5 0 0 1 3.3 5.9"/>
-          </svg>
-        </span>
+        <span class="card-ico" aria-hidden="true"><svg class="ic"><use href="#i-users"/></svg></span>
         <h3>Group Classes</h3>
         <p>Yoga, CrossFit, Boxing. Every weekday, morning and evening.</p>
-        <a class="tlink" href="#schedule">Learn more
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </a>
+        <a class="tlink" href="#schedule">Check the times <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></a>
       </article>
 
       <article class="card">
-        <span class="card-ico" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 20C4 11.2 10.2 5 20 4c1 9.8-5.2 16-16 16z"/><path d="M4.5 19.5 12.5 11.5"/>
-          </svg>
-        </span>
+        <span class="card-ico" aria-hidden="true"><svg class="ic"><use href="#i-leaf"/></svg></span>
         <h3>Nutrition Coaching</h3>
         <p>Meal planning. Body composition tracking. Sustainable habits.</p>
-        <a class="tlink" href="#membership">Learn more
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </a>
+        <a class="tlink" href="#membership">See what's included <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></a>
       </article>
 
       <article class="card">
-        <span class="card-ico" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20.5 12a8.5 8.5 0 1 1-2.5-6"/><path d="M20.5 2.8V6.5H16.8"/>
-          </svg>
-        </span>
+        <span class="card-ico" aria-hidden="true"><svg class="ic"><use href="#i-refresh"/></svg></span>
         <h3>Mobility &amp; Recovery</h3>
         <p>Foam rolling. Stretching. Injury prevention.</p>
-        <a class="tlink" href="#schedule">Learn more
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </a>
+        <a class="tlink" href="#posters">See the session <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></a>
       </article>
 
     </div>
@@ -960,9 +1033,262 @@ section{position:relative}
 </section>
 
 <!-- ============================================================
+     WORKOUT POSTERS
+     The six-day split, drawn as screen-print style posters.
+     Tap one and the actual session slides up over it.
+     ============================================================ -->
+<section class="sec sec-alt" id="posters">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label">The Split</p>
+      <h2 class="h-display">Six days. Nothing random.</h2>
+      <p>This is the block our members run right now. Tap any poster to see the exact session &mdash; sets, reps and all.</p>
+    </div>
+
+    <div class="posters stag">
+
+      <!-- 01 PUSH -->
+      <button class="poster" style="--pa:32deg" aria-expanded="false">
+        <span class="poster-face">
+          <span class="poster-num mono" aria-hidden="true">01</span>
+          <svg class="poster-motif" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true">
+            <path d="M22 34v32M12 42v16M78 34v32M88 42v16M22 50h56"/>
+          </svg>
+          <span class="poster-meta">
+            <span class="label">Day 01</span>
+            <h3>Push</h3>
+            <p>Chest · Shoulders · Triceps</p>
+          </span>
+          <span class="poster-hint">Tap for the session <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></span>
+        </span>
+        <span class="poster-back">
+          <span class="label">Day 01 · 60 min</span>
+          <h4>Push &mdash; heavy</h4>
+          <ul>
+            <li><b>Barbell Bench Press</b><span class="rep">4 × 6</span></li>
+            <li><b>Overhead Press</b><span class="rep">4 × 8</span></li>
+            <li><b>Incline Dumbbell Press</b><span class="rep">3 × 10</span></li>
+            <li><b>Lateral Raise</b><span class="rep">3 × 15</span></li>
+            <li><b>Cable Triceps Pushdown</b><span class="rep">3 × 12</span></li>
+          </ul>
+          <span class="poster-close">Tap to close</span>
+        </span>
+      </button>
+
+      <!-- 02 PULL -->
+      <button class="poster" style="--pa:-28deg" aria-expanded="false">
+        <span class="poster-face">
+          <span class="poster-num mono" aria-hidden="true">02</span>
+          <svg class="poster-motif" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true">
+            <path d="M18 24h64M30 24v10a20 20 0 0 0 40 0V24"/><path d="M50 54v22M38 76h24"/>
+          </svg>
+          <span class="poster-meta">
+            <span class="label">Day 02</span>
+            <h3>Pull</h3>
+            <p>Back · Biceps · Rear Delts</p>
+          </span>
+          <span class="poster-hint">Tap for the session <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></span>
+        </span>
+        <span class="poster-back">
+          <span class="label">Day 02 · 60 min</span>
+          <h4>Pull &mdash; heavy</h4>
+          <ul>
+            <li><b>Deadlift</b><span class="rep">4 × 5</span></li>
+            <li><b>Weighted Pull-Up</b><span class="rep">4 × 6</span></li>
+            <li><b>Barbell Row</b><span class="rep">3 × 10</span></li>
+            <li><b>Face Pull</b><span class="rep">3 × 15</span></li>
+            <li><b>Barbell Curl</b><span class="rep">3 × 12</span></li>
+          </ul>
+          <span class="poster-close">Tap to close</span>
+        </span>
+      </button>
+
+      <!-- 03 LEGS -->
+      <button class="poster" style="--pa:52deg" aria-expanded="false">
+        <span class="poster-face">
+          <span class="poster-num mono" aria-hidden="true">03</span>
+          <svg class="poster-motif" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 22h60M26 22v8M74 22v8"/><path d="M38 34v18l-8 26M62 34v18l8 26"/><path d="M38 52h24"/>
+          </svg>
+          <span class="poster-meta">
+            <span class="label">Day 03</span>
+            <h3>Legs</h3>
+            <p>Quads · Hamstrings · Glutes</p>
+          </span>
+          <span class="poster-hint">Tap for the session <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></span>
+        </span>
+        <span class="poster-back">
+          <span class="label">Day 03 · 65 min</span>
+          <h4>Legs &mdash; the one people skip</h4>
+          <ul>
+            <li><b>Back Squat</b><span class="rep">5 × 5</span></li>
+            <li><b>Romanian Deadlift</b><span class="rep">4 × 8</span></li>
+            <li><b>Bulgarian Split Squat</b><span class="rep">3 × 10</span></li>
+            <li><b>Leg Curl</b><span class="rep">3 × 12</span></li>
+            <li><b>Standing Calf Raise</b><span class="rep">4 × 15</span></li>
+          </ul>
+          <span class="poster-close">Tap to close</span>
+        </span>
+      </button>
+
+      <!-- 04 CONDITIONING -->
+      <button class="poster" style="--pa:-14deg" aria-expanded="false">
+        <span class="poster-face">
+          <span class="poster-num mono" aria-hidden="true">04</span>
+          <svg class="poster-motif" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M8 52h16l10-28 14 56 10-34 8 6h26"/>
+          </svg>
+          <span class="poster-meta">
+            <span class="label">Day 04</span>
+            <h3>Engine</h3>
+            <p>HIIT · Conditioning · Capacity</p>
+          </span>
+          <span class="poster-hint">Tap for the session <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></span>
+        </span>
+        <span class="poster-back">
+          <span class="label">Day 04 · 45 min</span>
+          <h4>Engine &mdash; 5 rounds</h4>
+          <ul>
+            <li><b>Assault Bike</b><span class="rep">45 s</span></li>
+            <li><b>Kettlebell Swing</b><span class="rep">20 reps</span></li>
+            <li><b>Burpee Box Jump</b><span class="rep">12 reps</span></li>
+            <li><b>Farmer's Carry</b><span class="rep">40 m</span></li>
+            <li><b>Rest between rounds</b><span class="rep">90 s</span></li>
+          </ul>
+          <span class="poster-close">Tap to close</span>
+        </span>
+      </button>
+
+      <!-- 05 MOBILITY -->
+      <button class="poster" style="--pa:68deg" aria-expanded="false">
+        <span class="poster-face">
+          <span class="poster-num mono" aria-hidden="true">05</span>
+          <svg class="poster-motif" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="50" cy="24" r="9"/><path d="M50 33v24M50 45l-18 10M50 45l18 10M50 57l-12 22M50 57l12 22"/>
+          </svg>
+          <span class="poster-meta">
+            <span class="label">Day 05</span>
+            <h3>Mobility</h3>
+            <p>Hips · T-Spine · Shoulders</p>
+          </span>
+          <span class="poster-hint">Tap for the session <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></span>
+        </span>
+        <span class="poster-back">
+          <span class="label">Day 05 · 40 min</span>
+          <h4>Mobility &mdash; stay in the game</h4>
+          <ul>
+            <li><b>Foam Roll, full body</b><span class="rep">8 min</span></li>
+            <li><b>90/90 Hip Switch</b><span class="rep">3 × 10</span></li>
+            <li><b>Thoracic Opener</b><span class="rep">3 × 12</span></li>
+            <li><b>Couch Stretch</b><span class="rep">2 × 60 s</span></li>
+            <li><b>Dead Hang</b><span class="rep">3 × 30 s</span></li>
+          </ul>
+          <span class="poster-close">Tap to close</span>
+        </span>
+      </button>
+
+      <!-- 06 CORE -->
+      <button class="poster" style="--pa:8deg" aria-expanded="false">
+        <span class="poster-face">
+          <span class="poster-num mono" aria-hidden="true">06</span>
+          <svg class="poster-motif" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="26" y="20" width="48" height="60" rx="10"/><path d="M26 40h48M26 60h48M50 20v60"/>
+          </svg>
+          <span class="poster-meta">
+            <span class="label">Day 06</span>
+            <h3>Core</h3>
+            <p>Bracing · Anti-Rotation · Carry</p>
+          </span>
+          <span class="poster-hint">Tap for the session <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></span>
+        </span>
+        <span class="poster-back">
+          <span class="label">Day 06 · 35 min</span>
+          <h4>Core &mdash; braced, not crunched</h4>
+          <ul>
+            <li><b>Hanging Leg Raise</b><span class="rep">4 × 10</span></li>
+            <li><b>Pallof Press</b><span class="rep">3 × 12</span></li>
+            <li><b>Ab Wheel Rollout</b><span class="rep">3 × 8</span></li>
+            <li><b>Side Plank</b><span class="rep">3 × 45 s</span></li>
+            <li><b>Suitcase Carry</b><span class="rep">4 × 30 m</span></li>
+          </ul>
+          <span class="poster-close">Tap to close</span>
+        </span>
+      </button>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FIND YOUR PROGRAM — 3 questions, then a recommendation
+     that carries straight into a pre-filled WhatsApp message.
+     ============================================================ -->
+<section class="sec" id="finder">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label">Find Yours</p>
+      <h2 class="h-display">Not sure where to start?</h2>
+      <p>Three questions. Thirty seconds. We'll tell you exactly which program and plan fits.</p>
+    </div>
+
+    <div class="quiz rv" id="quiz">
+      <div class="quiz-bar">
+        <span class="quiz-dots" aria-hidden="true"><i class="on"></i><i></i><i></i></span>
+        <span class="label" id="quizCount">Question 1 of 3</span>
+      </div>
+
+      <div class="quiz-step on" data-step="0">
+        <p class="quiz-q h-display">What are you actually here for?</p>
+        <div class="quiz-opts">
+          <button class="opt" data-q="goal" data-v="strength">Get properly strong <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></button>
+          <button class="opt" data-q="goal" data-v="fatloss">Lose fat and get fitter <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></button>
+          <button class="opt" data-q="goal" data-v="mobility">Move better, stop hurting <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></button>
+        </div>
+      </div>
+
+      <div class="quiz-step" data-step="1">
+        <p class="quiz-q h-display">How many days a week can you really train?</p>
+        <div class="quiz-opts">
+          <button class="opt" data-q="days" data-v="low">2&ndash;3 days <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></button>
+          <button class="opt" data-q="days" data-v="mid">4&ndash;5 days <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></button>
+          <button class="opt" data-q="days" data-v="high">6 or more <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></button>
+        </div>
+      </div>
+
+      <div class="quiz-step" data-step="2">
+        <p class="quiz-q h-display">How much training have you got behind you?</p>
+        <div class="quiz-opts">
+          <button class="opt" data-q="exp" data-v="new">Starting from scratch <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></button>
+          <button class="opt" data-q="exp" data-v="some">On and off for a while <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></button>
+          <button class="opt" data-q="exp" data-v="pro">Years of consistent training <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></button>
+        </div>
+      </div>
+
+      <div class="quiz-res" id="quizRes" role="status" aria-live="polite">
+        <div class="res-top">
+          <span class="res-ico" aria-hidden="true"><svg class="ic" id="resIcon"><use href="#i-dumbbell"/></svg></span>
+          <h3 id="resTitle">Strength Training</h3>
+        </div>
+        <p class="res-body" id="resBody"></p>
+        <div class="res-grid">
+          <div class="res-row"><span class="k">Start on</span><span class="v" id="resPlan">Quarterly</span></div>
+          <div class="res-row"><span class="k">First step</span><span class="v" id="resStep">Free trial session</span></div>
+        </div>
+        <div class="res-cta">
+          <a class="btn btn-primary" id="resCta" href="#" target="_blank" rel="noopener">
+            Book this free trial <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg>
+          </a>
+          <button class="btn btn-ghost" id="resReset">Start over</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
      MEMBERSHIP
      ============================================================ -->
-<section class="sec" id="membership" style="background:#0c0c0c;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+<section class="sec sec-alt" id="membership">
   <div class="wrap">
     <div class="sec-head rv">
       <p class="label">Membership</p>
@@ -970,25 +1296,23 @@ section{position:relative}
       <p>The longer you commit, the more you save.</p>
     </div>
 
-    <div class="plans rv">
+    <div class="plans stag">
 
-      <!-- Monthly -->
       <article class="plan">
-        <p class="plan-name label" style="color:var(--zinc-400)">Monthly</p>
+        <p class="plan-name label">Monthly</p>
         <p class="price mono">&#8377;2,500<small>/month</small></p>
         <p class="plan-tag">No commitment. Full access.</p>
         <ul class="feats">
-          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Access to all programs</li>
-          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Unlimited group classes</li>
-          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Personal locker</li>
-          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Wifi + filtered water</li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-chk"/></svg>Access to all programs</li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-chk"/></svg>Unlimited group classes</li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-chk"/></svg>Personal locker</li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-chk"/></svg>Wifi + filtered water</li>
         </ul>
         <a class="btn btn-ghost"
            href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20start%20the%20Monthly%20membership."
            target="_blank" rel="noopener">Start Monthly</a>
       </article>
 
-      <!-- Quarterly — featured -->
       <article class="plan featured">
         <span class="badge">Most Popular</span>
         <p class="plan-name label" style="color:var(--lime)">Quarterly</p>
@@ -996,26 +1320,25 @@ section{position:relative}
         <p class="price-note mono">&#8377;2,166 per month</p>
         <p class="plan-tag">Best value for most members.</p>
         <ul class="feats">
-          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Everything in Monthly</li>
-          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>1 free PT session every month</li>
-          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Nutrition consultation</li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-chk"/></svg>Everything in Monthly</li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-chk"/></svg>1 free PT session every month</li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-chk"/></svg>Nutrition consultation</li>
         </ul>
         <a class="btn btn-primary"
            href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20start%20the%20Quarterly%20membership."
            target="_blank" rel="noopener">Start Quarterly</a>
       </article>
 
-      <!-- Annual -->
       <article class="plan">
-        <p class="plan-name label" style="color:var(--zinc-400)">Annual</p>
+        <p class="plan-name label">Annual</p>
         <p class="price mono">&#8377;22,000<small>/year</small></p>
         <p class="price-note mono">&#8377;1,833 per month</p>
         <p class="plan-tag">Serious commitment. Serious savings.</p>
         <ul class="feats">
-          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Everything in Quarterly</li>
-          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Unlimited personal training</li>
-          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Custom nutrition plan</li>
-          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Free supplements starter kit</li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-chk"/></svg>Everything in Quarterly</li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-chk"/></svg>Unlimited personal training</li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-chk"/></svg>Custom nutrition plan</li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-chk"/></svg>Free supplements starter kit</li>
         </ul>
         <a class="btn btn-ghost"
            href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20start%20the%20Annual%20membership."
@@ -1027,7 +1350,7 @@ section{position:relative}
 </section>
 
 <!-- ============================================================
-     TRAINERS
+     COACHES
      ============================================================ -->
 <section class="sec" id="trainers">
   <div class="wrap">
@@ -1037,7 +1360,7 @@ section{position:relative}
       <p>Certified. Experienced. Actually present.</p>
     </div>
 
-    <div class="coaches rv">
+    <div class="coaches stag">
 
       <article class="coach">
         <div class="coach-img">
@@ -1049,9 +1372,7 @@ section{position:relative}
           <p class="coach-role label">Head Coach</p>
           <p>8 years coaching. Ex-national powerlifter. Specialty: strength.</p>
           <a class="tlink" href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20book%20a%20session%20with%20Karan."
-             target="_blank" rel="noopener">Book session
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          </a>
+             target="_blank" rel="noopener">Book session <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></a>
         </div>
       </article>
 
@@ -1065,9 +1386,7 @@ section{position:relative}
           <p class="coach-role label">Group Training Lead</p>
           <p>Yoga + HIIT certified. 5 years. Specialty: mobility.</p>
           <a class="tlink" href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20book%20a%20session%20with%20Priya."
-             target="_blank" rel="noopener">Book session
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          </a>
+             target="_blank" rel="noopener">Book session <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></a>
         </div>
       </article>
 
@@ -1081,12 +1400,46 @@ section{position:relative}
           <p class="coach-role label">Personal Trainer</p>
           <p>NASM-CPT certified. Fat loss specialist. 6 years experience.</p>
           <a class="tlink" href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20book%20a%20session%20with%20Rakesh."
-             target="_blank" rel="noopener">Book session
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          </a>
+             target="_blank" rel="noopener">Book session <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></a>
         </div>
       </article>
 
+    </div>
+
+    <!-- The floor, drawn rather than photographed -->
+    <div class="spaces stag" style="margin-top:20px">
+      <div class="space">
+        <span class="space-art" aria-hidden="true">
+          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round">
+            <path d="M20 34v32M10 42v16M80 34v32M90 42v16M20 50h60"/>
+          </svg>
+        </span>
+        <div class="space-meta"><h3>Weights Floor</h3><p>4 racks · 2 platforms</p></div>
+      </div>
+      <div class="space">
+        <span class="space-art" aria-hidden="true">
+          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M24 18v64M76 18v64M12 82h24M64 82h24"/><path d="M24 32h52M24 52h52"/>
+          </svg>
+        </span>
+        <div class="space-meta"><h3>Functional Zone</h3><p>Rigs · sleds · ropes</p></div>
+      </div>
+      <div class="space">
+        <span class="space-art" aria-hidden="true">
+          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="50" cy="22" r="8"/><path d="M50 30v22"/><path d="M50 36 29 27M50 36l21-9"/><path d="M50 52 33 80M50 52l17 28"/>
+          </svg>
+        </span>
+        <div class="space-meta"><h3>Class Studio</h3><p>Yoga · boxing · HIIT</p></div>
+      </div>
+      <div class="space">
+        <span class="space-art" aria-hidden="true">
+          <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="18" y="39" width="64" height="24" rx="12"/><path d="M34 40v22M50 40v22M66 40v22"/>
+          </svg>
+        </span>
+        <div class="space-meta"><h3>Recovery Room</h3><p>Rollers · bands · ice</p></div>
+      </div>
     </div>
   </div>
 </section>
@@ -1094,7 +1447,7 @@ section{position:relative}
 <!-- ============================================================
      SCHEDULE
      ============================================================ -->
-<section class="sec" id="schedule" style="background:#0c0c0c;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+<section class="sec sec-alt" id="schedule">
   <div class="wrap">
     <div class="sec-head rv">
       <p class="label">Class Schedule</p>
@@ -1102,11 +1455,9 @@ section{position:relative}
       <p>Open gym floor 6:00 AM &ndash; 10:00 PM. Classes run on the slots below.</p>
     </div>
 
-    <div class="sched-wrap rv">
-
-      <!-- Desktop: full week table -->
+    <div class="sched-wrap rv" id="sched">
       <table class="sched-table">
-        <caption class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Weekly class schedule</caption>
+        <caption class="sr">Weekly class schedule</caption>
         <thead>
           <tr>
             <th scope="col" class="sched-time" style="text-align:left">Time</th>
@@ -1117,95 +1468,83 @@ section{position:relative}
         <tbody>
           <tr>
             <th scope="row" class="sched-time">6:00 AM</th>
-            <td><span class="cls">Strength</span></td>
-            <td><span class="cls">HIIT</span></td>
-            <td><span class="cls">Strength</span></td>
-            <td><span class="cls">HIIT</span></td>
-            <td><span class="cls">Strength</span></td>
-            <td><span class="cls">Open Gym</span></td>
+            <td><span class="cls">Strength</span></td><td><span class="cls">HIIT</span></td>
+            <td><span class="cls">Strength</span></td><td><span class="cls">HIIT</span></td>
+            <td><span class="cls">Strength</span></td><td><span class="cls">Open Gym</span></td>
             <td><span class="cls off">&ndash;</span></td>
           </tr>
           <tr>
             <th scope="row" class="sched-time">8:00 AM</th>
-            <td><span class="cls">Yoga</span></td>
-            <td><span class="cls off">&ndash;</span></td>
-            <td><span class="cls">Yoga</span></td>
-            <td><span class="cls off">&ndash;</span></td>
-            <td><span class="cls">Yoga</span></td>
-            <td><span class="cls">HIIT</span></td>
+            <td><span class="cls">Yoga</span></td><td><span class="cls off">&ndash;</span></td>
+            <td><span class="cls">Yoga</span></td><td><span class="cls off">&ndash;</span></td>
+            <td><span class="cls">Yoga</span></td><td><span class="cls">HIIT</span></td>
             <td><span class="cls">Yoga</span></td>
           </tr>
           <tr>
             <th scope="row" class="sched-time">6:00 PM</th>
-            <td><span class="cls">HIIT</span></td>
-            <td><span class="cls">Strength</span></td>
-            <td><span class="cls">HIIT</span></td>
-            <td><span class="cls">Strength</span></td>
-            <td><span class="cls">Boxing</span></td>
-            <td><span class="cls off">&ndash;</span></td>
+            <td><span class="cls">HIIT</span></td><td><span class="cls">Strength</span></td>
+            <td><span class="cls">HIIT</span></td><td><span class="cls">Strength</span></td>
+            <td><span class="cls">Boxing</span></td><td><span class="cls off">&ndash;</span></td>
             <td><span class="cls off">&ndash;</span></td>
           </tr>
           <tr>
             <th scope="row" class="sched-time">8:00 PM</th>
-            <td><span class="cls">Boxing</span></td>
-            <td><span class="cls">Yoga</span></td>
-            <td><span class="cls">Boxing</span></td>
-            <td><span class="cls">Yoga</span></td>
-            <td><span class="cls">Open Gym</span></td>
-            <td><span class="cls off">&ndash;</span></td>
+            <td><span class="cls">Boxing</span></td><td><span class="cls">Yoga</span></td>
+            <td><span class="cls">Boxing</span></td><td><span class="cls">Yoga</span></td>
+            <td><span class="cls">Open Gym</span></td><td><span class="cls off">&ndash;</span></td>
             <td><span class="cls off">&ndash;</span></td>
           </tr>
         </tbody>
       </table>
 
-      <!-- Mobile: one card per day -->
       <div class="sched-days">
         <div class="day">
-          <div class="day-h"><strong>Monday</strong><span class="label">4 classes</span></div>
+          <div class="day-h"><strong>Monday</strong><span class="today-chip">Today</span></div>
           <div class="day-row"><span class="t">6:00 AM</span><span class="c">Strength</span></div>
           <div class="day-row"><span class="t">8:00 AM</span><span class="c">Yoga</span></div>
           <div class="day-row"><span class="t">6:00 PM</span><span class="c">HIIT</span></div>
           <div class="day-row"><span class="t">8:00 PM</span><span class="c">Boxing</span></div>
         </div>
         <div class="day">
-          <div class="day-h"><strong>Tuesday</strong><span class="label">3 classes</span></div>
+          <div class="day-h"><strong>Tuesday</strong><span class="today-chip">Today</span></div>
           <div class="day-row"><span class="t">6:00 AM</span><span class="c">HIIT</span></div>
           <div class="day-row"><span class="t">6:00 PM</span><span class="c">Strength</span></div>
           <div class="day-row"><span class="t">8:00 PM</span><span class="c">Yoga</span></div>
         </div>
         <div class="day">
-          <div class="day-h"><strong>Wednesday</strong><span class="label">4 classes</span></div>
+          <div class="day-h"><strong>Wednesday</strong><span class="today-chip">Today</span></div>
           <div class="day-row"><span class="t">6:00 AM</span><span class="c">Strength</span></div>
           <div class="day-row"><span class="t">8:00 AM</span><span class="c">Yoga</span></div>
           <div class="day-row"><span class="t">6:00 PM</span><span class="c">HIIT</span></div>
           <div class="day-row"><span class="t">8:00 PM</span><span class="c">Boxing</span></div>
         </div>
         <div class="day">
-          <div class="day-h"><strong>Thursday</strong><span class="label">3 classes</span></div>
+          <div class="day-h"><strong>Thursday</strong><span class="today-chip">Today</span></div>
           <div class="day-row"><span class="t">6:00 AM</span><span class="c">HIIT</span></div>
           <div class="day-row"><span class="t">6:00 PM</span><span class="c">Strength</span></div>
           <div class="day-row"><span class="t">8:00 PM</span><span class="c">Yoga</span></div>
         </div>
         <div class="day">
-          <div class="day-h"><strong>Friday</strong><span class="label">4 classes</span></div>
+          <div class="day-h"><strong>Friday</strong><span class="today-chip">Today</span></div>
           <div class="day-row"><span class="t">6:00 AM</span><span class="c">Strength</span></div>
           <div class="day-row"><span class="t">8:00 AM</span><span class="c">Yoga</span></div>
           <div class="day-row"><span class="t">6:00 PM</span><span class="c">Boxing</span></div>
           <div class="day-row"><span class="t">8:00 PM</span><span class="c">Open Gym</span></div>
         </div>
         <div class="day">
-          <div class="day-h"><strong>Saturday</strong><span class="label">2 classes</span></div>
+          <div class="day-h"><strong>Saturday</strong><span class="today-chip">Today</span></div>
           <div class="day-row"><span class="t">6:00 AM</span><span class="c">Open Gym</span></div>
           <div class="day-row"><span class="t">8:00 AM</span><span class="c">HIIT</span></div>
         </div>
-        <div class="day rest">
-          <div class="day-h"><strong>Sunday</strong><span class="label">1 class</span></div>
+        <div class="day">
+          <div class="day-h"><strong>Sunday</strong><span class="today-chip">Today</span></div>
           <div class="day-row"><span class="t">8:00 AM</span><span class="c">Yoga</span></div>
           <p class="day-note" style="margin-top:10px">Gym floor open all day. Evening classes rest.</p>
         </div>
       </div>
-
     </div>
+
+    <p class="sched-note rv"><span class="pulse" aria-hidden="true"></span><span id="schedNote">Today's classes are highlighted.</span></p>
   </div>
 </section>
 
@@ -1219,15 +1558,12 @@ section{position:relative}
       <h2 class="h-display">What members say.</h2>
     </div>
 
-    <div class="quotes rv">
-
+    <div class="quotes stag">
       <figure class="quote">
         <div class="stars" role="img" aria-label="Rated 5 out of 5">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+          <svg class="ic ic-f"><use href="#i-star"/></svg><svg class="ic ic-f"><use href="#i-star"/></svg>
+          <svg class="ic ic-f"><use href="#i-star"/></svg><svg class="ic ic-f"><use href="#i-star"/></svg>
+          <svg class="ic ic-f"><use href="#i-star"/></svg>
         </div>
         <blockquote>&ldquo;Best gym I've trained in. The coaches actually know what they're doing.&rdquo;</blockquote>
         <figcaption><b>Rohit S.</b> &middot; Member since 2024</figcaption>
@@ -1235,11 +1571,9 @@ section{position:relative}
 
       <figure class="quote">
         <div class="stars" role="img" aria-label="Rated 5 out of 5">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+          <svg class="ic ic-f"><use href="#i-star"/></svg><svg class="ic ic-f"><use href="#i-star"/></svg>
+          <svg class="ic ic-f"><use href="#i-star"/></svg><svg class="ic ic-f"><use href="#i-star"/></svg>
+          <svg class="ic ic-f"><use href="#i-star"/></svg>
         </div>
         <blockquote>&ldquo;Lost 12 kg in 5 months. The nutrition coaching changed everything.&rdquo;</blockquote>
         <figcaption><b>Neha K.</b> &middot; Annual Member</figcaption>
@@ -1247,36 +1581,68 @@ section{position:relative}
 
       <figure class="quote">
         <div class="stars" role="img" aria-label="Rated 5 out of 5">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+          <svg class="ic ic-f"><use href="#i-star"/></svg><svg class="ic ic-f"><use href="#i-star"/></svg>
+          <svg class="ic ic-f"><use href="#i-star"/></svg><svg class="ic ic-f"><use href="#i-star"/></svg>
+          <svg class="ic ic-f"><use href="#i-star"/></svg>
         </div>
         <blockquote>&ldquo;6 AM classes are packed for a reason. Serious training, no BS.&rdquo;</blockquote>
         <figcaption><b>Vikram J.</b> &middot; Strength Program</figcaption>
       </figure>
-
     </div>
 
     <a class="reviews-link rv" href="https://www.google.com/maps/search/FitZone+Gym+Jaydev+Vihar+Bhubaneswar"
        target="_blank" rel="noopener">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M21.6 12.23c0-.72-.06-1.4-.18-2.06H12v3.9h5.38a4.6 4.6 0 0 1-2 3.02v2.5h3.23c1.89-1.74 2.98-4.3 2.98-7.36z" opacity=".95"/>
-        <path d="M12 22c2.7 0 4.96-.9 6.61-2.41l-3.23-2.5c-.9.6-2.05.96-3.38.96-2.6 0-4.8-1.75-5.59-4.1H3.08v2.58A10 10 0 0 0 12 22z" opacity=".75"/>
-        <path d="M6.41 13.95a5.99 5.99 0 0 1 0-3.84V7.53H3.08a10 10 0 0 0 0 8.98l3.33-2.56z" opacity=".55"/>
-        <path d="M12 5.98c1.47 0 2.79.5 3.83 1.5l2.86-2.86C16.95 2.99 14.7 2 12 2a10 10 0 0 0-8.92 5.53l3.33 2.58C7.2 7.73 9.4 5.98 12 5.98z" opacity=".85"/>
-      </svg>
+      <svg class="ic" aria-hidden="true"><use href="#i-g"/></svg>
       See all reviews on Google
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      <svg class="ic" style="font-size:13px;stroke-width:2" aria-hidden="true"><use href="#i-arr"/></svg>
     </a>
   </div>
 </section>
 
 <!-- ============================================================
-     LOCATION + CONTACT
+     FAQ
      ============================================================ -->
-<section class="sec" id="contact" style="background:#0c0c0c;border-top:1px solid var(--border)">
+<section class="sec sec-alt" id="faq">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label">Questions</p>
+      <h2 class="h-display">Before you walk in.</h2>
+      <p>The things people ask us on WhatsApp every week.</p>
+    </div>
+
+    <div class="faq rv" id="faqList">
+      <div class="qa">
+        <button class="qa-q" aria-expanded="false">Do I need to be fit already?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></button>
+        <div class="qa-a"><div><p>No. Roughly a third of our members walked in having never touched a barbell. Your first session is an assessment, not a test &mdash; a coach watches how you move and builds from there.</p></div></div>
+      </div>
+      <div class="qa">
+        <button class="qa-q" aria-expanded="false">What's included in the free trial?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></button>
+        <div class="qa-a"><div><p>One full session with a coach, a movement assessment, and access to any group class running that day. No card, no sign-up form, no sales pitch afterwards. Come in kit you can train in.</p></div></div>
+      </div>
+      <div class="qa">
+        <button class="qa-q" aria-expanded="false">Can I freeze my membership?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></button>
+        <div class="qa-a"><div><p>Yes. Quarterly and Annual members can freeze for up to 30 days a year &mdash; travel, illness, work. Message us on WhatsApp and we'll pause it the same day.</p></div></div>
+      </div>
+      <div class="qa">
+        <button class="qa-q" aria-expanded="false">Is there a joining fee?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></button>
+        <div class="qa-a"><div><p>No joining fee, no registration charge, no locker deposit. The price on the card is the price you pay.</p></div></div>
+      </div>
+      <div class="qa">
+        <button class="qa-q" aria-expanded="false">How busy does it get at peak hours?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></button>
+        <div class="qa-a"><div><p>6&ndash;8 AM and 6&ndash;8 PM are our fullest windows. We cap group classes at 16 so nobody waits for equipment, and the weights floor has four racks. If you want the place near-empty, 11 AM&ndash;4 PM is yours.</p></div></div>
+      </div>
+      <div class="qa">
+        <button class="qa-q" aria-expanded="false">Is there parking?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></button>
+        <div class="qa-a"><div><p>Two-wheeler parking is free and right outside. Four-wheelers use the shared lot behind the building &mdash; about a 40-second walk, covered.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     LOCATION
+     ============================================================ -->
+<section class="sec" id="contact">
   <div class="wrap">
     <div class="sec-head rv">
       <p class="label">Location</p>
@@ -1284,7 +1650,6 @@ section{position:relative}
     </div>
 
     <div class="loc rv">
-
       <div>
         <div class="loc-list">
           <div class="loc-item">
@@ -1306,9 +1671,7 @@ section{position:relative}
         </div>
 
         <a class="tlink" href="https://www.google.com/maps/search/Jaydev+Vihar+Bhubaneswar+Odisha+751013"
-           target="_blank" rel="noopener">Get directions
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-        </a>
+           target="_blank" rel="noopener">Get directions <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg></a>
       </div>
 
       <div>
@@ -1320,7 +1683,6 @@ section{position:relative}
         </div>
         <p class="map-note">5 min from Kalinga Hospital</p>
       </div>
-
     </div>
   </div>
 </section>
@@ -1335,7 +1697,7 @@ section{position:relative}
     <a class="btn btn-primary btn-lg"
        href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20book%20my%20free%20trial."
        target="_blank" rel="noopener">
-      Book Free Trial <span class="arw" aria-hidden="true">&rarr;</span>
+      Book Free Trial <svg class="ic" aria-hidden="true"><use href="#i-arr"/></svg>
     </a>
     <p class="fine">No credit card. No commitment. Just show up.</p>
   </div>
@@ -1349,20 +1711,15 @@ section{position:relative}
 <footer class="ftr">
   <div class="wrap">
     <div class="ftr-top">
-
       <div class="ftr-brand">
         <span class="mark">FIT<span>ZONE</span></span>
         <p>Serious training. Real results. Zero fluff. Jaydev Vihar, Bhubaneswar.</p>
         <div class="socials">
           <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="FitZone on Instagram">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
-              <rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/>
-            </svg>
+            <svg class="ic" aria-hidden="true"><use href="#i-ig"/></svg>
           </a>
           <a href="https://youtube.com" target="_blank" rel="noopener" aria-label="FitZone on YouTube">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
-              <rect x="2" y="5" width="20" height="14" rx="4.5"/><path d="M10.2 9.2l4.8 2.8-4.8 2.8z"/>
-            </svg>
+            <svg class="ic" aria-hidden="true"><use href="#i-yt"/></svg>
           </a>
         </div>
       </div>
@@ -1372,14 +1729,14 @@ section{position:relative}
           <h4 class="label">Programs</h4>
           <a href="#programs">Strength Training</a>
           <a href="#programs">HIIT &amp; Conditioning</a>
-          <a href="#programs">Personal Training</a>
+          <a href="#posters">The Six-Day Split</a>
           <a href="#schedule">Group Classes</a>
         </div>
         <div class="ftr-col">
           <h4 class="label">About</h4>
           <a href="#trainers">Our Coaches</a>
           <a href="#reviews">Member Reviews</a>
-          <a href="#schedule">Class Schedule</a>
+          <a href="#faq">FAQ</a>
           <a href="#membership">Membership</a>
         </div>
         <div class="ftr-col">
@@ -1396,7 +1753,6 @@ section{position:relative}
           <a href="#membership">Membership Terms</a>
         </div>
       </div>
-
     </div>
 
     <div class="ftr-btm">
@@ -1407,7 +1763,7 @@ section{position:relative}
 </footer>
 
 <button class="totop" id="totop" aria-label="Back to top">
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+  <svg class="ic" aria-hidden="true"><use href="#i-up"/></svg>
 </button>
 
 <script>
@@ -1415,35 +1771,54 @@ section{position:relative}
   'use strict';
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var WA = 'https://wa.me/919876543210?text=';
 
-  /* ---------- Header state + back-to-top visibility ----------
-     One scroll listener, rAF-throttled, so scrolling stays at 60fps. */
-  var hdr    = document.getElementById('hdr');
-  var toTop  = document.getElementById('totop');
-  var ticking = false;
+  /* ============================================================
+     1. Scroll-driven UI — progress bar, header, back-to-top,
+        hero parallax and hero fade.
+        All of it rides ONE rAF-throttled listener so we never
+        thrash layout on scroll.
+     ============================================================ */
+  var hdr      = document.getElementById('hdr');
+  var prog     = document.getElementById('prog');
+  var toTop    = document.getElementById('totop');
+  var heroGrid = document.getElementById('heroGrid');
+  var heroFade = document.getElementById('heroFade');
+  var ticking  = false;
 
   function onScroll() {
-    var y = window.scrollY || window.pageYOffset;
+    var y  = window.scrollY || window.pageYOffset;
+    var vh = window.innerHeight;
+    var max = document.documentElement.scrollHeight - vh;
+
+    prog.style.transform = 'scaleX(' + (max > 0 ? Math.min(y / max, 1) : 0) + ')';
     hdr.classList.toggle('stuck', y > 24);
-    toTop.classList.toggle('show', y > window.innerHeight * 0.85);
+    toTop.classList.toggle('show', y > vh * 0.85);
+
+    // Only touch the hero while it is actually on screen.
+    if (!reduced && y < vh) {
+      heroGrid.style.transform = 'translate3d(0,' + (y * 0.22) + 'px,0)';
+      heroFade.style.opacity   = String(Math.max(1 - y / (vh * 0.75), 0));
+      heroFade.style.transform = 'translate3d(0,' + (y * 0.06) + 'px,0)';
+    }
     ticking = false;
   }
 
   window.addEventListener('scroll', function () {
-    if (!ticking) {
-      ticking = true;
-      window.requestAnimationFrame(onScroll);
-    }
+    if (!ticking) { ticking = true; window.requestAnimationFrame(onScroll); }
   }, { passive: true });
-
   onScroll();
 
-  /* ---------- Back to top ---------- */
   toTop.addEventListener('click', function () {
     window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
   });
 
-  /* ---------- Mobile drawer ---------- */
+  // Kick off the hero headline reveal once styles have settled.
+  requestAnimationFrame(function () { document.body.classList.add('ready'); });
+
+  /* ============================================================
+     2. Mobile drawer
+     ============================================================ */
   var burger = document.getElementById('burger');
   var drawer = document.getElementById('drawer');
 
@@ -1456,42 +1831,214 @@ section{position:relative}
   burger.addEventListener('click', function () {
     setMenu(burger.getAttribute('aria-expanded') !== 'true');
   });
-
-  // Close the drawer after tapping any link inside it.
   drawer.addEventListener('click', function (e) {
     if (e.target.closest('a')) { setMenu(false); }
   });
-
-  // Escape closes the drawer and returns focus to the toggle.
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && burger.getAttribute('aria-expanded') === 'true') {
-      setMenu(false);
-      burger.focus();
+      setMenu(false); burger.focus();
     }
   });
-
-  // Never leave the drawer open when we cross into the desktop layout.
   window.matchMedia('(min-width: 900px)').addEventListener('change', function (e) {
     if (e.matches) { setMenu(false); }
   });
 
-  /* ---------- Reveal on scroll (fires once per element) ---------- */
-  var targets = document.querySelectorAll('.rv');
+  /* ============================================================
+     3. Workout posters — tap to slide the session up.
+        Only one open at a time so the grid stays readable.
+     ============================================================ */
+  var posters = document.querySelectorAll('.poster');
+  Array.prototype.forEach.call(posters, function (p) {
+    p.addEventListener('click', function () {
+      var open = p.getAttribute('aria-expanded') === 'true';
+      Array.prototype.forEach.call(posters, function (o) {
+        o.setAttribute('aria-expanded', 'false');
+      });
+      p.setAttribute('aria-expanded', open ? 'false' : 'true');
+    });
+  });
+
+  /* ============================================================
+     4. FAQ accordion
+     ============================================================ */
+  var faqBtns = document.querySelectorAll('.qa-q');
+  Array.prototype.forEach.call(faqBtns, function (b) {
+    b.addEventListener('click', function () {
+      var qa   = b.parentElement;
+      var open = qa.classList.contains('open');
+      qa.classList.toggle('open', !open);
+      b.setAttribute('aria-expanded', open ? 'false' : 'true');
+    });
+  });
+
+  /* ============================================================
+     5. Today's classes — highlight the live column / card.
+        Sun = 0 in JS; our table runs Mon..Sun, so remap.
+     ============================================================ */
+  (function highlightToday() {
+    var dow = new Date().getDay();          // 0 Sun .. 6 Sat
+    var col = dow === 0 ? 7 : dow;          // 1 Mon .. 7 Sun
+    var names = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+
+    var head = document.querySelector('.sched-table thead tr');
+    if (head && head.children[col]) { head.children[col].classList.add('today'); }
+
+    var rows = document.querySelectorAll('.sched-table tbody tr');
+    Array.prototype.forEach.call(rows, function (r) {
+      if (r.children[col]) { r.children[col].classList.add('today'); }
+    });
+
+    var cards = document.querySelectorAll('.sched-days .day');
+    if (cards[col - 1]) { cards[col - 1].classList.add('today'); }
+
+    var note = document.getElementById('schedNote');
+    if (note) { note.textContent = names[dow] + "'s classes are highlighted below."; }
+  })();
+
+  /* ============================================================
+     6. Find Your Program
+        Three answers in, one recommendation + a WhatsApp message
+        that already says what they picked. That message is the
+        whole point — it starts a real conversation.
+     ============================================================ */
+  (function programFinder() {
+    var quiz = document.getElementById('quiz');
+    if (!quiz) { return; }
+
+    var steps  = quiz.querySelectorAll('.quiz-step');
+    var dots   = quiz.querySelectorAll('.quiz-dots i');
+    var count  = document.getElementById('quizCount');
+    var res    = document.getElementById('quizRes');
+    var answers = {};
+
+    var PROGRAMS = {
+      strength: {
+        icon: '#i-dumbbell',
+        name: 'Strength Training',
+        body: 'Compound lifts, programmed properly, with a coach correcting you before the bar teaches you the hard way. You run our six-day split at whatever frequency fits your week.'
+      },
+      fatloss: {
+        icon: '#i-pulse',
+        name: 'HIIT & Conditioning + Nutrition',
+        body: 'Conditioning work you can actually sustain, paired with nutrition coaching. Training burns the calories; the food plan is what keeps the weight off.'
+      },
+      mobility: {
+        icon: '#i-refresh',
+        name: 'Mobility & Recovery + Group Classes',
+        body: 'Hips, T-spine and shoulders first, load second. Yoga and mobility sessions rebuild the range you have lost, then we add strength on top of it.'
+      }
+    };
+
+    var PLANS = {
+      low:  { name: 'Monthly · ₹2,500',        why: 'Two or three days a week does not need a long commitment yet.' },
+      mid:  { name: 'Quarterly · ₹6,500',      why: 'Four to five days a week is where the quarterly plan pays for itself.' },
+      high: { name: 'Annual · ₹22,000',        why: 'At six-plus days a week the annual plan is the cheapest way to train here.' }
+    };
+
+    var STEPS = {
+      new:  'Two intro PT sessions with Rakesh to learn the lifts',
+      some: 'A movement assessment, then straight into group classes',
+      pro:  'Karan programs your first 12-week block'
+    };
+
+    function show(i) {
+      Array.prototype.forEach.call(steps, function (s, n) { s.classList.toggle('on', n === i); });
+      Array.prototype.forEach.call(dots,  function (d, n) { d.classList.toggle('on', n <= i); });
+      count.textContent = 'Question ' + (i + 1) + ' of 3';
+      res.classList.remove('on');
+    }
+
+    function finish() {
+      var prog = PROGRAMS[answers.goal];
+      var plan = PLANS[answers.days];
+      var step = STEPS[answers.exp];
+
+      document.getElementById('resIcon').querySelector('use').setAttribute('href', prog.icon);
+      document.getElementById('resTitle').textContent = prog.name;
+      document.getElementById('resBody').textContent  = prog.body + ' ' + plan.why;
+      document.getElementById('resPlan').textContent  = plan.name;
+      document.getElementById('resStep').textContent  = step;
+
+      document.getElementById('resCta').href = WA + encodeURIComponent(
+        'Hi FitZone, I used the program finder on your site. It suggested ' +
+        prog.name + ' on the ' + plan.name.split(' · ')[0] +
+        ' plan, starting with: ' + step + '. I would like to book my free trial.'
+      );
+
+      Array.prototype.forEach.call(steps, function (s) { s.classList.remove('on'); });
+      Array.prototype.forEach.call(dots,  function (d) { d.classList.add('on'); });
+      count.textContent = 'Your result';
+      res.classList.add('on');
+    }
+
+    quiz.addEventListener('click', function (e) {
+      var opt = e.target.closest('.opt');
+      if (!opt) { return; }
+      answers[opt.dataset.q] = opt.dataset.v;
+
+      var i = Array.prototype.indexOf.call(steps, opt.closest('.quiz-step'));
+      if (i < steps.length - 1) { show(i + 1); } else { finish(); }
+    });
+
+    document.getElementById('resReset').addEventListener('click', function () {
+      answers = {};
+      show(0);
+    });
+  })();
+
+  /* ============================================================
+     7. Reveal on scroll + count-up stats.
+        Both ride one observer and unobserve after firing once.
+     ============================================================ */
+  var targets = document.querySelectorAll('.rv, .stag');
+
+  function countUp(el) {
+    var target = parseInt(el.dataset.count, 10);
+    var suffix = el.dataset.suffix || '';
+    if (reduced) { el.textContent = target + suffix; return; }
+
+    var dur = 1300, t0 = null;
+    function tick(ts) {
+      if (t0 === null) { t0 = ts; }
+      var p = Math.min((ts - t0) / dur, 1);
+      var eased = 1 - Math.pow(1 - p, 3);          // easeOutCubic
+      el.textContent = Math.round(target * eased) + suffix;
+      if (p < 1) { requestAnimationFrame(tick); }
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function activate(el) {
+    el.classList.add('in');
+    Array.prototype.forEach.call(el.querySelectorAll('[data-count]'), countUp);
+  }
 
   if (reduced || !('IntersectionObserver' in window)) {
-    // No observer support, or the visitor asked for less motion: show everything.
-    Array.prototype.forEach.call(targets, function (el) { el.classList.add('in'); });
+    Array.prototype.forEach.call(targets, activate);
     return;
   }
 
   var io = new IntersectionObserver(function (entries) {
     entries.forEach(function (entry) {
       if (entry.isIntersecting) {
-        entry.target.classList.add('in');
+        activate(entry.target);
         io.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+  }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
+
+  // A fast flick-scroll can outrun the observer, and a section that never
+  // fired would stay invisible. Sweep once on load and again after settle.
+  function rescue() {
+    Array.prototype.forEach.call(targets, function (el) {
+      if (el.classList.contains('in')) { return; }
+      var r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) { activate(el); io.unobserve(el); }
+    });
+  }
+  window.addEventListener('load', rescue);
+  window.addEventListener('resize', rescue, { passive: true });
+  setTimeout(rescue, 400);
 
   Array.prototype.forEach.call(targets, function (el) { io.observe(el); });
 })();
