@@ -105,7 +105,12 @@ For every automation, briefly answer:
 - **FitZone Gym** portfolio at `/portfolio/fitzone-gym/` — third demo site
   (dark athletic aesthetic, lime accent). Completes the portfolio trio:
   dental (healthcare), real estate (luxury), fitness (athletic).
-  Hand-written CSS, no Tailwind CDN, no image files — 63KB total.
+  Hand-written CSS, no Tailwind CDN, no image files — 98KB / 21KB gzipped.
+  Two reusable pieces worth lifting into other builds: the **workout
+  posters** (tap-to-reveal detail cards, pure CSS/SVG — works for any
+  "show the actual thing" section) and the **3-question finder quiz**
+  that ends in a pre-filled WhatsApp message. That quiz pattern is the
+  lead-gen mechanic to reuse across every local-business site.
 
 ## Internal Tools
 - **Focus Loop** at `/tools/focus-loop/` — Anshuman's personal AI coach,
