@@ -77,8 +77,8 @@ Tested in headless Chromium at 380 / 414 / 560 / 768 / 1024 / 1440px:
 ## Customise for a Real Client
 
 Replace in `index.html`:
-- `919876543210` → client's WhatsApp number (appears in every CTA + footer)
-- `+91 98 7654 3210` / `hello@fitzonegym.in` → real contact details
+- `917749034669` → client's WhatsApp number (appears in every CTA + footer; currently Anshuman's, so demo enquiries land with NoirFlow)
+- `+91 77490 34669` / `anshumantripathy2009@gmail.com` → real contact details
 - `--lime: #a3e635` → client's brand accent (one variable, recolours the whole site)
 - Coach names, initials (`KM` / `PN` / `RP`), roles and bios
 - Pricing tiers and feature bullets
