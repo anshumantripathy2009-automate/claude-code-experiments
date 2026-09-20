@@ -101,6 +101,12 @@ For every automation, briefly answer:
 - **NoirFlow story page** at `/demos/noirflow-story/` — brand hero for
   NoirFlow.ai. Cinematic 4-scene scroll, no images, pure CSS/SVG.
 
+## Portfolio Sites
+- **FitZone Gym** portfolio at `/portfolio/fitzone-gym/` — third demo site
+  (dark athletic aesthetic, lime accent). Completes the portfolio trio:
+  dental (healthcare), real estate (luxury), fitness (athletic).
+  Hand-written CSS, no Tailwind CDN, no image files — 63KB total.
+
 ## Internal Tools
 - **Focus Loop** at `/tools/focus-loop/` — Anshuman's personal AI coach,
   classroom, and NoirFlow advisor. Founder is user #1. Future SaaS candidate

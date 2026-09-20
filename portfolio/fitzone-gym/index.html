@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>FitZone Gym | Premium Strength &amp; Conditioning Studio in Bhubaneswar</title>
+<meta name="description" content="Serious strength, HIIT, and mobility training in Jaydev Vihar, Bhubaneswar. 3 certified coaches, 240+ members, open 6 AM–10 PM daily. Book a free trial.">
+
+<meta property="og:title" content="FitZone Gym | Train like it matters.">
+<meta property="og:description" content="Premium strength, conditioning and mobility training in Bhubaneswar. No mirror flexing. No wasted reps. Book a free trial.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://fitzonegym.in/">
+<meta name="theme-color" content="#0a0a0a">
+
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3e635' stroke-width='2' stroke-linecap='round'><path d='M6.5 6.5v11M3 9v6M17.5 6.5v11M21 9v6M6.5 12h11'/></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   FitZone Gym — single-file site
+   Hand-written CSS (no framework) to keep total page weight
+   well under 100KB and first paint under 1s on 4G.
+   ============================================================ */
+
+/* ---------- Design tokens ---------- */
+:root{
+  --bg:#0a0a0a;
+  --bg-warm:#0d0c0b;          /* near-black with a touch of warmth */
+  --surface:#171717;          /* zinc-900 */
+  --surface-2:#1c1c1c;
+  --border:#27272a;           /* zinc-800 */
+  --white:#ffffff;
+  --zinc-400:#a1a1aa;
+  --zinc-500:#71717a;
+  --zinc-600:#52525b;
+  --lime:#a3e635;             /* signature accent */
+  --lime-dim:rgba(163,230,53,.14);
+  --orange:#fb923c;           /* single warm accent — energy indicator */
+
+  --r-card:12px;
+  --r-btn:8px;
+
+  --gut:20px;                 /* mobile side gutter */
+  --maxw:1200px;
+
+  --ease:cubic-bezier(.22,1,.36,1);
+}
+
+/* ---------- Reset ---------- */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;scroll-padding-top:88px}
+body{
+  background:var(--bg);
+  color:var(--white);
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  font-size:16px;
+  line-height:1.6;
+  font-weight:400;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow-x:hidden;
+}
+img,svg{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+ul{list-style:none}
+table{border-collapse:collapse;width:100%}
+
+/* ---------- Focus ---------- */
+:focus{outline:none}
+:focus-visible{
+  outline:2px solid var(--lime);
+  outline-offset:3px;
+  border-radius:4px;
+}
+
+.skip{
+  position:absolute;left:var(--gut);top:-60px;z-index:200;
+  background:var(--lime);color:#0a0a0a;font-weight:600;
+  padding:10px 18px;border-radius:var(--r-btn);
+  transition:top .2s var(--ease);
+}
+.skip:focus{top:14px}
+
+/* ---------- Typography helpers ---------- */
+.h-display{
+  font-weight:600;
+  letter-spacing:-.04em;
+  line-height:1.04;
+}
+.label{
+  font-size:11px;
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:.15em;
+  color:var(--zinc-500);
+}
+.mono{font-family:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace}
+.muted{color:var(--zinc-400)}
+.dim{color:var(--zinc-600)}
+.lime{color:var(--lime)}
+
+/* ---------- Layout ---------- */
+.wrap{
+  width:100%;
+  max-width:var(--maxw);
+  margin-inline:auto;
+  padding-inline:var(--gut);
+}
+section{position:relative}
+.sec{padding-block:88px}
+
+.sec-head{max-width:640px;margin-bottom:44px}
+.sec-head h2{
+  font-size:clamp(30px,6.4vw,48px);
+  margin:14px 0 14px;
+}
+.sec-head p{color:var(--zinc-400);font-size:17px;max-width:46ch}
+
+/* ---------- Buttons ---------- */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  min-height:48px;
+  padding:13px 24px;
+  border-radius:var(--r-btn);
+  font-size:15px;font-weight:600;letter-spacing:-.01em;
+  border:1px solid transparent;
+  transition:transform .25s var(--ease),box-shadow .25s var(--ease),
+             background-color .25s var(--ease),border-color .25s var(--ease),
+             color .25s var(--ease);
+  will-change:transform;
+}
+.btn-primary{background:var(--lime);color:#0a0a0a;border-color:var(--lime)}
+.btn-primary:hover{
+  transform:scale(1.02);
+  box-shadow:0 0 0 1px rgba(163,230,53,.5),0 10px 34px -8px rgba(163,230,53,.45);
+}
+.btn-ghost{background:transparent;color:var(--white);border-color:#3f3f46}
+.btn-ghost:hover{
+  transform:scale(1.02);
+  border-color:var(--lime);
+  color:var(--lime);
+  box-shadow:0 0 28px -12px rgba(163,230,53,.6);
+}
+.btn-sm{min-height:40px;padding:9px 16px;font-size:13.5px}
+.btn-lg{min-height:56px;padding:17px 32px;font-size:16.5px}
+.btn .arw{transition:transform .25s var(--ease)}
+.btn:hover .arw{transform:translateX(3px)}
+
+/* Text link with arrow */
+.tlink{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:13.5px;font-weight:500;color:var(--zinc-400);
+  transition:color .2s var(--ease);
+}
+.tlink svg{transition:transform .25s var(--ease)}
+.tlink:hover{color:var(--lime)}
+.tlink:hover svg{transform:translateX(3px)}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+.hdr{
+  position:fixed;inset:0 0 auto 0;z-index:100;
+  background:transparent;
+  border-bottom:1px solid transparent;
+  transition:background-color .3s var(--ease),border-color .3s var(--ease),
+             backdrop-filter .3s var(--ease);
+}
+.hdr.stuck{
+  background:rgba(10,10,10,.88);
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+  border-bottom-color:var(--border);
+}
+.hdr-in{
+  display:flex;align-items:center;justify-content:space-between;
+  height:72px;
+}
+.mark{
+  font-size:19px;font-weight:600;letter-spacing:-.03em;
+  color:var(--white);
+}
+.mark span{color:var(--lime)}
+
+.nav{display:none;align-items:center;gap:30px}
+.nav a{
+  font-size:14px;font-weight:500;color:var(--zinc-400);
+  transition:color .2s var(--ease);
+}
+.nav a:hover{color:var(--white)}
+
+.hdr-right{display:flex;align-items:center;gap:10px}
+.hdr .btn-primary{display:none}
+.hdr .btn-primary{padding-inline:15px}
+
+/* Hamburger */
+.burger{
+  display:inline-flex;flex-direction:column;justify-content:center;gap:5px;
+  width:44px;height:44px;align-items:center;
+  border:1px solid var(--border);border-radius:var(--r-btn);
+  background:rgba(23,23,23,.6);
+}
+.burger i{
+  display:block;width:17px;height:1.5px;background:var(--white);
+  transition:transform .3s var(--ease),opacity .2s var(--ease);
+}
+.burger[aria-expanded="true"] i:nth-child(1){transform:translateY(6.5px) rotate(45deg)}
+.burger[aria-expanded="true"] i:nth-child(2){opacity:0}
+.burger[aria-expanded="true"] i:nth-child(3){transform:translateY(-6.5px) rotate(-45deg)}
+
+/* Mobile drawer */
+.drawer{
+  position:fixed;left:0;right:0;top:72px;z-index:99;
+  background:rgba(10,10,10,.97);
+  backdrop-filter:blur(16px);
+  -webkit-backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  padding:8px var(--gut) 24px;
+  display:grid;
+  transform:translateY(-12px);
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .25s var(--ease),transform .25s var(--ease),visibility .25s;
+}
+.drawer.open{opacity:1;visibility:visible;transform:none;pointer-events:auto}
+.drawer a{
+  padding:15px 2px;
+  font-size:17px;font-weight:500;letter-spacing:-.02em;
+  border-bottom:1px solid #1c1c1c;
+  color:var(--zinc-400);
+  transition:color .2s var(--ease);
+}
+.drawer a:hover{color:var(--white)}
+.drawer .btn{margin-top:20px;width:100%}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  position:relative;
+  min-height:100svh;
+  display:flex;align-items:center;
+  padding-top:96px;padding-bottom:64px;
+  overflow:hidden;
+  /* subtle warm-dark gradient: lighter at top, pure black at the base */
+  background:
+    radial-gradient(120% 78% at 50% -8%, #1a1917 0%, #121110 34%, #0a0a0a 72%);
+}
+/* faint grid overlay, masked so it dissolves toward the bottom */
+.hero::before{
+  content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.055) 1px, transparent 1px);
+  background-size:64px 64px;
+  -webkit-mask-image:radial-gradient(90% 62% at 50% 22%, #000 0%, transparent 78%);
+  mask-image:radial-gradient(90% 62% at 50% 22%, #000 0%, transparent 78%);
+  pointer-events:none;
+}
+/* single warm accent bloom, top-left */
+.hero::after{
+  content:"";position:absolute;left:-14%;top:-12%;
+  width:60vw;height:60vw;max-width:620px;max-height:620px;
+  background:radial-gradient(circle, rgba(251,146,60,.11) 0%, transparent 66%);
+  pointer-events:none;
+}
+.hero-in{position:relative;z-index:2;width:100%}
+
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:10px;
+  margin-bottom:26px;
+}
+.pulse{
+  position:relative;width:7px;height:7px;border-radius:50%;
+  background:var(--orange);flex:none;
+}
+.pulse::after{
+  content:"";position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid rgba(251,146,60,.55);
+  animation:ring 2.4s var(--ease) infinite;
+}
+@keyframes ring{
+  0%{transform:scale(.6);opacity:.9}
+  70%{transform:scale(1.55);opacity:0}
+  100%{opacity:0}
+}
+
+.hero h1{
+  font-size:clamp(44px,12.4vw,104px);
+  max-width:22ch;          /* keeps the headline to two lines on desktop */
+  margin-bottom:26px;
+}
+.hero h1 .l2{display:block;color:var(--white)}
+.hero-sub{
+  font-size:clamp(16.5px,4.2vw,20px);
+  color:var(--zinc-400);
+  max-width:34rem;
+  margin-bottom:36px;
+}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:30px}
+.hero-cta .btn{flex:1 1 auto;min-width:172px}
+.hero-trust{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  font-size:13.5px;color:var(--zinc-500);
+}
+.hero-trust b{color:var(--zinc-400);font-weight:500}
+.hero-trust .sep{color:#3f3f46}
+
+/* ============================================================
+   STATS BAR
+   ============================================================ */
+.stats{
+  background:var(--surface);
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+}
+.stats-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:0;
+  padding-block:8px;
+}
+.stat{padding:26px 4px;position:relative}
+.stat + .stat{border-top:1px solid #222}
+.stat-n{
+  font-size:clamp(24px,6vw,32px);
+  font-weight:700;letter-spacing:-.03em;line-height:1.1;
+  color:var(--white);
+  margin-bottom:8px;
+  white-space:nowrap;
+}
+.stat-l{font-size:12px}
+
+/* ============================================================
+   PROGRAMS
+   ============================================================ */
+.cards{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.card{
+  position:relative;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-card);
+  padding:22px 18px 20px;
+  display:flex;flex-direction:column;
+  transition:transform .3s var(--ease),border-color .3s var(--ease),
+             box-shadow .3s var(--ease),background-color .3s var(--ease);
+  will-change:transform;
+}
+.card:hover,.card:focus-within{
+  transform:translateY(-4px);
+  border-color:var(--lime);
+  background:var(--surface-2);
+  box-shadow:0 18px 44px -20px rgba(0,0,0,.9),0 0 0 1px rgba(163,230,53,.18);
+}
+.card-ico{
+  width:42px;height:42px;
+  display:grid;place-items:center;
+  border:1px solid var(--border);
+  border-radius:10px;
+  color:var(--lime);
+  margin-bottom:18px;
+  transition:border-color .3s var(--ease),background-color .3s var(--ease);
+}
+.card:hover .card-ico{border-color:rgba(163,230,53,.4);background:var(--lime-dim)}
+.card h3{
+  font-size:clamp(16px,4vw,19px);
+  font-weight:600;letter-spacing:-.025em;line-height:1.25;
+  margin-bottom:9px;
+}
+.card p{font-size:14px;color:var(--zinc-400);margin-bottom:18px;flex:1}
+
+/* ============================================================
+   PRICING
+   ============================================================ */
+.plans{display:grid;gap:16px}
+.plan{
+  position:relative;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-card);
+  padding:28px 22px;
+  display:flex;flex-direction:column;
+  transition:transform .3s var(--ease),border-color .3s var(--ease),box-shadow .3s var(--ease);
+}
+.plan:hover{
+  transform:translateY(-4px);
+  border-color:var(--lime);
+  box-shadow:0 20px 50px -24px rgba(0,0,0,.95);
+}
+.plan.featured{
+  border-color:var(--lime);
+  box-shadow:0 0 0 1px rgba(163,230,53,.22),0 0 60px -26px rgba(163,230,53,.55);
+  background:linear-gradient(180deg,rgba(163,230,53,.045) 0%,var(--surface) 46%);
+}
+.badge{
+  position:absolute;top:-11px;left:22px;
+  background:var(--lime);color:#0a0a0a;
+  font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;
+  padding:5px 11px;border-radius:999px;
+}
+.plan-name{font-size:14px;font-weight:600;letter-spacing:-.01em;margin-bottom:14px}
+.price{
+  font-size:clamp(32px,8vw,40px);
+  font-weight:700;letter-spacing:-.045em;line-height:1;
+  color:var(--white);
+}
+.price small{font-size:14px;font-weight:400;color:var(--zinc-500);letter-spacing:0}
+.price-note{font-size:12.5px;color:var(--zinc-600);margin-top:8px}
+.plan-tag{font-size:14px;color:var(--zinc-400);margin:16px 0 20px}
+.feats{display:grid;gap:11px;margin-bottom:26px;flex:1}
+.feats li{
+  display:flex;gap:10px;align-items:flex-start;
+  font-size:14px;color:var(--zinc-400);
+}
+.feats svg{flex:none;margin-top:4px;color:var(--lime)}
+.plan .btn{width:100%}
+
+/* ============================================================
+   TRAINERS
+   ============================================================ */
+.coaches{display:grid;gap:16px}
+.coach{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-card);
+  overflow:hidden;
+  transition:transform .3s var(--ease),border-color .3s var(--ease),box-shadow .3s var(--ease);
+}
+.coach:hover,.coach:focus-within{
+  transform:translateY(-4px);
+  border-color:var(--lime);
+  box-shadow:0 20px 50px -24px rgba(0,0,0,.95);
+}
+/* placeholder "photo" block — gradient + oversized initials */
+.coach-img{
+  position:relative;
+  aspect-ratio:4/3;
+  display:grid;place-items:center;
+  background:
+    radial-gradient(120% 100% at 30% 0%, #232321 0%, #141414 52%, #0d0d0d 100%);
+  border-bottom:1px solid var(--border);
+  overflow:hidden;
+}
+.coach-img::before{
+  content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px);
+  background-size:36px 36px;
+  -webkit-mask-image:linear-gradient(to bottom,#000,transparent);
+  mask-image:linear-gradient(to bottom,#000,transparent);
+}
+.coach-init{
+  position:relative;
+  font-size:clamp(48px,13vw,62px);
+  font-weight:700;letter-spacing:-.06em;
+  color:var(--lime);
+  opacity:.9;
+  transition:transform .4s var(--ease),opacity .3s var(--ease);
+}
+.coach:hover .coach-init{transform:scale(1.06);opacity:1}
+.coach-tag{
+  position:absolute;bottom:10px;left:12px;
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--zinc-600);
+}
+.coach-body{padding:20px 18px}
+.coach-body h3{font-size:19px;font-weight:600;letter-spacing:-.03em;margin-bottom:7px}
+.coach-role{margin-bottom:12px;color:var(--lime);opacity:.85}
+.coach-body p{font-size:14px;color:var(--zinc-400);margin-bottom:16px}
+
+/* ============================================================
+   SCHEDULE
+   ============================================================ */
+.sched-wrap{
+  border:1px solid var(--border);
+  border-radius:var(--r-card);
+  background:var(--surface);
+  overflow:hidden;
+}
+/* desktop table */
+.sched-table{display:none}
+.sched-table th,.sched-table td{
+  padding:16px 10px;
+  text-align:center;
+  border-bottom:1px solid #202020;
+  font-size:13.5px;
+}
+.sched-table thead th{
+  font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:.15em;
+  color:var(--zinc-500);
+  background:#131313;
+  border-bottom:1px solid var(--border);
+}
+.sched-table tbody tr:last-child td{border-bottom:none}
+.sched-table tbody tr:hover td{background:rgba(163,230,53,.035)}
+.sched-time{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12.5px !important;
+  color:var(--white);
+  text-align:left !important;
+  white-space:nowrap;
+  background:#131313;
+  border-right:1px solid var(--border);
+  padding-left:18px !important;
+}
+.cls{
+  display:inline-block;
+  padding:5px 11px;border-radius:999px;
+  border:1px solid transparent;
+  color:var(--zinc-400);
+  font-weight:500;
+  transition:color .2s var(--ease),border-color .2s var(--ease),background-color .2s var(--ease);
+  cursor:default;
+}
+.cls:hover{color:var(--lime);border-color:rgba(163,230,53,.35);background:var(--lime-dim)}
+.cls.off{color:#3f3f46}
+.cls.off:hover{color:#3f3f46;border-color:transparent;background:none}
+
+/* mobile day cards */
+.sched-days{display:grid}
+.day{padding:18px;border-bottom:1px solid #202020}
+.day:last-child{border-bottom:none}
+.day-h{
+  display:flex;align-items:baseline;justify-content:space-between;
+  margin-bottom:12px;
+}
+.day-h strong{font-size:15px;font-weight:600;letter-spacing:-.02em}
+.day-row{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:8px 0;
+  border-top:1px solid #1a1a1a;
+}
+.day-row:first-of-type{border-top:none}
+.day-row .t{
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;color:var(--zinc-500);white-space:nowrap;
+}
+.day-row .c{font-size:14px;font-weight:500;color:var(--white)}
+.day.rest .day-note{font-size:13.5px;color:var(--zinc-600)}
+
+/* ============================================================
+   TESTIMONIALS
+   ============================================================ */
+.quotes{display:grid;gap:14px}
+.quote{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r-card);
+  padding:24px 20px;
+  transition:transform .3s var(--ease),border-color .3s var(--ease),box-shadow .3s var(--ease);
+}
+.quote:hover{
+  transform:translateY(-4px);
+  border-color:var(--lime);
+  box-shadow:0 20px 50px -24px rgba(0,0,0,.95);
+}
+.stars{display:flex;gap:3px;margin-bottom:16px;color:var(--lime)}
+.quote blockquote{
+  font-size:16px;font-style:italic;line-height:1.55;letter-spacing:-.015em;
+  color:var(--white);margin-bottom:18px;
+}
+.quote figcaption{font-size:13px;color:var(--zinc-500)}
+.quote figcaption b{color:var(--zinc-400);font-weight:500}
+.reviews-link{
+  display:inline-flex;align-items:center;gap:9px;
+  margin-top:26px;
+  font-size:14px;color:var(--zinc-400);
+  transition:color .2s var(--ease);
+}
+.reviews-link:hover{color:var(--lime)}
+
+/* ============================================================
+   LOCATION
+   ============================================================ */
+.loc{display:grid;gap:28px}
+.loc-list{display:grid;gap:22px;margin-bottom:26px}
+.loc-item .label{display:block;margin-bottom:7px}
+.loc-item p,.loc-item a{font-size:16px;color:var(--white);line-height:1.5}
+.loc-item a:hover{color:var(--lime)}
+.map{
+  position:relative;
+  aspect-ratio:4/3;
+  border:1px solid var(--border);
+  border-radius:var(--r-card);
+  background:radial-gradient(110% 90% at 50% 40%, #1a1a1a 0%, #111 55%, #0c0c0c 100%);
+  overflow:hidden;
+  display:grid;place-items:center;
+}
+.map::before{
+  content:"";position:absolute;inset:0;
+  background-image:
+    linear-gradient(to right, rgba(255,255,255,.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,.045) 1px, transparent 1px);
+  background-size:40px 40px;
+}
+/* a couple of faint "roads" so it reads as a map, not a texture */
+.map::after{
+  content:"";position:absolute;inset:0;
+  background:
+    linear-gradient(115deg, transparent 47.4%, rgba(255,255,255,.085) 47.4%, rgba(255,255,255,.085) 48.4%, transparent 48.4%),
+    linear-gradient(15deg, transparent 63%, rgba(255,255,255,.06) 63%, rgba(255,255,255,.06) 63.9%, transparent 63.9%);
+}
+.pin{position:relative;z-index:2;display:grid;place-items:center;justify-items:center}
+.pin-dot{
+  position:relative;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--lime);
+  box-shadow:0 0 0 5px rgba(163,230,53,.18),0 0 26px rgba(163,230,53,.5);
+}
+.pin-dot::after{
+  content:"";position:absolute;inset:-11px;border-radius:50%;
+  border:1px solid rgba(163,230,53,.5);
+  animation:ring 2.8s var(--ease) infinite;
+}
+.pin-label{
+  margin-top:16px;
+  font-size:12px;font-weight:600;letter-spacing:.06em;
+  background:rgba(10,10,10,.85);
+  border:1px solid var(--border);
+  border-radius:999px;
+  padding:7px 14px;
+  white-space:nowrap;
+}
+.map-note{margin-top:12px;font-size:13px;color:var(--zinc-600);text-align:center}
+
+/* ============================================================
+   FINAL CTA
+   ============================================================ */
+.final{
+  border-top:1px solid var(--border);
+  background:radial-gradient(100% 120% at 50% 100%, #161513 0%, #0c0c0b 48%, #0a0a0a 100%);
+  text-align:center;
+  padding-block:100px;
+  overflow:hidden;
+}
+.final h2{
+  font-size:clamp(42px,13vw,104px);
+  margin-bottom:22px;
+}
+.final p{
+  font-size:clamp(16px,4.2vw,19px);
+  color:var(--zinc-400);
+  max-width:30rem;margin:0 auto 36px;
+}
+.final .btn{margin-bottom:20px}
+.final .fine{font-size:13px;color:var(--zinc-600)}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.ftr{border-top:1px solid var(--border);background:var(--bg);padding-block:56px 34px}
+.ftr-top{display:grid;gap:36px;margin-bottom:44px}
+.ftr-brand p{font-size:14px;color:var(--zinc-500);max-width:30ch;margin-top:14px}
+.ftr-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px}
+.ftr-col h4{margin-bottom:14px}
+.ftr-col a{
+  display:block;padding:5px 0;
+  font-size:14px;color:var(--zinc-500);
+  transition:color .2s var(--ease);
+}
+.ftr-col a:hover{color:var(--lime)}
+.socials{display:flex;gap:10px;margin-top:20px}
+.socials a{
+  width:40px;height:40px;
+  display:grid;place-items:center;
+  border:1px solid var(--border);border-radius:10px;
+  color:var(--zinc-500);
+  transition:color .2s var(--ease),border-color .2s var(--ease),transform .25s var(--ease);
+}
+.socials a:hover{color:var(--lime);border-color:var(--lime);transform:translateY(-2px)}
+.ftr-btm{
+  border-top:1px solid #1a1a1a;padding-top:24px;
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;
+  font-size:12.5px;color:var(--zinc-600);
+}
+.ftr-btm a{color:var(--zinc-500);transition:color .2s var(--ease)}
+.ftr-btm a:hover{color:var(--lime)}
+
+/* ============================================================
+   BACK TO TOP
+   ============================================================ */
+.totop{
+  position:fixed;right:16px;bottom:16px;z-index:90;
+  width:46px;height:46px;
+  display:grid;place-items:center;
+  border:1px solid var(--border);border-radius:12px;
+  background:rgba(23,23,23,.92);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  color:var(--lime);
+  opacity:0;visibility:hidden;transform:translateY(10px);
+  transition:opacity .3s var(--ease),transform .3s var(--ease),
+             visibility .3s,border-color .2s var(--ease),box-shadow .2s var(--ease);
+}
+.totop.show{opacity:1;visibility:visible;transform:none}
+.totop:hover{border-color:var(--lime);box-shadow:0 0 26px -10px rgba(163,230,53,.7)}
+
+/* ============================================================
+   SCROLL REVEAL
+   ============================================================ */
+.rv{opacity:0;transform:translateY(18px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.rv.in{opacity:1;transform:none}
+
+/* ============================================================
+   BREAKPOINTS
+   ============================================================ */
+@media (min-width:420px){
+  .hdr .btn-primary{display:inline-flex}
+}
+
+@media (min-width:640px){
+  :root{--gut:28px}
+  .sec{padding-block:100px}
+  .stats-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .stat{padding:34px 22px}
+  .stat + .stat{border-top:none;border-left:1px solid var(--border)}
+  /* thin lime divider accent between stats */
+  .stat + .stat::before{
+    content:"";position:absolute;left:-1px;top:50%;transform:translateY(-50%);
+    width:1px;height:34px;background:var(--lime);opacity:.75;
+  }
+  .card{padding:26px 22px 24px}
+  .quotes{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .coaches{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .hero-cta .btn{flex:0 0 auto}
+  .ftr-cols{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+
+@media (min-width:900px){
+  :root{--gut:40px}
+  .sec{padding-block:120px}
+  .sec-head{margin-bottom:56px}
+  .nav{display:flex}
+  .hdr .btn-primary{display:inline-flex}
+  .burger{display:none}
+  .drawer{display:none !important}
+  .cards{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+  .plans{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:stretch}
+  .plan.featured{transform:scale(1.025)}
+  .plan.featured:hover{transform:scale(1.025) translateY(-4px)}
+  .coaches{grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+  .quotes{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+  .loc{grid-template-columns:1fr 1fr;gap:56px;align-items:start}
+  .sched-table{display:table}
+  .sched-days{display:none}
+  .map{aspect-ratio:1/1}
+  .final{padding-block:140px}
+  .ftr-top{grid-template-columns:1fr 1.5fr;gap:60px}
+  .totop{right:28px;bottom:28px}
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{
+    animation-duration:.001ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.001ms !important;
+  }
+  .rv{opacity:1;transform:none}
+  .btn:hover,.card:hover,.plan:hover,.coach:hover,.quote:hover{transform:none}
+}
+</style>
+</head>
+
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header class="hdr" id="hdr">
+  <div class="wrap hdr-in">
+    <a href="#top" class="mark" aria-label="FitZone Gym — home">FIT<span>ZONE</span></a>
+
+    <nav class="nav" aria-label="Primary">
+      <a href="#top">Home</a>
+      <a href="#programs">Programs</a>
+      <a href="#trainers">Trainers</a>
+      <a href="#membership">Membership</a>
+      <a href="#contact">Contact</a>
+    </nav>
+
+    <div class="hdr-right">
+      <a class="btn btn-primary btn-sm"
+         href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20book%20a%20free%20trial%20session."
+         target="_blank" rel="noopener">Book Free Trial</a>
+      <button class="burger" id="burger" aria-expanded="false" aria-controls="drawer" aria-label="Open menu">
+        <i></i><i></i><i></i>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile drawer -->
+<div class="drawer" id="drawer">
+  <a href="#top">Home</a>
+  <a href="#programs">Programs</a>
+  <a href="#trainers">Trainers</a>
+  <a href="#membership">Membership</a>
+  <a href="#schedule">Schedule</a>
+  <a href="#contact">Contact</a>
+  <a class="btn btn-primary"
+     href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20book%20a%20free%20trial%20session."
+     target="_blank" rel="noopener">Book Free Trial</a>
+</div>
+
+<main id="main">
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<section class="hero" id="top">
+  <div class="wrap hero-in">
+    <p class="hero-eyebrow label"><span class="pulse" aria-hidden="true"></span>Bhubaneswar · Since 2023</p>
+
+    <h1 class="h-display">Train like it matters.<span class="l2">Because it does.</span></h1>
+
+    <p class="hero-sub">Serious strength, conditioning, and mobility training. No mirror flexing. No wasted reps.</p>
+
+    <div class="hero-cta">
+      <a class="btn btn-primary btn-lg"
+         href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20start%20a%20free%20trial."
+         target="_blank" rel="noopener">
+        Start Free Trial <span class="arw" aria-hidden="true">&rarr;</span>
+      </a>
+      <a class="btn btn-ghost btn-lg" href="#programs">See Programs</a>
+    </div>
+
+    <p class="hero-trust">
+      <span class="lime" aria-hidden="true">&#9733;</span>
+      <b>4.8</b><span class="sep">·</span><b>240+ Members</b><span class="sep">·</span><b>3 Certified Coaches</b>
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     STATS BAR
+     ============================================================ -->
+<section class="stats" aria-label="Gym at a glance">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat">
+        <p class="stat-n mono">240+</p>
+        <p class="stat-l label">Active Members</p>
+      </div>
+      <div class="stat">
+        <p class="stat-n mono">6:00 AM &ndash; 10:00 PM</p>
+        <p class="stat-l label">Every Single Day</p>
+      </div>
+      <div class="stat">
+        <p class="stat-n mono">3</p>
+        <p class="stat-l label">Certified Coaches</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PROGRAMS
+     ============================================================ -->
+<section class="sec" id="programs">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label">Programs</p>
+      <h2 class="h-display">Programs designed to make you stronger.</h2>
+      <p>Pick your path. Or combine them.</p>
+    </div>
+
+    <div class="cards rv">
+
+      <article class="card">
+        <span class="card-ico" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <path d="M6.5 6.5v11M3 9v6M17.5 6.5v11M21 9v6M6.5 12h11"/>
+          </svg>
+        </span>
+        <h3>Strength Training</h3>
+        <p>Compound lifts. Progressive overload. Real results.</p>
+        <a class="tlink" href="#membership">Learn more
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </article>
+
+      <article class="card">
+        <span class="card-ico" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 12h4l3-8 4 16 3-8h6"/>
+          </svg>
+        </span>
+        <h3>HIIT &amp; Conditioning</h3>
+        <p>45-minute sessions. Fat loss and endurance. High intensity.</p>
+        <a class="tlink" href="#schedule">Learn more
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </article>
+
+      <article class="card">
+        <span class="card-ico" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5c0-4.1 3.4-7.5 7.5-7.5s7.5 3.4 7.5 7.5"/>
+          </svg>
+        </span>
+        <h3>Personal Training</h3>
+        <p>One-on-one coaching. Tailored to your goals and body.</p>
+        <a class="tlink" href="#trainers">Learn more
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </article>
+
+      <article class="card">
+        <span class="card-ico" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="8" r="3.2"/><path d="M2.5 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/>
+            <path d="M16 5.3a3.2 3.2 0 0 1 0 5.9M18.2 14.6a6.5 6.5 0 0 1 3.3 5.9"/>
+          </svg>
+        </span>
+        <h3>Group Classes</h3>
+        <p>Yoga, CrossFit, Boxing. Every weekday, morning and evening.</p>
+        <a class="tlink" href="#schedule">Learn more
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </article>
+
+      <article class="card">
+        <span class="card-ico" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 20C4 11.2 10.2 5 20 4c1 9.8-5.2 16-16 16z"/><path d="M4.5 19.5 12.5 11.5"/>
+          </svg>
+        </span>
+        <h3>Nutrition Coaching</h3>
+        <p>Meal planning. Body composition tracking. Sustainable habits.</p>
+        <a class="tlink" href="#membership">Learn more
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </article>
+
+      <article class="card">
+        <span class="card-ico" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20.5 12a8.5 8.5 0 1 1-2.5-6"/><path d="M20.5 2.8V6.5H16.8"/>
+          </svg>
+        </span>
+        <h3>Mobility &amp; Recovery</h3>
+        <p>Foam rolling. Stretching. Injury prevention.</p>
+        <a class="tlink" href="#schedule">Learn more
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     MEMBERSHIP
+     ============================================================ -->
+<section class="sec" id="membership" style="background:#0c0c0c;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label">Membership</p>
+      <h2 class="h-display">Pick your commitment.</h2>
+      <p>The longer you commit, the more you save.</p>
+    </div>
+
+    <div class="plans rv">
+
+      <!-- Monthly -->
+      <article class="plan">
+        <p class="plan-name label" style="color:var(--zinc-400)">Monthly</p>
+        <p class="price mono">&#8377;2,500<small>/month</small></p>
+        <p class="plan-tag">No commitment. Full access.</p>
+        <ul class="feats">
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Access to all programs</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Unlimited group classes</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Personal locker</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Wifi + filtered water</li>
+        </ul>
+        <a class="btn btn-ghost"
+           href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20start%20the%20Monthly%20membership."
+           target="_blank" rel="noopener">Start Monthly</a>
+      </article>
+
+      <!-- Quarterly — featured -->
+      <article class="plan featured">
+        <span class="badge">Most Popular</span>
+        <p class="plan-name label" style="color:var(--lime)">Quarterly</p>
+        <p class="price mono">&#8377;6,500<small>/quarter</small></p>
+        <p class="price-note mono">&#8377;2,166 per month</p>
+        <p class="plan-tag">Best value for most members.</p>
+        <ul class="feats">
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Everything in Monthly</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>1 free PT session every month</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Nutrition consultation</li>
+        </ul>
+        <a class="btn btn-primary"
+           href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20start%20the%20Quarterly%20membership."
+           target="_blank" rel="noopener">Start Quarterly</a>
+      </article>
+
+      <!-- Annual -->
+      <article class="plan">
+        <p class="plan-name label" style="color:var(--zinc-400)">Annual</p>
+        <p class="price mono">&#8377;22,000<small>/year</small></p>
+        <p class="price-note mono">&#8377;1,833 per month</p>
+        <p class="plan-tag">Serious commitment. Serious savings.</p>
+        <ul class="feats">
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Everything in Quarterly</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Unlimited personal training</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Custom nutrition plan</li>
+          <li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5 9.5 18 20 6.5"/></svg>Free supplements starter kit</li>
+        </ul>
+        <a class="btn btn-ghost"
+           href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20start%20the%20Annual%20membership."
+           target="_blank" rel="noopener">Start Annual</a>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     TRAINERS
+     ============================================================ -->
+<section class="sec" id="trainers">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label">Coaches</p>
+      <h2 class="h-display">Coaches who've earned it.</h2>
+      <p>Certified. Experienced. Actually present.</p>
+    </div>
+
+    <div class="coaches rv">
+
+      <article class="coach">
+        <div class="coach-img">
+          <span class="coach-init" aria-hidden="true">KM</span>
+          <span class="coach-tag">Head Coach</span>
+        </div>
+        <div class="coach-body">
+          <h3>Karan Malhotra</h3>
+          <p class="coach-role label">Head Coach</p>
+          <p>8 years coaching. Ex-national powerlifter. Specialty: strength.</p>
+          <a class="tlink" href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20book%20a%20session%20with%20Karan."
+             target="_blank" rel="noopener">Book session
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <article class="coach">
+        <div class="coach-img">
+          <span class="coach-init" aria-hidden="true">PN</span>
+          <span class="coach-tag">Group Training</span>
+        </div>
+        <div class="coach-body">
+          <h3>Priya Nair</h3>
+          <p class="coach-role label">Group Training Lead</p>
+          <p>Yoga + HIIT certified. 5 years. Specialty: mobility.</p>
+          <a class="tlink" href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20book%20a%20session%20with%20Priya."
+             target="_blank" rel="noopener">Book session
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+      </article>
+
+      <article class="coach">
+        <div class="coach-img">
+          <span class="coach-init" aria-hidden="true">RP</span>
+          <span class="coach-tag">Personal Training</span>
+        </div>
+        <div class="coach-body">
+          <h3>Rakesh Panda</h3>
+          <p class="coach-role label">Personal Trainer</p>
+          <p>NASM-CPT certified. Fat loss specialist. 6 years experience.</p>
+          <a class="tlink" href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20book%20a%20session%20with%20Rakesh."
+             target="_blank" rel="noopener">Book session
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SCHEDULE
+     ============================================================ -->
+<section class="sec" id="schedule" style="background:#0c0c0c;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label">Class Schedule</p>
+      <h2 class="h-display">Every day. Morning to night.</h2>
+      <p>Open gym floor 6:00 AM &ndash; 10:00 PM. Classes run on the slots below.</p>
+    </div>
+
+    <div class="sched-wrap rv">
+
+      <!-- Desktop: full week table -->
+      <table class="sched-table">
+        <caption class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Weekly class schedule</caption>
+        <thead>
+          <tr>
+            <th scope="col" class="sched-time" style="text-align:left">Time</th>
+            <th scope="col">Mon</th><th scope="col">Tue</th><th scope="col">Wed</th>
+            <th scope="col">Thu</th><th scope="col">Fri</th><th scope="col">Sat</th><th scope="col">Sun</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row" class="sched-time">6:00 AM</th>
+            <td><span class="cls">Strength</span></td>
+            <td><span class="cls">HIIT</span></td>
+            <td><span class="cls">Strength</span></td>
+            <td><span class="cls">HIIT</span></td>
+            <td><span class="cls">Strength</span></td>
+            <td><span class="cls">Open Gym</span></td>
+            <td><span class="cls off">&ndash;</span></td>
+          </tr>
+          <tr>
+            <th scope="row" class="sched-time">8:00 AM</th>
+            <td><span class="cls">Yoga</span></td>
+            <td><span class="cls off">&ndash;</span></td>
+            <td><span class="cls">Yoga</span></td>
+            <td><span class="cls off">&ndash;</span></td>
+            <td><span class="cls">Yoga</span></td>
+            <td><span class="cls">HIIT</span></td>
+            <td><span class="cls">Yoga</span></td>
+          </tr>
+          <tr>
+            <th scope="row" class="sched-time">6:00 PM</th>
+            <td><span class="cls">HIIT</span></td>
+            <td><span class="cls">Strength</span></td>
+            <td><span class="cls">HIIT</span></td>
+            <td><span class="cls">Strength</span></td>
+            <td><span class="cls">Boxing</span></td>
+            <td><span class="cls off">&ndash;</span></td>
+            <td><span class="cls off">&ndash;</span></td>
+          </tr>
+          <tr>
+            <th scope="row" class="sched-time">8:00 PM</th>
+            <td><span class="cls">Boxing</span></td>
+            <td><span class="cls">Yoga</span></td>
+            <td><span class="cls">Boxing</span></td>
+            <td><span class="cls">Yoga</span></td>
+            <td><span class="cls">Open Gym</span></td>
+            <td><span class="cls off">&ndash;</span></td>
+            <td><span class="cls off">&ndash;</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Mobile: one card per day -->
+      <div class="sched-days">
+        <div class="day">
+          <div class="day-h"><strong>Monday</strong><span class="label">4 classes</span></div>
+          <div class="day-row"><span class="t">6:00 AM</span><span class="c">Strength</span></div>
+          <div class="day-row"><span class="t">8:00 AM</span><span class="c">Yoga</span></div>
+          <div class="day-row"><span class="t">6:00 PM</span><span class="c">HIIT</span></div>
+          <div class="day-row"><span class="t">8:00 PM</span><span class="c">Boxing</span></div>
+        </div>
+        <div class="day">
+          <div class="day-h"><strong>Tuesday</strong><span class="label">3 classes</span></div>
+          <div class="day-row"><span class="t">6:00 AM</span><span class="c">HIIT</span></div>
+          <div class="day-row"><span class="t">6:00 PM</span><span class="c">Strength</span></div>
+          <div class="day-row"><span class="t">8:00 PM</span><span class="c">Yoga</span></div>
+        </div>
+        <div class="day">
+          <div class="day-h"><strong>Wednesday</strong><span class="label">4 classes</span></div>
+          <div class="day-row"><span class="t">6:00 AM</span><span class="c">Strength</span></div>
+          <div class="day-row"><span class="t">8:00 AM</span><span class="c">Yoga</span></div>
+          <div class="day-row"><span class="t">6:00 PM</span><span class="c">HIIT</span></div>
+          <div class="day-row"><span class="t">8:00 PM</span><span class="c">Boxing</span></div>
+        </div>
+        <div class="day">
+          <div class="day-h"><strong>Thursday</strong><span class="label">3 classes</span></div>
+          <div class="day-row"><span class="t">6:00 AM</span><span class="c">HIIT</span></div>
+          <div class="day-row"><span class="t">6:00 PM</span><span class="c">Strength</span></div>
+          <div class="day-row"><span class="t">8:00 PM</span><span class="c">Yoga</span></div>
+        </div>
+        <div class="day">
+          <div class="day-h"><strong>Friday</strong><span class="label">4 classes</span></div>
+          <div class="day-row"><span class="t">6:00 AM</span><span class="c">Strength</span></div>
+          <div class="day-row"><span class="t">8:00 AM</span><span class="c">Yoga</span></div>
+          <div class="day-row"><span class="t">6:00 PM</span><span class="c">Boxing</span></div>
+          <div class="day-row"><span class="t">8:00 PM</span><span class="c">Open Gym</span></div>
+        </div>
+        <div class="day">
+          <div class="day-h"><strong>Saturday</strong><span class="label">2 classes</span></div>
+          <div class="day-row"><span class="t">6:00 AM</span><span class="c">Open Gym</span></div>
+          <div class="day-row"><span class="t">8:00 AM</span><span class="c">HIIT</span></div>
+        </div>
+        <div class="day rest">
+          <div class="day-h"><strong>Sunday</strong><span class="label">1 class</span></div>
+          <div class="day-row"><span class="t">8:00 AM</span><span class="c">Yoga</span></div>
+          <p class="day-note" style="margin-top:10px">Gym floor open all day. Evening classes rest.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     TESTIMONIALS
+     ============================================================ -->
+<section class="sec" id="reviews">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label">Members</p>
+      <h2 class="h-display">What members say.</h2>
+    </div>
+
+    <div class="quotes rv">
+
+      <figure class="quote">
+        <div class="stars" role="img" aria-label="Rated 5 out of 5">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+        </div>
+        <blockquote>&ldquo;Best gym I've trained in. The coaches actually know what they're doing.&rdquo;</blockquote>
+        <figcaption><b>Rohit S.</b> &middot; Member since 2024</figcaption>
+      </figure>
+
+      <figure class="quote">
+        <div class="stars" role="img" aria-label="Rated 5 out of 5">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+        </div>
+        <blockquote>&ldquo;Lost 12 kg in 5 months. The nutrition coaching changed everything.&rdquo;</blockquote>
+        <figcaption><b>Neha K.</b> &middot; Annual Member</figcaption>
+      </figure>
+
+      <figure class="quote">
+        <div class="stars" role="img" aria-label="Rated 5 out of 5">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.9-4.8 4.7 1.2 6.6L12 17.7 6.1 20.8l1.2-6.6L2.5 9.5l6.6-.9z"/></svg>
+        </div>
+        <blockquote>&ldquo;6 AM classes are packed for a reason. Serious training, no BS.&rdquo;</blockquote>
+        <figcaption><b>Vikram J.</b> &middot; Strength Program</figcaption>
+      </figure>
+
+    </div>
+
+    <a class="reviews-link rv" href="https://www.google.com/maps/search/FitZone+Gym+Jaydev+Vihar+Bhubaneswar"
+       target="_blank" rel="noopener">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M21.6 12.23c0-.72-.06-1.4-.18-2.06H12v3.9h5.38a4.6 4.6 0 0 1-2 3.02v2.5h3.23c1.89-1.74 2.98-4.3 2.98-7.36z" opacity=".95"/>
+        <path d="M12 22c2.7 0 4.96-.9 6.61-2.41l-3.23-2.5c-.9.6-2.05.96-3.38.96-2.6 0-4.8-1.75-5.59-4.1H3.08v2.58A10 10 0 0 0 12 22z" opacity=".75"/>
+        <path d="M6.41 13.95a5.99 5.99 0 0 1 0-3.84V7.53H3.08a10 10 0 0 0 0 8.98l3.33-2.56z" opacity=".55"/>
+        <path d="M12 5.98c1.47 0 2.79.5 3.83 1.5l2.86-2.86C16.95 2.99 14.7 2 12 2a10 10 0 0 0-8.92 5.53l3.33 2.58C7.2 7.73 9.4 5.98 12 5.98z" opacity=".85"/>
+      </svg>
+      See all reviews on Google
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+  </div>
+</section>
+
+<!-- ============================================================
+     LOCATION + CONTACT
+     ============================================================ -->
+<section class="sec" id="contact" style="background:#0c0c0c;border-top:1px solid var(--border)">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <p class="label">Location</p>
+      <h2 class="h-display">Find us.</h2>
+    </div>
+
+    <div class="loc rv">
+
+      <div>
+        <div class="loc-list">
+          <div class="loc-item">
+            <span class="label">Address</span>
+            <p>Plot 42, Jaydev Vihar,<br>Bhubaneswar, Odisha 751013</p>
+          </div>
+          <div class="loc-item">
+            <span class="label">Phone</span>
+            <p><a class="mono" href="tel:+919876543210">+91 98 7654 3210</a></p>
+          </div>
+          <div class="loc-item">
+            <span class="label">Email</span>
+            <p><a href="mailto:hello@fitzonegym.in">hello@fitzonegym.in</a></p>
+          </div>
+          <div class="loc-item">
+            <span class="label">Hours</span>
+            <p>Mon&ndash;Sun &middot; <span class="mono" style="font-size:15px">6:00 AM &ndash; 10:00 PM</span></p>
+          </div>
+        </div>
+
+        <a class="tlink" href="https://www.google.com/maps/search/Jaydev+Vihar+Bhubaneswar+Odisha+751013"
+           target="_blank" rel="noopener">Get directions
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+
+      <div>
+        <div class="map" role="img" aria-label="Map showing FitZone Gym at Plot 42, Jaydev Vihar, Bhubaneswar">
+          <span class="pin">
+            <span class="pin-dot" aria-hidden="true"></span>
+            <span class="pin-label">FitZone Gym</span>
+          </span>
+        </div>
+        <p class="map-note">5 min from Kalinga Hospital</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FINAL CTA
+     ============================================================ -->
+<section class="final">
+  <div class="wrap rv">
+    <h2 class="h-display">Ready to train?</h2>
+    <p>Book a free trial. Show up. See if it's for you.</p>
+    <a class="btn btn-primary btn-lg"
+       href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20book%20my%20free%20trial."
+       target="_blank" rel="noopener">
+      Book Free Trial <span class="arw" aria-hidden="true">&rarr;</span>
+    </a>
+    <p class="fine">No credit card. No commitment. Just show up.</p>
+  </div>
+</section>
+
+</main>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr-top">
+
+      <div class="ftr-brand">
+        <span class="mark">FIT<span>ZONE</span></span>
+        <p>Serious training. Real results. Zero fluff. Jaydev Vihar, Bhubaneswar.</p>
+        <div class="socials">
+          <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="FitZone on Instagram">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+              <rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor" stroke="none"/>
+            </svg>
+          </a>
+          <a href="https://youtube.com" target="_blank" rel="noopener" aria-label="FitZone on YouTube">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round">
+              <rect x="2" y="5" width="20" height="14" rx="4.5"/><path d="M10.2 9.2l4.8 2.8-4.8 2.8z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="ftr-cols">
+        <div class="ftr-col">
+          <h4 class="label">Programs</h4>
+          <a href="#programs">Strength Training</a>
+          <a href="#programs">HIIT &amp; Conditioning</a>
+          <a href="#programs">Personal Training</a>
+          <a href="#schedule">Group Classes</a>
+        </div>
+        <div class="ftr-col">
+          <h4 class="label">About</h4>
+          <a href="#trainers">Our Coaches</a>
+          <a href="#reviews">Member Reviews</a>
+          <a href="#schedule">Class Schedule</a>
+          <a href="#membership">Membership</a>
+        </div>
+        <div class="ftr-col">
+          <h4 class="label">Contact</h4>
+          <a href="tel:+919876543210">+91 98 7654 3210</a>
+          <a href="mailto:hello@fitzonegym.in">hello@fitzonegym.in</a>
+          <a href="#contact">Jaydev Vihar</a>
+          <a href="https://wa.me/919876543210?text=Hi%20FitZone%2C%20I%27d%20like%20to%20book%20a%20free%20trial." target="_blank" rel="noopener">Book a trial</a>
+        </div>
+        <div class="ftr-col">
+          <h4 class="label">Legal</h4>
+          <a href="#contact">Privacy Policy</a>
+          <a href="#contact">Terms of Use</a>
+          <a href="#membership">Membership Terms</a>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="ftr-btm">
+      <p>&copy; 2026 FitZone Gym &middot; Built by <a href="https://noirflow.ai" target="_blank" rel="noopener">NoirFlow AI</a></p>
+      <p>Bhubaneswar, Odisha</p>
+    </div>
+  </div>
+</footer>
+
+<button class="totop" id="totop" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+</button>
+
+<script>
+(function () {
+  'use strict';
+
+  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Header state + back-to-top visibility ----------
+     One scroll listener, rAF-throttled, so scrolling stays at 60fps. */
+  var hdr    = document.getElementById('hdr');
+  var toTop  = document.getElementById('totop');
+  var ticking = false;
+
+  function onScroll() {
+    var y = window.scrollY || window.pageYOffset;
+    hdr.classList.toggle('stuck', y > 24);
+    toTop.classList.toggle('show', y > window.innerHeight * 0.85);
+    ticking = false;
+  }
+
+  window.addEventListener('scroll', function () {
+    if (!ticking) {
+      ticking = true;
+      window.requestAnimationFrame(onScroll);
+    }
+  }, { passive: true });
+
+  onScroll();
+
+  /* ---------- Back to top ---------- */
+  toTop.addEventListener('click', function () {
+    window.scrollTo({ top: 0, behavior: reduced ? 'auto' : 'smooth' });
+  });
+
+  /* ---------- Mobile drawer ---------- */
+  var burger = document.getElementById('burger');
+  var drawer = document.getElementById('drawer');
+
+  function setMenu(open) {
+    burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    burger.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    drawer.classList.toggle('open', open);
+  }
+
+  burger.addEventListener('click', function () {
+    setMenu(burger.getAttribute('aria-expanded') !== 'true');
+  });
+
+  // Close the drawer after tapping any link inside it.
+  drawer.addEventListener('click', function (e) {
+    if (e.target.closest('a')) { setMenu(false); }
+  });
+
+  // Escape closes the drawer and returns focus to the toggle.
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && burger.getAttribute('aria-expanded') === 'true') {
+      setMenu(false);
+      burger.focus();
+    }
+  });
+
+  // Never leave the drawer open when we cross into the desktop layout.
+  window.matchMedia('(min-width: 900px)').addEventListener('change', function (e) {
+    if (e.matches) { setMenu(false); }
+  });
+
+  /* ---------- Reveal on scroll (fires once per element) ---------- */
+  var targets = document.querySelectorAll('.rv');
+
+  if (reduced || !('IntersectionObserver' in window)) {
+    // No observer support, or the visitor asked for less motion: show everything.
+    Array.prototype.forEach.call(targets, function (el) { el.classList.add('in'); });
+    return;
+  }
+
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+
+  Array.prototype.forEach.call(targets, function (el) { io.observe(el); });
+})();
+</script>
+
+</body>
+</html>
