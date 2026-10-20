@@ -51,10 +51,13 @@ microphone access when prompted, and talk.
    same value/source as the WhatsApp receptionist's key.
 3. Deploy, then open the production URL on **Android Chrome** — that's the
    actual target environment this gets demoed and tested on.
-4. Before sending the link to a real prospect, replace the placeholder
-   `href` on the "Book a call with Anshuman" button in `index.html` with
-   NoirFlow's real Calendly (or booking) link — it currently points to a
-   `calendly.com/noirflow/discovery-call` placeholder.
+4. **Live URL:** https://noirflow-riya-voice.vercel.app (Vercel project
+   `noirflow-riya-voice`). This is the link the NoirFlow website's Portfolio
+   page points to. The "Book a call with Anshuman" button opens
+   `calendly.com/anshumantripathy2009/30min`.
+
+`vercel.json` must keep `microphone=(self)` in its `Permissions-Policy`
+header — `microphone=()` blocks the mic and silently breaks the demo.
 
 ## Notes
 
