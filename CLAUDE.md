@@ -92,7 +92,8 @@ For every automation, briefly answer:
 - **Riya voice demo** (`/demos/riya-voice/`) — a single-file, mobile-first
   page where a prospect has a live spoken conversation with Riya, NoirFlow's
   AI sales assistant (Web Speech API in the browser + a Gemini proxy
-  function). Send the deployed link directly to prospects; also includes an
+  function). Not currently hosted — for prospects, use Ananya on
+  automate-noirflow.vercel.app/?talk=ananya instead. Includes an
   always-visible "Book a call" button. See `/docs/sales-os/riya-voice-demo.md`
   for setup and local-vs-Vercel testing instructions.
 - **Smart Clinic Dashboard** demo at `/demos/smart-clinic-dashboard/` —

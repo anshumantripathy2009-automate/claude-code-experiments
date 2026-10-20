@@ -51,9 +51,11 @@ microphone access when prompted, and talk.
    same value/source as the WhatsApp receptionist's key.
 3. Deploy, then open the production URL on **Android Chrome** — that's the
    actual target environment this gets demoed and tested on.
-4. **Live URL:** https://noirflow-riya-voice.vercel.app (Vercel project
-   `noirflow-riya-voice`). This is the link the NoirFlow website's Portfolio
-   page points to. The "Book a call with Anshuman" button opens
+4. **Not currently hosted.** The `noirflow-riya-voice` Vercel project was
+   removed on 20 Oct 2026 — the NoirFlow website's voice demo is now
+   **Ananya** (ElevenLabs), at https://automate-noirflow.vercel.app/?talk=ananya.
+   The code stays here so it can be redeployed with steps 1–3 above. The
+   "Book a call with Anshuman" button opens
    `calendly.com/anshumantripathy2009/30min`.
 
 `vercel.json` must keep `microphone=(self)` in its `Permissions-Policy`
