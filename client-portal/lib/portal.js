@@ -4,7 +4,7 @@
 
 import { cache } from 'react';
 import { redirect } from 'next/navigation';
-import { createClient, createServiceClient } from './supabase/server';
+import { createClient } from './supabase/server';
 
 export const getUser = cache(async () => {
   const supabase = await createClient();
@@ -24,12 +24,15 @@ export const getClient = cache(async () => {
   return data;
 });
 
+// is_admin() is a database function that checks the `admins` table for the
+// current user — the same check every admin RLS policy uses.
 export const isAdmin = cache(async () => {
   const user = await getUser();
   if (!user) return false;
-  const service = createServiceClient();
-  const { data } = await service.from('admins').select('user_id').eq('user_id', user.id).maybeSingle();
-  return Boolean(data);
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc('is_admin');
+  if (error) console.error('[portal] is_admin check failed:', error.message);
+  return data === true;
 });
 
 // Every admin page and every admin server action calls this first. Server

@@ -54,7 +54,13 @@ old one stops working.
   Column grants stop a client from editing their plan/status or setting a
   ticket's status, even with hand-crafted API calls.
 - **Admin actions** are server actions (public POST endpoints), so *every*
-  one calls `requireAdmin()` before touching the service-role client.
+  one calls `requireAdmin()` first. Queries then run as the admin user, and
+  the database's `admins manage …` policies (via `is_admin()`) check again.
+- **No master key in the web app.** The portal holds only the public
+  (publishable) key. The single operation that needs Supabase admin powers,
+  creating an account from an invite, runs in the `redeem-invite` Edge
+  Function (`supabase/functions/redeem-invite`), where Supabase provides the
+  key itself. A leaked Vercel env can't bypass Row Level Security.
 - **Rate limits** on sign-in, signup and password reset (per IP, 15-minute
   window). Login errors are generic ("email or password is incorrect"), and
   password-reset always says "sent", so the forms can't be used to find out
@@ -76,26 +82,28 @@ when you have paying clients, so the database never pauses.
 ## Setup
 
 1. `cd client-portal && npm install`
-2. Copy `.env.example` → `.env.local` and fill in the three values.
+2. Copy `.env.example` → `.env.local` and fill in the two values.
 3. **Database:** in a fresh Supabase project, run `supabase/schema.sql` in
    the SQL editor. (Already done on `noirflow-agents`.)
-4. **Supabase Auth settings** (Dashboard → Authentication):
+4. **Edge Function:** `supabase functions deploy redeem-invite --no-verify-jwt`
+   (it's public on purpose — signup visitors aren't logged in — and does all
+   its own checks). Already deployed on `noirflow-agents`.
+5. **Supabase Auth settings** (Dashboard → Authentication):
    - **Sign In / Providers → Email:** turn **"Allow new users to sign up" OFF**.
-     The portal creates accounts with the service role, so this doesn't
-     affect invite signups. It blocks anyone from creating an account
-     directly against the Supabase API with the public key.
+     The Edge Function creates accounts with admin powers, so this doesn't
+     affect invite signups. It stops strangers creating (useless, unlinked)
+     accounts directly against the Supabase API.
    - **URL Configuration:** set **Site URL** to your portal URL and add
      `https://your-portal.vercel.app/**` to **Redirect URLs**. Without this,
      password-reset links bounce.
    - **Production:** set up custom SMTP (e.g. Resend). Supabase's built-in
      mailer only sends a few emails per hour.
-5. **First admin:** `npm run invite:admin -- you@yourcompany.com`, run the
+6. **First admin:** `npm run invite:admin -- you@yourcompany.com`, run the
    SQL it prints, then redeem the code at `/signup`. After that, invite
    teammates from the admin console.
-6. `npm run dev` → `http://localhost:3000`
-7. **Deploy:** Vercel → New Project → this repo → **Root Directory**
-   `client-portal` → add the 3 env vars (mark the service role key
-   **Sensitive**) → Deploy.
+7. `npm run dev` → `http://localhost:3000`
+8. **Deploy:** Vercel → New Project → this repo → **Root Directory**
+   `client-portal` → add the 2 env vars → Deploy.
 
 ## Onboarding a New Client (2 minutes)
 
@@ -150,10 +158,12 @@ a real company and justifies a retainer:
 ## Security Notes
 
 - Row Level Security is on for every portal table. Clients can only ever read
-  their own rows. Writes to services, events and objectives are service-role only.
-- `invites` and `admins` are revoked from the public key entirely.
-- The service role key lives only in server code (`lib/supabase/server.js`)
-  and never reaches the browser.
+  their own rows. Only admins (`is_admin()`) can write services, events,
+  objectives, invites and ticket status.
+- `invites` are visible to admins only; `admins` is not readable through the
+  API at all (checked via the `is_admin()` function).
+- The web app has no service-role key. Account creation runs in the
+  `redeem-invite` Edge Function, inside Supabase.
 - Password reset redirects only to same-site paths (`safeNextPath` in
   `app/auth/callback/route.js`), so it can't be used as an open redirect.
 - Rate limiting is in-memory per server instance: good enough for a

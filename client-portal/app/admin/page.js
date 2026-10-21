@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { createServiceClient } from '../../lib/supabase/server';
+import { createClient } from '../../lib/supabase/server';
 import { requireAdmin } from '../../lib/portal';
 import { CLIENT_STATUS, SERVICE_STATUS, formatDate, timeAgo } from '../../lib/format';
 import { signOut } from '../auth/actions';
@@ -20,16 +20,16 @@ function Panel({ children }) {
 
 export default async function AdminPage() {
   const user = await requireAdmin();
-  const service = createServiceClient();
+  const supabase = await createClient();
   const nowIso = new Date().toISOString();
 
   const [{ data: clients }, { data: services }, { data: objectives }, { data: invites }, { data: tickets }, { data: openErrors }] = await Promise.all([
-    service.from('clients').select('*').order('created_at', { ascending: false }),
-    service.from('services').select('*').order('created_at'),
-    service.from('objectives').select('*').order('created_at'),
-    service.from('invites').select('client_id, expires_at').eq('role', 'client').is('used_at', null).gt('expires_at', nowIso),
-    service.from('tickets').select('*').neq('status', 'resolved').order('created_at', { ascending: false }),
-    service.from('service_events').select('*').eq('kind', 'error').is('resolved_at', null).order('created_at', { ascending: false }),
+    supabase.from('clients').select('*').order('created_at', { ascending: false }),
+    supabase.from('services').select('*').order('created_at'),
+    supabase.from('objectives').select('*').order('created_at'),
+    supabase.from('invites').select('client_id, expires_at').eq('role', 'client').is('used_at', null).gt('expires_at', nowIso),
+    supabase.from('tickets').select('*').neq('status', 'resolved').order('created_at', { ascending: false }),
+    supabase.from('service_events').select('*').eq('kind', 'error').is('resolved_at', null).order('created_at', { ascending: false }),
   ]);
 
   const clientList = clients || [];

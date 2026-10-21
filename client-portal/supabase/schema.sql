@@ -140,3 +140,47 @@ grant insert (client_id, type, subject, message) on tickets to authenticated;
 -- automations). Invites and admins are never reachable with a public key.
 revoke insert, update, delete on services, service_events, objectives from authenticated, anon;
 revoke all on invites, admins from authenticated, anon;
+
+-- ─── Admin access via RLS (no service-role key in the web app) ────────────
+create or replace function public.is_admin()
+returns boolean language sql stable security definer set search_path = ''
+as $$ select exists (select 1 from public.admins where user_id = auth.uid()); $$;
+revoke all on function public.is_admin() from public, anon;
+grant execute on function public.is_admin() to authenticated;
+
+create policy "admins manage clients" on clients
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "admins manage tickets" on tickets
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "admins manage services" on services
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "admins manage events" on service_events
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "admins manage objectives" on objectives
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+create policy "admins manage invites" on invites
+  for all to authenticated using (public.is_admin()) with check (public.is_admin());
+
+-- Only admins have insert/update policies on these, so clients gain nothing.
+grant insert on clients to authenticated;
+grant update (status, updated_at) on tickets to authenticated;
+grant insert, update on services to authenticated;
+grant insert, update (resolved_at) on service_events to authenticated;
+grant insert, update on objectives to authenticated;
+grant select, insert, delete on invites to authenticated;
+
+-- ─── Used only by the redeem-invite Edge Function (service role) ──────────
+-- Finds a never-signed-in, unlinked account with this email so a valid
+-- invite can take it over instead of failing with "already exists".
+create or replace function public.portal_dormant_user_id(p_email text)
+returns uuid language sql stable security definer set search_path = ''
+as $$
+  select u.id from auth.users u
+  where lower(u.email) = lower(p_email)
+    and u.last_sign_in_at is null
+    and not exists (select 1 from public.clients c where c.auth_user_id = u.id)
+    and not exists (select 1 from public.admins a where a.user_id = u.id)
+  limit 1;
+$$;
+revoke all on function public.portal_dormant_user_id(text) from public, anon, authenticated;
+grant execute on function public.portal_dormant_user_id(text) to service_role;

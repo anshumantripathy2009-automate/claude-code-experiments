@@ -1,16 +1,12 @@
-// Server-side Supabase clients for the App Router.
+// Server-side Supabase client for the App Router.
 //
-// Two different clients on purpose:
-//   - createClient()        — runs AS the logged-in user (RLS applies).
-//     Use this for anything the user themselves should be allowed to do.
-//   - createServiceClient() — runs as service_role (RLS bypassed).
-//     Use this ONLY for privileged operations the client-portal itself must
-//     do on the user's behalf — e.g. linking a freshly-created auth user to
-//     their pre-existing `clients` row on first login. Never use this to
-//     skip writing a proper RLS policy just because it's more convenient.
+// Every query runs AS the logged-in user, so Row Level Security decides what
+// they can see and change — clients get their own rows, admins (a row in
+// `admins`) get everything. There is deliberately no service-role client in
+// this app: the one operation that needs admin powers, creating an account
+// from an invite code, runs in the `redeem-invite` Supabase Edge Function.
 
 import { createServerClient } from '@supabase/ssr';
-import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
 export async function createClient() {
@@ -31,18 +27,4 @@ export async function createClient() {
       },
     },
   });
-}
-
-let serviceClient = null;
-
-export function createServiceClient() {
-  if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set. Add it to your .env file (server-only, never NEXT_PUBLIC_).');
-  }
-  if (!serviceClient) {
-    serviceClient = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
-  }
-  return serviceClient;
 }

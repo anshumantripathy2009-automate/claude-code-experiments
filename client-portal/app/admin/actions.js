@@ -2,11 +2,12 @@
 
 // Admin console actions. Every one starts with requireAdmin(): a server
 // action is a public POST endpoint, so the check must live here, not just in
-// the page that renders the button. After that check they use the service
-// role, since admins legitimately manage every client's data.
+// the page that renders the button. Queries then run as the admin user, and
+// the database's "admins manage …" RLS policies enforce the same rule again —
+// so even a bug in this file can't let a client write another client's data.
 
 import { revalidatePath } from 'next/cache';
-import { createServiceClient } from '../../lib/supabase/server';
+import { createClient } from '../../lib/supabase/server';
 import { requireAdmin } from '../../lib/portal';
 import { generateInviteCode, hashInviteCode, inviteExpiry } from '../../lib/invite';
 
@@ -30,9 +31,9 @@ function fail(context, error, message = 'That didn’t save. Check the fields an
   return { ok: false, error: message };
 }
 
-async function issueInvite(service, { role, clientId = null, email = null }) {
+async function issueInvite(supabase, { role, clientId = null, email = null }) {
   const code = generateInviteCode();
-  const { error } = await service.from('invites').insert({
+  const { error } = await supabase.from('invites').insert({
     code_hash: hashInviteCode(code),
     role,
     client_id: clientId,
@@ -55,8 +56,8 @@ export async function createClientWithInvite(formData) {
   const email = text(formData, 'contact_email', 254)?.toLowerCase() || null;
   const lockEmail = formData.get('lock_email') === 'on';
 
-  const service = createServiceClient();
-  const { data: client, error } = await service
+  const supabase = await createClient();
+  const { data: client, error } = await supabase
     .from('clients')
     .insert({
       business_name: businessName,
@@ -76,7 +77,7 @@ export async function createClientWithInvite(formData) {
   }
 
   try {
-    const code = await issueInvite(service, { role: 'client', clientId: client.id, email: lockEmail ? email : null });
+    const code = await issueInvite(supabase, { role: 'client', clientId: client.id, email: lockEmail ? email : null });
     revalidatePath('/admin');
     return { ok: true, code, label: client.business_name };
   } catch (inviteError) {
@@ -88,16 +89,16 @@ export async function createClientWithInvite(formData) {
 // lost code, an expired code, or a code sent to the wrong person.
 export async function regenerateClientInvite(clientId) {
   await requireAdmin();
-  const service = createServiceClient();
+  const supabase = await createClient();
 
-  const { data: client } = await service.from('clients').select('id, business_name, auth_user_id').eq('id', clientId).maybeSingle();
+  const { data: client } = await supabase.from('clients').select('id, business_name, auth_user_id').eq('id', clientId).maybeSingle();
   if (!client) return { ok: false, error: 'Client not found.' };
   if (client.auth_user_id) return { ok: false, error: 'This client already has an account. They can reset their password from the login page.' };
 
-  await service.from('invites').delete().eq('client_id', clientId).is('used_at', null);
+  await supabase.from('invites').delete().eq('client_id', clientId).is('used_at', null);
 
   try {
-    const code = await issueInvite(service, { role: 'client', clientId });
+    const code = await issueInvite(supabase, { role: 'client', clientId });
     revalidatePath('/admin');
     return { ok: true, code, label: client.business_name };
   } catch (error) {
@@ -111,7 +112,7 @@ export async function createAdminInvite(formData) {
   if (!email) return { ok: false, error: 'Enter the team member’s email — admin invites are always locked to one email.' };
 
   try {
-    const code = await issueInvite(createServiceClient(), { role: 'admin', email });
+    const code = await issueInvite(await createClient(), { role: 'admin', email });
     return { ok: true, code, label: `admin access for ${email}` };
   } catch (error) {
     return fail('createAdminInvite', error);
@@ -125,13 +126,13 @@ export async function addService(formData) {
   const name = text(formData, 'name', 200);
   if (!clientId || !name) return { ok: false, error: 'Pick a client and give the service a name.' };
 
-  const service = createServiceClient();
-  const { data: client } = await service.from('clients').select('client_slug').eq('id', clientId).maybeSingle();
+  const supabase = await createClient();
+  const { data: client } = await supabase.from('clients').select('client_slug').eq('id', clientId).maybeSingle();
   if (!client) return { ok: false, error: 'Client not found.' };
 
   const slug = slugify(text(formData, 'slug', 64) || `${client.client_slug}-${name}`);
 
-  const { error } = await service.from('services').insert({
+  const { error } = await supabase.from('services').insert({
     client_id: clientId,
     slug,
     name,
@@ -151,7 +152,8 @@ export async function updateServiceStatus(serviceId, formData) {
   await requireAdmin();
   const status = formData.get('status');
   if (!['setup', 'active', 'issue', 'paused'].includes(status)) return;
-  await createServiceClient().from('services').update({ status, updated_at: new Date().toISOString() }).eq('id', serviceId);
+  const supabase = await createClient();
+  await supabase.from('services').update({ status, updated_at: new Date().toISOString() }).eq('id', serviceId);
   revalidatePath('/admin');
 }
 
@@ -165,7 +167,9 @@ export async function addObjective(formData) {
   const target = Number(formData.get('target_value'));
   const current = Number(formData.get('current_value'));
 
-  const { error } = await createServiceClient()
+  const supabase = await createClient();
+
+  const { error } = await supabase
     .from('objectives')
     .insert({
       client_id: clientId,
@@ -189,7 +193,8 @@ export async function updateObjective(objectiveId, formData) {
   const changes = { updated_at: new Date().toISOString() };
   if (Number.isFinite(current) && current >= 0) changes.current_value = current;
   if (['on_track', 'at_risk', 'achieved'].includes(status)) changes.status = status;
-  await createServiceClient().from('objectives').update(changes).eq('id', objectiveId);
+  const supabase = await createClient();
+  await supabase.from('objectives').update(changes).eq('id', objectiveId);
   revalidatePath('/admin');
 }
 
@@ -203,7 +208,9 @@ export async function logEvent(formData) {
   const kind = ['operation', 'error', 'update'].includes(formData.get('kind')) ? formData.get('kind') : 'update';
   const severity = ['info', 'warning', 'critical'].includes(formData.get('severity')) ? formData.get('severity') : 'info';
 
-  const { error } = await createServiceClient()
+  const supabase = await createClient();
+
+  const { error } = await supabase
     .from('service_events')
     .insert({
       client_id: clientId,
@@ -221,7 +228,8 @@ export async function logEvent(formData) {
 
 export async function resolveError(eventId) {
   await requireAdmin();
-  await createServiceClient().from('service_events').update({ resolved_at: new Date().toISOString() }).eq('id', eventId).eq('kind', 'error');
+  const supabase = await createClient();
+  await supabase.from('service_events').update({ resolved_at: new Date().toISOString() }).eq('id', eventId).eq('kind', 'error');
   revalidatePath('/admin');
 }
 
@@ -229,6 +237,7 @@ export async function updateTicketStatus(ticketId, formData) {
   await requireAdmin();
   const status = formData.get('status');
   if (!['open', 'in_progress', 'resolved'].includes(status)) return;
-  await createServiceClient().from('tickets').update({ status, updated_at: new Date().toISOString() }).eq('id', ticketId);
+  const supabase = await createClient();
+  await supabase.from('tickets').update({ status, updated_at: new Date().toISOString() }).eq('id', ticketId);
   revalidatePath('/admin');
 }
