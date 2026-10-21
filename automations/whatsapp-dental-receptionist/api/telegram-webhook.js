@@ -108,6 +108,17 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ ok: true });
   }
 
+  // "/myid" lets a clinic owner or doctor find the chat ID to put in
+  // OWNER_TELEGRAM_CHAT_ID (for booking alerts). It only reveals the
+  // sender's own ID, so it's safe to leave on.
+  if (textCheck.value.trim().toLowerCase() === '/myid') {
+    await sendTelegramMessage(
+      chatId,
+      `Your Telegram chat ID is ${chatId}.\n\nTo receive a booking alert here, add it to OWNER_TELEGRAM_CHAT_ID in the Vercel project settings (comma-separate several IDs), then redeploy.`
+    );
+    return res.status(200).json({ ok: true });
+  }
+
   try {
     const { reply } = await generateReply(phoneNumber, textCheck.value);
     await sendTelegramMessage(chatId, reply);

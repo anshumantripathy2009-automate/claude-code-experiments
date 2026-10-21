@@ -103,13 +103,23 @@ https://api.telegram.org/bot<BOT_TOKEN>/setWebhook?url=<VERCEL_URL>/api/telegram
 
 Expected response is a JSON with `ok: true` and description "Webhook was set".
 
+### Step 7b: Owner Alerts (3 minutes)
+
+Every confirmed booking is also sent to the clinic owner / doctor as an instant Telegram message — name, service, date and time, contact, and whether it was saved to the Sheet (a failed Sheet write is flagged so no booking is ever silently lost).
+
+1. The owner (and anyone else who should be alerted, e.g. the front desk) opens the bot in Telegram and sends `/myid`.
+2. The bot replies with their chat ID.
+3. In Vercel, add `OWNER_TELEGRAM_CHAT_ID` with that ID (several people: comma-separated, e.g. `123456,987654`), mark it **Sensitive**, and redeploy.
+
+Leave it empty to turn alerts off.
+
 ### Step 8: End-to-End Test (10 minutes)
 
 Open Telegram, search your bot username. Send `/start`. Then send a message like:
 
 > Hi, I want teeth cleaning tomorrow at 4pm, my name is Test Patient.
 
-Riya should confirm the booking with authority. Check the Google Sheet — a new row should appear. Check the Supabase `conversations` table — a new row with message history should be there.
+Riya should confirm the booking with authority. Check the Google Sheet — a new row should appear. The owner's Telegram should receive a "🦷 New booking" alert within seconds. Check the Supabase `conversations` table — a new row with message history should be there.
 
 ### Step 9: Customize for the Client (30 minutes)
 
@@ -125,7 +135,8 @@ Update `src/prompts/receptionist-prompt.md` with the client's clinic name, servi
 6. Gemini responds in Hinglish and extracts a booking JSON when complete.
 7. The updated conversation is saved back to Supabase.
 8. If `bookingComplete` is `true`, a row is appended to the Google Sheet.
-9. Finally, the AI reply is sent back to the patient on Telegram.
+9. The owner/doctor gets an instant Telegram alert with the booking details (and a warning if the Sheet write failed).
+10. Finally, the AI reply is sent back to the patient on Telegram.
 
 ## File Structure
 
@@ -136,6 +147,7 @@ automations/whatsapp-dental-receptionist/
 │   └── telegram-webhook.js     # Telegram-specific handling
 ├── src/
 │   ├── ai.js                   # Gemini integration + booking extraction
+│   ├── notify-owner.js         # Instant Telegram booking alert to the owner/doctor
 │   ├── supabase-client.js      # Database connection
 │   ├── conversation-store.js   # Memory functions
 │   ├── sheets.js               # Google Sheets logging

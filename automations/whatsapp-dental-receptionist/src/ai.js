@@ -3,6 +3,7 @@ const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { getConversation, addMessage } = require('./conversation-store');
 const { appendBooking } = require('./sheets');
+const { notifyOwner } = require('./notify-owner');
 const { logOperation, logError } = require('./portal-events');
 
 const MODEL_NAME = 'gemini-3.5-flash';
@@ -110,19 +111,25 @@ async function generateReply(phone, userMessage) {
   // "confirmed", so a non-null booking here means Riya has confirmed the
   // appointment herself and this should get written to Sheets.
   let bookingLogged = false;
+  let ownerNotified = false;
   if (booking) {
     console.log(`\n✅ New booking collected for ${phone} — triggering Sheets write:`);
     console.log(JSON.stringify(booking, null, 2));
 
-    bookingLogged = await appendBooking({
+    const bookingRow = {
       phoneNumber: phone,
       patientName: booking.name,
       service: booking.service,
       preferredDate: booking.preferred_date,
       preferredTime: booking.preferred_time,
-    });
+    };
 
+    bookingLogged = await appendBooking(bookingRow);
     console.log(`[ai] Sheets write ${bookingLogged ? 'succeeded' : 'failed'} for ${phone}.`);
+
+    // Tell the owner/doctor immediately — including when the Sheet write failed,
+    // so a booking is never silently lost.
+    ownerNotified = await notifyOwner(bookingRow, { sheetLogged: bookingLogged });
 
     const when = [booking.preferred_date, booking.preferred_time].filter(Boolean).join(' at ');
     const summary = [booking.name, booking.service, when].filter(Boolean).join(' · ');
@@ -139,7 +146,7 @@ async function generateReply(phone, userMessage) {
     console.log(`[ai] No completed booking detected for ${phone} — Sheets write skipped.`);
   }
 
-  return { reply: cleanReply, booking, bookingLogged };
+  return { reply: cleanReply, booking, bookingLogged, ownerNotified };
 }
 
 module.exports = { generateReply };
