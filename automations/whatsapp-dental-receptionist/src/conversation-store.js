@@ -93,8 +93,38 @@ async function clearConversation(phoneNumber, clientSlug = 'smile-dental') {
   }
 }
 
+// Returns the most recently updated conversations for a client, newest
+// first. Used by the dashboard — never throws, returns { conversations: [],
+// configured: false } if Supabase isn't set up so the caller can show an
+// honest "not connected" state instead of an empty-looking error.
+async function listRecentConversations(clientSlug = 'smile-dental', limit = 8) {
+  if (!supabase) {
+    return { conversations: [], configured: false };
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from('conversations')
+      .select('phone_number, messages, updated_at')
+      .eq('client_slug', clientSlug)
+      .order('updated_at', { ascending: false })
+      .limit(limit);
+
+    if (error) {
+      console.error('[conversation-store] listRecentConversations failed:', error);
+      return { conversations: [], configured: true };
+    }
+
+    return { conversations: data || [], configured: true };
+  } catch (err) {
+    console.error('[conversation-store] listRecentConversations failed:', err);
+    return { conversations: [], configured: true };
+  }
+}
+
 module.exports = {
   getConversation,
   addMessage,
   clearConversation,
+  listRecentConversations,
 };

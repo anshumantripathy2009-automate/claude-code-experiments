@@ -89,6 +89,7 @@ Add these environment variables and mark all as **Sensitive**:
 | `SUPABASE_URL` | Step 4 |
 | `SUPABASE_SERVICE_ROLE_KEY` | Step 4 |
 | `TELEGRAM_BOT_TOKEN` | Step 5 |
+| `DASHBOARD_ACCESS_KEY` | Pick any long random string yourself (e.g. `openssl rand -hex 16`) |
 
 Add each variable to all three environments: **Production**, **Preview**, **Development**. Click **Deploy**. Copy the production URL when ready.
 
@@ -145,6 +146,48 @@ automations/whatsapp-dental-receptionist/
 ├── .env.example
 └── README.md
 ```
+
+## Client Dashboard (real data — not a demo)
+
+`dashboard.html` is a live, read-only dashboard the client can bookmark —
+it shows their **actual** bookings (from Google Sheets) and **actual**
+conversations (from Supabase), not sample data. Deployed alongside the
+automation, it's reachable at:
+
+```
+https://<your-vercel-url>/dashboard.html
+```
+
+What it shows:
+- Total bookings, bookings today, bookings this week, conversations handled — all real counts
+- Recent Bookings — patient name, service, and the date/time the patient asked for, newest first
+- Live Conversations — click any card to read the real WhatsApp/Telegram transcript
+
+What it deliberately does **not** show: revenue, no-show rates, "AI insights," or a
+"today's schedule" filtered by appointment date. Riya extracts `preferred_date`/
+`preferred_time` as free text from whatever the patient typed ("kal", "4 baje") —
+not a normalized date — so filtering bookings by appointment day isn't reliable yet.
+Showing fabricated numbers on a paying client's real dashboard is worse than
+showing nothing; the "Bookings Today" KPI instead counts by **when Riya logged
+the booking** (`Timestamp`, a real ISO string), which is reliable.
+
+**Access control:** the dashboard is gated by `DASHBOARD_ACCESS_KEY` (see the
+env var table above) — not a full login system, just a shared link-level
+secret so a client's booking data isn't sitting at a guessable public URL.
+Send the client `https://<your-vercel-url>/dashboard.html` plus the key
+separately (e.g. key over a phone call, link over email). They paste the key
+once; it's remembered in their browser after that. Patient phone numbers are
+masked to the last 4 digits everywhere on the dashboard. Unlike `/webhook`,
+`/api/dashboard-data` **fails closed** (503) if `DASHBOARD_ACCESS_KEY` isn't
+set — a bot endpoint failing open just means anyone can talk to the bot; this
+one failing open would leak real patient data, which is worse than refusing
+to serve. It also carries the same per-IP rate limit as `/webhook` (see
+`api/_lib/rateLimit.js`).
+
+**Multi-client note:** `/api/dashboard-data` takes an optional `?client=`
+query param (matches `client_slug` in Supabase) for when multi-tenant support
+lands — today everything is hardcoded to `smile-dental` in `src/ai.js`, so
+leave it off until that changes.
 
 ## Migrating from Telegram to Real WhatsApp
 
