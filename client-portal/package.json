@@ -1,12 +1,13 @@
 {
   "name": "noirflow-client-portal",
   "version": "1.0.0",
-  "description": "NoirFlow client portal — clients log in to see their account, manage their info, and report issues or request changes.",
+  "description": "NoirFlow client portal \u2014 invite-gated password accounts where clients track their services, operations, errors and objectives, and send issues or requests.",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "invite:admin": "node --no-warnings scripts/create-admin-invite.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

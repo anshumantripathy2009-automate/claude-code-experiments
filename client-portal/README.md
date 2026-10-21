@@ -1,136 +1,161 @@
 # NoirFlow Client Portal
 
-A real login portal for NoirFlow's paying clients. Each client signs in
-with just their email (no password) and sees their own account — their
-business info, a link to their live automation, and a place to report
-issues or request changes, with a history of what they've submitted.
+Every NoirFlow client gets their own login. They create an account with an
+invite code you give them, sign in with email + password, and see
+everything NoirFlow runs for their business: services, live operations, errors,
+goals, and a support inbox. You run all of it from one admin console.
 
 ## What This Does
 
-- Client logs in with a magic link (click the email, you're in — no password to forget)
-- Sees their business info and can update their own contact details
-- Sees a card linking out to their live automation dashboard (e.g. the
-  [whatsapp-dental-receptionist](../automations/whatsapp-dental-receptionist/dashboard.html)
-  live-data dashboard)
-- Can submit "something's wrong" issues or "I want this" requests, and see
-  the status of everything they've submitted (open / in progress / resolved)
-- NoirFlow manages everything else (who's a client, their plan, resolving
-  tickets) directly in the Supabase table editor — no separate admin app in v1
+**For the client** (`/dashboard`):
+- **Overview** — services running, open errors, goals on track, open requests, recent activity
+- **Services** — every automation/website NoirFlow runs for them, its status, and a link to its live dashboard
+- **Activity** — the operations + error log. Bookings the AI made, failures, and updates from NoirFlow. Filter by type. Errors show as open or fixed
+- **Objectives** — the goals they're paying for (e.g. "40 AI bookings this month") with progress bars
+- **Support** — report an issue or request something new, and track its status
+- **Account** — edit contact details, change password
 
-## Who This Is For
+**For NoirFlow** (`/admin`):
+- Onboard a client → get a one-time invite code to send them (copy or WhatsApp button)
+- Add services, update their status
+- Log operations, errors or updates to a client's feed
+- Set and update objectives
+- Work the ticket queue and mark errors fixed
+- Invite team members as admins
 
-Internal to NoirFlow — this is the portal **you** give every paying client,
-not a product sold on its own. It's what makes "AI automation agency"
-feel like a real company instead of a one-off WhatsApp bot: a client who
-can log in and see their own dashboard trusts you with the next contract
-and the referral.
+**Automations report in by themselves:** the WhatsApp dental receptionist
+posts every confirmed booking and every failure to the client's Activity feed
+(see `automations/whatsapp-dental-receptionist` → "Client Portal Link").
+
+## How Login Works (simple version)
+
+1. You create the client in `/admin`. The portal shows an invite code like `NF-7KQ2-M9XD-4HPT`.
+2. You send it to the client (the WhatsApp button pre-writes the message).
+3. The client opens `/signup`, enters the code, then chooses their email + password.
+4. From then on they just log in at `/login`. Forgot password → reset email.
+
+Nobody can sign up without a code. Codes work once, expire after 14 days,
+and can be locked to one email. Lost code? Click "New invite code" and the
+old one stops working.
+
+## How Login Works (pro version)
+
+- **Invite codes:** 12 random characters (~59 bits) from an alphabet with no
+  look-alike characters (`0/O/1/I/L`). Only the **SHA-256 hash** is stored, so a
+  leaked database doesn't leak usable codes. Redemption *claims* the invite with
+  a compare-and-set update (`used_at is null`) **before** creating the user, so
+  two people racing the same code can't both win. If account creation fails, the
+  claim is released.
+- **Accounts** are created server-side with `auth.admin.createUser` (already
+  email-confirmed, so no confirmation-email step) and then linked:
+  `clients.auth_user_id` for a client, or a row in `admins` for staff.
+- **Data isolation is enforced by Postgres, not the UI.** Client pages query
+  as the logged-in user, and Row Level Security only returns their own rows.
+  Column grants stop a client from editing their plan/status or setting a
+  ticket's status, even with hand-crafted API calls.
+- **Admin actions** are server actions (public POST endpoints), so *every*
+  one calls `requireAdmin()` before touching the service-role client.
+- **Rate limits** on sign-in, signup and password reset (per IP, 15-minute
+  window). Login errors are generic ("email or password is incorrect"), and
+  password-reset always says "sent", so the forms can't be used to find out
+  which emails have accounts.
 
 ## Tech Stack
 
 | Layer | Tool | Cost |
 |---|---|---|
-| Frontend | Next.js (App Router) + Tailwind | Free |
-| Auth | Supabase Auth (magic link, no passwords) | Free tier |
-| Database | Supabase Postgres — reuses the `noirflow-agents` project | Free tier |
+| Frontend | Next.js 14 (App Router) + Tailwind | Free |
+| Auth | Supabase Auth (email + password, invite-gated) | Free tier |
+| Database | Supabase Postgres, the same project as the automations | Free tier (paused after 7 days idle on free plan) |
 | Hosting | Vercel | Free tier |
+| Email (password reset) | Supabase built-in → custom SMTP for production | Free (Resend free tier: 3,000/mo) |
 
-**Total monthly cost:** ₹0 — everything runs on free tiers at this scale.
+**Monthly cost at 1–20 clients:** ₹0. Upgrade Supabase to Pro ($25/mo)
+when you have paying clients, so the database never pauses.
 
 ## Setup
 
 1. `cd client-portal && npm install`
-2. Copy `.env.example` to `.env.local` and fill in the three Supabase values
-   (all three come from the **same** `noirflow-agents` Supabase project —
-   Project Settings → Data API / API Keys).
-3. `npm run dev` — opens at `http://localhost:3000`.
-4. Deploy: Vercel → New Project → import this repo → set **Root Directory**
-   to `client-portal` → add the same three env vars (mark the service role
-   key **Sensitive**) → Deploy.
-5. In Supabase Auth settings, add your deployed URL (e.g.
-   `https://your-portal.vercel.app/**`) to **Redirect URLs**, or the magic
-   link will bounce.
+2. Copy `.env.example` → `.env.local` and fill in the three values.
+3. **Database:** in a fresh Supabase project, run `supabase/schema.sql` in
+   the SQL editor. (Already done on `noirflow-agents`.)
+4. **Supabase Auth settings** (Dashboard → Authentication):
+   - **Sign In / Providers → Email:** turn **"Allow new users to sign up" OFF**.
+     The portal creates accounts with the service role, so this doesn't
+     affect invite signups. It blocks anyone from creating an account
+     directly against the Supabase API with the public key.
+   - **URL Configuration:** set **Site URL** to your portal URL and add
+     `https://your-portal.vercel.app/**` to **Redirect URLs**. Without this,
+     password-reset links bounce.
+   - **Production:** set up custom SMTP (e.g. Resend). Supabase's built-in
+     mailer only sends a few emails per hour.
+5. **First admin:** `npm run invite:admin -- you@yourcompany.com`, run the
+   SQL it prints, then redeem the code at `/signup`. After that, invite
+   teammates from the admin console.
+6. `npm run dev` → `http://localhost:3000`
+7. **Deploy:** Vercel → New Project → this repo → **Root Directory**
+   `client-portal` → add the 3 env vars (mark the service role key
+   **Sensitive**) → Deploy.
 
-The `clients` and `tickets` tables (with Row Level Security policies
-scoping each client to their own rows) already exist in the
-`noirflow-agents` Supabase project — this app doesn't create them, it
-just reads/writes them.
+## Onboarding a New Client (2 minutes)
 
-## Onboarding a New Client
-
-There's no signup form on purpose — clients don't appear until you add
-them. In the Supabase SQL editor, run:
-
-```sql
-insert into clients (business_name, contact_name, contact_email, contact_phone, client_slug, automation_type, dashboard_url, plan, status)
-values (
-  'Smile Dental Care',
-  'Dr. Rajesh Sharma',
-  'client-real-email@example.com',  -- must match exactly what they'll sign in with
-  '+91XXXXXXXXXX',
-  'smile-dental',                    -- matches client_slug used by their automation
-  'WhatsApp AI Receptionist',
-  'https://your-automation.vercel.app/dashboard.html',
-  'Care Plan — ₹3,999/mo',
-  'active'
-);
-```
-
-Leave `auth_user_id` unset (it defaults to NULL). The first time that
-person logs in with that exact email, the portal links their new login to
-this row automatically — no second step needed. See
-`app/dashboard/actions.js` → `getOrClaimClient` for how that works.
-
-To resolve a ticket, update its `status` directly in the `tickets` table
-(`open` → `in_progress` → `resolved`).
+1. `/admin` → **Onboard a new client** → business name, plan, status → **Create client + invite code**.
+2. **Send on WhatsApp** (or copy the message) → client signs up.
+3. **Add a service** for each thing you run for them. Copy the
+   **Automation slug** it shows into that automation's
+   `PORTAL_SERVICE_SLUG` env var, and its bookings/errors start flowing in.
+4. **Add an objective** for the goal you sold them on.
 
 ## Demo Script (90 seconds)
 
-1. Open the login page, enter your own email, click the magic link.
-2. Point at the Account card — "this is pulled straight from your
-   database, the client can update their own contact info any time."
-3. Click "Open dashboard →" on the Automation card — "and this links
-   straight into the live bookings dashboard we built for their actual
-   AI receptionist, not a screenshot."
-4. Submit a test "Request something" ticket, then show it appearing in
-   Supabase's table editor in real time — "that's the client reaching
-   you without a phone call or a lost WhatsApp message."
+1. Log in as a client → **Overview**: "This is what every NoirFlow client sees.
+   Their services, their goals, what the AI did today."
+2. **Activity**: "Every booking our AI makes shows up here on its own. And if
+   anything breaks, they see it too, with its status. We don't hide problems."
+3. **Objectives**: "This is the goal you're paying for, tracked live, not in
+   a monthly PDF."
+4. **Support** → send a request → switch to `/admin`: "It lands in my queue
+   instantly. I mark it in progress, and you see that on your side."
 
 ## Sales Description
 
-*"Every NoirFlow client gets their own private portal — not a shared
-spreadsheet, not a WhatsApp group that gets buried. They log in with just
-their email, see exactly what their AI is doing for their business, update
-their own details, and tell us directly when something's wrong or when
-they want more. It's the difference between 'I built you a bot' and
-'you're a client of a real company.'"*
+*"Every NoirFlow client gets a private portal with their own login. You see
+every system we run for your business, every booking our AI made, every
+issue and its fix status, and progress against the goals we agreed on, live.
+Need something changed? Send it from the portal and track it until it's done.
+No chasing us on WhatsApp, no monthly report PDFs. Just open your dashboard."*
 
 ## Pricing Guidance
 
-This isn't sold as a standalone product — it's bundled into every NoirFlow
-engagement as the account layer. Suggested framing:
+Bundle it. Don't sell it alone. It's the thing that makes NoirFlow look like
+a real company and justifies a retainer:
 
-- **Included free** with any Care Plan (₹3,999+/month) — a differentiator
-  that costs NoirFlow ~₹0/month to run per client (free-tier Supabase/Vercel).
-- If ever offered as an add-on to a one-time/setup-only client: **₹5,000
-  one-time** to add portal access for their automation.
+- **Included** with every monthly care plan (₹3,999+/mo). Your cost per client
+  is about ₹0, and it's the main reason clients stay on the retainer instead of
+  paying once.
+- **Setup-only clients:** portal access as an add-on at **₹1,500/month** or
+  **₹5,000 one-time + ₹999/mo**.
+- **White-label for other agencies** (later): ₹15,000–25,000 setup per agency, with
+  their branding, a separate Supabase project and `supabase/schema.sql`.
 
-## Upsells / What's Next (not in v1 — deliberately cut for speed)
+## Upsells / Next Versions (not built — cut for speed)
 
-- Admin UI for NoirFlow to manage clients/resolve tickets without opening
-  Supabase directly (today: just use the Supabase table editor)
-- Email/WhatsApp notification to NoirFlow when a new ticket comes in
-- Per-client usage/billing history
-- Multiple team members per client account (today: one login per client)
-- Self-serve plan upgrades
+- WhatsApp/email alert to NoirFlow when a client opens a ticket or a critical error is logged
+- Monthly auto-generated report from the Activity + Objectives data
+- Multiple logins per client (owner + front-desk staff)
+- Objectives that update themselves from automation data (e.g. booking count)
+- Invoices/billing history with Stripe
+- Your own domain (`portal.noirflow.ai`)
 
 ## Security Notes
 
-- `clients` and `tickets` both have Row Level Security — a logged-in
-  client can only ever see their own row(s), enforced at the database
-  level, not just hidden in the UI.
-- The Supabase **service role** key is used server-side exactly once (to
-  link a new login to its pre-made `clients` row) and is never sent to
-  the browser.
-- There's no public signup — a `clients` row only ever appears by NoirFlow
-  inserting one, so there's no way to create an account for a business
-  that isn't actually a client.
+- Row Level Security is on for every portal table. Clients can only ever read
+  their own rows. Writes to services, events and objectives are service-role only.
+- `invites` and `admins` are revoked from the public key entirely.
+- The service role key lives only in server code (`lib/supabase/server.js`)
+  and never reaches the browser.
+- Password reset redirects only to same-site paths (`safeNextPath` in
+  `app/auth/callback/route.js`), so it can't be used as an open redirect.
+- Rate limiting is in-memory per server instance: good enough for a
+  login form, not a substitute for Supabase's own auth rate limits (which
+  also apply).

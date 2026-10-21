@@ -139,6 +139,7 @@ automations/whatsapp-dental-receptionist/
 │   ├── supabase-client.js      # Database connection
 │   ├── conversation-store.js   # Memory functions
 │   ├── sheets.js               # Google Sheets logging
+│   ├── portal-events.js        # Sends bookings/errors to the client portal
 │   └── prompts/
 │       └── receptionist-prompt.md  # Riya's personality
 ├── package.json
@@ -188,6 +189,24 @@ to serve. It also carries the same per-IP rate limit as `/webhook` (see
 query param (matches `client_slug` in Supabase) for when multi-tenant support
 lands — today everything is hardcoded to `smile-dental` in `src/ai.js`, so
 leave it off until that changes.
+
+## Client Portal Link (bookings + errors in the client's account)
+
+The NoirFlow client portal (`/client-portal` in this repo) is where the clinic
+logs in with their own email and password. Set `PORTAL_SERVICE_SLUG` and this
+automation reports into it automatically:
+
+| What happens | What the client sees under Activity |
+|---|---|
+| Riya confirms a booking and it's saved to Sheets | **Operation:** "Appointment booked on WhatsApp", with name, service and time |
+| The booking couldn't be written to Sheets | **Error (critical):** "Booking not saved to your sheet", with the details so they can add it by hand |
+| Gemini fails and a patient goes unanswered | **Error (critical):** "AI receptionist could not reply" |
+
+Setup: in the portal's admin console, add a service for the client, then copy
+the "Automation slug" it shows into `PORTAL_SERVICE_SLUG` on this Vercel
+project. The same error is posted at most once every 10 minutes per instance, so
+an outage doesn't flood the client's feed. Portal logging never blocks or
+breaks a patient's reply. If it fails, it only writes to the server logs.
 
 ## Migrating from Telegram to Real WhatsApp
 

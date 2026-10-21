@@ -1,5 +1,5 @@
 // Refreshes the Supabase auth session on every request and redirects
-// unauthenticated visitors away from /dashboard. This has to live in
+// unauthenticated visitors away from /dashboard and /admin. This has to live in
 // middleware (not just in the dashboard page) because Server Components
 // can't write cookies — without this, sessions would silently expire.
 
@@ -26,7 +26,10 @@ export async function updateSession(request) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
+  const { pathname } = request.nextUrl;
+  const isProtected = pathname.startsWith('/dashboard') || pathname.startsWith('/admin');
+
+  if (!user && isProtected) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/login';
     return NextResponse.redirect(loginUrl);

@@ -114,6 +114,13 @@ For every automation, briefly answer:
   lead-gen mechanic to reuse across every local-business site.
 
 ## Internal Tools
+- **Client Portal** at `/client-portal/` — the real login for paying
+  clients (Next.js + Supabase, `noirflow-agents` project). Invite-code
+  signup → email + password; clients track services, activity
+  (operations/errors), objectives and support tickets; NoirFlow runs it
+  from `/admin`. Automations report in via `PORTAL_SERVICE_SLUG` (see
+  `automations/whatsapp-dental-receptionist/src/portal-events.js`).
+  Schema in `client-portal/supabase/schema.sql`.
 - **Focus Loop** at `/tools/focus-loop/` — Anshuman's personal AI coach,
   classroom, and NoirFlow advisor. Founder is user #1. Future SaaS candidate
   for solo founders + students.

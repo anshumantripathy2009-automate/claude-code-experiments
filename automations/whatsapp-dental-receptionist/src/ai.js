@@ -3,6 +3,7 @@ const path = require('path');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { getConversation, addMessage } = require('./conversation-store');
 const { appendBooking } = require('./sheets');
+const { logOperation, logError } = require('./portal-events');
 
 const MODEL_NAME = 'gemini-3.5-flash';
 const BOOKING_BLOCK_REGEX = /```json\s*([\s\S]*?)```/i;
@@ -91,6 +92,11 @@ async function generateReply(phone, userMessage) {
     result = await chat.sendMessage(userMessage);
   } catch (err) {
     console.error('[ai] Gemini API call failed:', err);
+    await logError(
+      'AI receptionist could not reply',
+      'The AI model did not respond, so a patient message went unanswered. NoirFlow has been alerted.',
+      'critical'
+    );
     throw new Error('Sorry, the receptionist is unavailable right now. Please try again shortly.');
   }
 
@@ -117,6 +123,18 @@ async function generateReply(phone, userMessage) {
     });
 
     console.log(`[ai] Sheets write ${bookingLogged ? 'succeeded' : 'failed'} for ${phone}.`);
+
+    const when = [booking.preferred_date, booking.preferred_time].filter(Boolean).join(' at ');
+    const summary = [booking.name, booking.service, when].filter(Boolean).join(' · ');
+    if (bookingLogged) {
+      await logOperation('Appointment booked on WhatsApp', summary);
+    } else {
+      await logError(
+        'Booking not saved to your sheet',
+        `Riya confirmed a booking but it could not be written to Google Sheets: ${summary}. Please add it manually — NoirFlow is on it.`,
+        'critical'
+      );
+    }
   } else {
     console.log(`[ai] No completed booking detected for ${phone} — Sheets write skipped.`);
   }
