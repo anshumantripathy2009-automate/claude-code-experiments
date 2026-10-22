@@ -113,6 +113,19 @@ For every automation, briefly answer:
   that ends in a pre-filled WhatsApp message. That quiz pattern is the
   lead-gen mechanic to reuse across every local-business site.
 
+## Products Set Aside for Sale
+- **Riya — WhatsApp/Telegram AI receptionist**
+  (`/automations/whatsapp-dental-receptionist/`, Vercel project
+  `claude-code-experiments-ai-receptionist-riya`).
+  - Still deployed with all data kept: Supabase conversations, Google Sheet
+    bookings and owner alerts.
+  - Not attached to any portal client. `PORTAL_SERVICE_SLUG` is empty on
+    Vercel, and the Smile Dental "WhatsApp AI Receptionist" portal service
+    is paused, not deleted.
+  - To hand her to a buyer: create the buyer in `/admin`, add a service, put
+    its slug in `PORTAL_SERVICE_SLUG`, and change the hardcoded
+    `CLIENT_SLUG` in `src/ai.js`.
+
 ## Internal Tools
 - **Client Portal** at `/client-portal/` — the real login for paying
   clients (Next.js + Supabase, `noirflow-agents` project). Invite-code
