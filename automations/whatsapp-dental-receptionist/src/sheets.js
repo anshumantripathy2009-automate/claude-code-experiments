@@ -60,4 +60,44 @@ async function appendBooking(bookingData) {
   }
 }
 
-module.exports = { appendBooking };
+// Reads every logged booking row. Never throws — a Sheets outage should
+// degrade the dashboard to an empty list, not break the whole page. Returns
+// { bookings, configured } so the caller can tell "no data yet" apart from
+// "Sheets isn't set up".
+async function listBookings() {
+  const spreadsheetId = process.env.GOOGLE_SHEETS_SPREADSHEET_ID;
+  if (!spreadsheetId || !process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || !process.env.GOOGLE_PRIVATE_KEY) {
+    return { bookings: [], configured: false };
+  }
+
+  try {
+    const auth = getAuth();
+    const sheets = google.sheets({ version: 'v4', auth });
+
+    const { data } = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range: SHEET_RANGE,
+    });
+
+    const rows = (data.values || []).slice(1); // drop header row
+    const bookings = rows
+      .filter((row) => row.length > 0)
+      .map((row) => ({
+        timestamp: row[0] || null,
+        phoneNumber: row[1] || '',
+        patientName: row[2] || '',
+        service: row[3] || '',
+        preferredDate: row[4] || '',
+        preferredTime: row[5] || '',
+        status: row[6] || '',
+        notes: row[7] || '',
+      }));
+
+    return { bookings, configured: true };
+  } catch (err) {
+    console.error('[sheets] Failed to read bookings from Google Sheets:', err);
+    return { bookings: [], configured: true };
+  }
+}
+
+module.exports = { appendBooking, listBookings };

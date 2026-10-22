@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<title>Clinic Dashboard — NoirFlow AI</title>
+<meta name="description" content="Live bookings and conversations handled by your AI receptionist." />
+<script>
+  (function () {
+    try {
+      var theme = localStorage.getItem('theme');
+      var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (theme === 'dark' || (!theme && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {}
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = { darkMode: 'class' };
+</script>
+<style>
+  html, body { background: #ffffff; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+  html.dark, html.dark body { background: #0a0a0a; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 9999px; }
+  html.dark ::-webkit-scrollbar-thumb { background: #262626; }
+
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in { opacity: 0; animation: fade-in-up 0.45s ease-out forwards; }
+
+  #modal-content {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 300ms ease-out, transform 300ms ease-out;
+  }
+  #modal-content.modal-open { opacity: 1; transform: translateY(0); }
+
+  .toast { transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 300ms ease-out; }
+
+  @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  .pulse-dot { animation: pulse-dot 2s ease-in-out infinite; }
+</style>
+</head>
+<body class="bg-white dark:bg-neutral-950 text-neutral-900 dark:text-neutral-50 min-h-screen transition-colors duration-300">
+<noscript><div class="p-6 text-center">This dashboard requires JavaScript to be enabled.</div></noscript>
+
+<div id="toast-container" class="fixed bottom-4 right-4 z-[100] flex flex-col gap-2 items-end"></div>
+
+<!-- Modal -->
+<div id="modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 dark:bg-black/60 backdrop-blur-sm p-4" onclick="if(event.target===this) closeModal();">
+  <div id="modal-content" class="bg-white dark:bg-neutral-900 rounded-[10px] border border-gray-200 dark:border-neutral-800 shadow-lg max-w-[500px] w-full max-h-[85vh] overflow-y-auto" role="dialog" aria-modal="true"></div>
+</div>
+
+<!-- Access gate -->
+<div id="gate" class="fixed inset-0 z-40 flex items-center justify-center bg-white dark:bg-neutral-950 p-4">
+  <div class="w-full max-w-sm rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-6">
+    <div class="w-10 h-10 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center mb-4">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h1 class="text-base font-semibold text-neutral-900 dark:text-neutral-50">Clinic Dashboard</h1>
+    <p class="text-sm text-gray-500 dark:text-neutral-400 mt-1 mb-4">Enter your access key to view live bookings and conversations.</p>
+    <input id="gate-input" type="password" placeholder="Access key" class="w-full text-sm bg-gray-50 dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg px-3 py-2 text-neutral-800 dark:text-neutral-100 placeholder:text-gray-400 dark:placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-indigo-600/20 focus:border-indigo-300 dark:focus:border-indigo-500" />
+    <p id="gate-error" class="hidden text-xs text-red-600 dark:text-red-400 mt-2">That key didn't work. Check it and try again.</p>
+    <button onclick="submitGate()" class="w-full mt-4 text-sm font-semibold px-4 py-2.5 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">Unlock dashboard</button>
+    <p class="text-xs text-gray-400 dark:text-neutral-500 mt-4">Don't have a key? Ask NoirFlow for your dashboard link.</p>
+  </div>
+</div>
+
+<!-- Top Nav -->
+<header class="sticky top-0 z-30 bg-white/95 dark:bg-neutral-950/95 backdrop-blur border-b border-gray-200 dark:border-neutral-800 transition-colors duration-300">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-100 dark:border-indigo-500/20 flex items-center justify-center shrink-0">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-indigo-600 dark:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a4 4 0 0 0-4 4v2a4 4 0 0 0 8 0V6a4 4 0 0 0-4-4Z"/><path d="M8 14a6 6 0 0 0 8 0"/><path d="M12 20v-2"/></svg>
+      </div>
+      <span id="clinic-name" class="font-semibold text-sm sm:text-base text-neutral-900 dark:text-neutral-50 tracking-tight">Smile Dental Care</span>
+    </div>
+    <div class="flex items-center gap-2 sm:gap-3">
+      <span id="live-status" class="hidden sm:flex items-center gap-1.5 text-xs text-gray-500 dark:text-neutral-400">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 pulse-dot"></span>
+        Live
+      </span>
+      <button type="button" onclick="toggleTheme()" class="text-gray-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-neutral-50 hover:bg-gray-50 dark:hover:bg-neutral-900 rounded-lg p-2 transition-all duration-200" aria-label="Toggle dark mode">
+        <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="max-w-5xl mx-auto px-4 sm:px-6 pb-16">
+
+  <section class="pt-6 sm:pt-8 pb-2">
+    <h1 class="text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight">What Riya handled</h1>
+    <div class="flex flex-wrap items-center justify-between gap-2 mt-1">
+      <p class="text-sm text-gray-500 dark:text-neutral-400">Real bookings and conversations, straight from your AI receptionist</p>
+      <p id="refreshed-at" class="text-xs text-gray-400 dark:text-neutral-500 font-mono"></p>
+    </div>
+  </section>
+
+  <!-- Connection warnings -->
+  <div id="connection-warnings" class="hidden mt-4 space-y-2"></div>
+
+  <section id="kpis" class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mt-4"></section>
+
+  <section class="mt-4 sm:mt-6">
+    <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-3">Live Conversations</h2>
+    <div id="conversations" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+    <p id="conversations-empty" class="hidden text-sm text-gray-500 dark:text-neutral-400 rounded-[10px] border border-dashed border-gray-200 dark:border-neutral-800 p-6 text-center">No conversations yet. Once a patient messages Riya, it'll show up here.</p>
+  </section>
+
+  <section class="mt-4 sm:mt-6">
+    <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 sm:p-5 transition-colors duration-300">
+      <h2 class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 tracking-tight mb-3">Recent Bookings</h2>
+      <div id="bookings" class="divide-y divide-gray-100 dark:divide-neutral-800"></div>
+      <p id="bookings-empty" class="hidden text-sm text-gray-500 dark:text-neutral-400 text-center py-6">No bookings yet. Once Riya confirms an appointment, it'll show up here.</p>
+    </div>
+  </section>
+
+</div>
+
+<footer class="max-w-5xl mx-auto px-4 sm:px-6 pb-10">
+  <div class="mt-2 pt-5 border-t border-gray-200 dark:border-neutral-800 text-center transition-colors duration-300">
+    <p class="text-xs text-gray-400 dark:text-neutral-500">
+      Powered by <a href="https://noirflow.ai" class="text-gray-500 dark:text-neutral-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors font-medium">NoirFlow AI</a>
+    </p>
+  </div>
+</footer>
+
+<script>
+  // ---------- Dark mode ----------
+  function setTheme(theme) {
+    const isDark = theme === 'dark';
+    document.documentElement.classList.toggle('dark', isDark);
+    try { localStorage.setItem('theme', theme); } catch (e) {}
+    document.getElementById('icon-sun').classList.toggle('hidden', isDark);
+    document.getElementById('icon-moon').classList.toggle('hidden', !isDark);
+  }
+  function toggleTheme() {
+    setTheme(document.documentElement.classList.contains('dark') ? 'light' : 'dark');
+  }
+  setTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+
+  // ---------- Shared icons ----------
+  const ICON_X = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+  const ICON_CHECK = '<svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+
+  // ---------- Modal ----------
+  let lastFocused = null;
+  function openModal(html) {
+    lastFocused = document.activeElement;
+    const overlay = document.getElementById('modal-overlay');
+    const content = document.getElementById('modal-content');
+    content.classList.remove('modal-open');
+    content.innerHTML = html;
+    overlay.classList.remove('hidden');
+    overlay.classList.add('flex');
+    requestAnimationFrame(() => requestAnimationFrame(() => content.classList.add('modal-open')));
+  }
+  function closeModal() {
+    const overlay = document.getElementById('modal-overlay');
+    const content = document.getElementById('modal-content');
+    content.classList.remove('modal-open');
+    setTimeout(() => {
+      overlay.classList.add('hidden');
+      overlay.classList.remove('flex');
+      if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+    }, 300);
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  // ---------- Toasts ----------
+  function showToast(message) {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast flex items-center gap-2 bg-emerald-500 text-white text-sm font-medium pl-3.5 pr-4 py-3 rounded-lg shadow-lg translate-x-[130%] opacity-0 max-w-xs';
+    toast.innerHTML = ICON_CHECK + '<span>' + message + '</span>';
+    container.appendChild(toast);
+    requestAnimationFrame(() => requestAnimationFrame(() => toast.classList.remove('translate-x-[130%]', 'opacity-0')));
+    setTimeout(() => {
+      toast.classList.add('translate-x-[130%]', 'opacity-0');
+      setTimeout(() => toast.remove(), 300);
+    }, 3000);
+  }
+
+  // ---------- Relative time ----------
+  function timeAgo(iso) {
+    if (!iso) return '';
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const mins = Math.round(diffMs / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return mins + ' min ago';
+    const hrs = Math.round(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    const days = Math.round(hrs / 24);
+    return days + 'd ago';
+  }
+
+  // ---------- Count-up ----------
+  function animateCountUp(el) {
+    const end = parseInt(el.getAttribute('data-count-to'), 10);
+    if (isNaN(end)) return;
+    const duration = 700;
+    const start = performance.now();
+    function frame(now) {
+      const t = Math.min((now - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = Math.round(end * eased).toLocaleString('en-IN');
+      if (t < 1) requestAnimationFrame(frame);
+      else el.textContent = end.toLocaleString('en-IN');
+    }
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- Access key gate ----------
+  function getStoredKey() {
+    try { return localStorage.getItem('dashboardAccessKey'); } catch (e) { return null; }
+  }
+  function storeKey(key) {
+    try { localStorage.setItem('dashboardAccessKey', key); } catch (e) {}
+  }
+  function showGate(withError) {
+    document.getElementById('gate').classList.remove('hidden');
+    document.getElementById('gate-error').classList.toggle('hidden', !withError);
+  }
+  function hideGate() {
+    document.getElementById('gate').classList.add('hidden');
+  }
+  function submitGate() {
+    const key = document.getElementById('gate-input').value.trim();
+    if (!key) return;
+    storeKey(key);
+    loadDashboard();
+  }
+  document.getElementById('gate-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submitGate();
+  });
+
+  // ---------- Render ----------
+  function kpiCardHtml(label, value, tooltip) {
+    return `
+      <div class="rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-5">
+        <p class="text-xs font-medium text-gray-500 dark:text-neutral-400 mb-2">${label}</p>
+        <p class="text-2xl sm:text-3xl font-bold text-neutral-900 dark:text-neutral-50 tracking-tight" data-count-to="${value}">0</p>
+      </div>
+    `;
+  }
+
+  function convoCardHtml(c, index) {
+    const preview = c.lastMessage
+      ? (c.lastMessageFrom === 'assistant' ? 'Riya: ' : '') + c.lastMessage
+      : 'No messages yet';
+    return `
+      <button onclick="openTranscriptModal(${index})" class="text-left rounded-[10px] border border-gray-200 dark:border-neutral-800 bg-white dark:bg-neutral-900 shadow-sm p-4 hover:shadow-md dark:hover:shadow-neutral-950/50 transition-all duration-200">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-medium text-neutral-900 dark:text-neutral-50 font-mono">${c.phoneNumber}</span>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-500/20 shrink-0">${c.messageCount} msg${c.messageCount === 1 ? '' : 's'}</span>
+        </div>
+        <p class="text-xs text-gray-500 dark:text-neutral-400 line-clamp-2">${preview}</p>
+        <p class="text-[11px] text-gray-400 dark:text-neutral-500 mt-2.5">${timeAgo(c.updatedAt)}</p>
+      </button>
+    `;
+  }
+
+  function bookingRowHtml(b) {
+    const statusOk = (b.status || '').toLowerCase() === 'confirmed';
+    return `
+      <div class="flex items-center justify-between py-2.5 gap-3">
+        <div class="min-w-0">
+          <p class="text-sm text-neutral-900 dark:text-neutral-50 truncate">${b.patientName} <span class="text-gray-400 dark:text-neutral-500 font-mono text-xs">${b.phoneNumber}</span></p>
+          <p class="text-xs text-gray-500 dark:text-neutral-400 truncate">${b.service} · ${b.preferredDate} ${b.preferredTime}</p>
+        </div>
+        <span class="text-[11px] font-medium px-2 py-0.5 rounded-md shrink-0 ${statusOk ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-400'}">${b.status}</span>
+      </div>
+    `;
+  }
+
+  let lastData = null;
+
+  function openTranscriptModal(index) {
+    const c = lastData.conversations[index];
+    const bubbles = c.transcript.map((m) => `
+      <div class="flex ${m.role === 'assistant' ? 'justify-end' : 'justify-start'}">
+        <div class="max-w-[80%] rounded-lg px-3 py-2 text-sm ${m.role === 'assistant' ? 'bg-indigo-600 text-white' : 'bg-gray-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100'}">
+          <p>${m.text}</p>
+        </div>
+      </div>
+    `).join('');
+    openModal(`
+      <div class="p-5">
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <p class="text-sm font-semibold text-neutral-900 dark:text-neutral-50 font-mono">${c.phoneNumber}</p>
+            <p class="text-xs text-gray-500 dark:text-neutral-400">${c.messageCount} messages · updated ${timeAgo(c.updatedAt)}</p>
+          </div>
+          <button onclick="closeModal()" class="text-gray-400 dark:text-neutral-500 hover:text-gray-600 dark:hover:text-neutral-300 p-1 rounded-md hover:bg-gray-100 dark:hover:bg-neutral-800" aria-label="Close">${ICON_X}</button>
+        </div>
+        <div class="space-y-2.5 max-h-80 overflow-y-auto pr-1">${bubbles || '<p class="text-sm text-gray-500 dark:text-neutral-400">No messages recorded.</p>'}</div>
+      </div>
+    `);
+  }
+
+  function renderConnectionWarnings(configured) {
+    const el = document.getElementById('connection-warnings');
+    const warnings = [];
+    if (!configured.sheets) warnings.push('Google Sheets isn\'t connected yet — bookings won\'t show up until it\'s set up.');
+    if (!configured.supabase) warnings.push('Supabase isn\'t connected yet — conversations won\'t show up until it\'s set up.');
+    if (!warnings.length) { el.classList.add('hidden'); el.innerHTML = ''; return; }
+    el.classList.remove('hidden');
+    el.innerHTML = warnings.map((w) => `
+      <div class="flex items-center gap-2.5 rounded-[10px] border border-amber-200 dark:border-amber-500/30 bg-amber-50 dark:bg-amber-500/10 px-4 py-3 text-sm text-amber-800 dark:text-amber-300">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><circle cx="12" cy="12" r="10"/></svg>
+        ${w}
+      </div>
+    `).join('');
+  }
+
+  function render(data) {
+    lastData = data;
+
+    document.getElementById('kpis').innerHTML = [
+      kpiCardHtml('Total Bookings', data.kpis.totalBookings),
+      kpiCardHtml('Bookings Today', data.kpis.bookingsToday),
+      kpiCardHtml('Bookings This Week', data.kpis.bookingsThisWeek),
+      kpiCardHtml('Conversations Handled', data.kpis.conversationsHandled),
+    ].join('');
+    document.querySelectorAll('#kpis [data-count-to]').forEach(animateCountUp);
+
+    renderConnectionWarnings(data.configured);
+
+    const convoEl = document.getElementById('conversations');
+    convoEl.innerHTML = data.conversations.map(convoCardHtml).join('');
+    document.getElementById('conversations-empty').classList.toggle('hidden', data.conversations.length > 0);
+
+    const bookingsEl = document.getElementById('bookings');
+    bookingsEl.innerHTML = data.bookings.map(bookingRowHtml).join('');
+    document.getElementById('bookings-empty').classList.toggle('hidden', data.bookings.length > 0);
+
+    document.getElementById('refreshed-at').textContent = 'Updated ' + new Date(data.generatedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  async function loadDashboard() {
+    const key = getStoredKey();
+    if (!key) { showGate(false); return; }
+
+    const params = new URLSearchParams(window.location.search);
+    const client = params.get('client') || '';
+    const url = '/api/dashboard-data?key=' + encodeURIComponent(key) + (client ? '&client=' + encodeURIComponent(client) : '');
+
+    try {
+      const resp = await fetch(url);
+      if (resp.status === 401) {
+        try { localStorage.removeItem('dashboardAccessKey'); } catch (e) {}
+        showGate(true);
+        return;
+      }
+      if (!resp.ok) {
+        showToast('Could not load dashboard data — retrying shortly');
+        return;
+      }
+      const data = await resp.json();
+      hideGate();
+      render(data);
+    } catch (err) {
+      showToast('Network error — retrying shortly');
+    }
+  }
+
+  loadDashboard();
+  setInterval(loadDashboard, 60000);
+</script>
+
+</body>
+</html>
