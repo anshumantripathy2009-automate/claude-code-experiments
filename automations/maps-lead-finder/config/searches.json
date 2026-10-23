@@ -1,0 +1,24 @@
+{
+  "_comment": "Every niche is searched in every enabled city. Disable a city or niche by setting enabled: false.",
+  "cities": [
+    { "name": "Bhubaneswar", "enabled": true },
+    { "name": "Cuttack", "enabled": true },
+    { "name": "Puri", "enabled": false },
+    { "name": "Berhampur", "enabled": false },
+    { "name": "Rourkela", "enabled": false },
+    { "name": "Sambalpur", "enabled": false }
+  ],
+  "niches": [
+    { "query": "dental clinic", "group": "Clinics", "enabled": true },
+    { "query": "skin and hair clinic", "group": "Clinics", "enabled": true },
+    { "query": "physiotherapy clinic", "group": "Clinics", "enabled": true },
+    { "query": "diagnostic centre", "group": "Clinics", "enabled": true },
+    { "query": "gym", "group": "Gyms & salons", "enabled": true },
+    { "query": "beauty salon", "group": "Gyms & salons", "enabled": true },
+    { "query": "spa", "group": "Gyms & salons", "enabled": true },
+    { "query": "electronics store", "group": "Shops & services", "enabled": true },
+    { "query": "furniture store", "group": "Shops & services", "enabled": true },
+    { "query": "coaching centre", "group": "Shops & services", "enabled": true },
+    { "query": "restaurant", "group": "Shops & services", "enabled": true }
+  ]
+}

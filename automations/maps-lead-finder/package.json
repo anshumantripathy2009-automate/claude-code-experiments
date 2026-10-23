@@ -1,0 +1,15 @@
+{
+  "name": "maps-lead-finder",
+  "version": "1.0.0",
+  "description": "Find local businesses on Google Maps that have no website, ranked by how busy they are, with a ready WhatsApp pitch for each.",
+  "type": "module",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/index.js",
+    "test": "node --test test/"
+  },
+  "engines": {
+    "node": ">=20.12"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
