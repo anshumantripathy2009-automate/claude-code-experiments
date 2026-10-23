@@ -113,6 +113,10 @@ For every automation, briefly answer:
   that ends in a pre-filled WhatsApp message. That quiz pattern is the
   lead-gen mechanic to reuse across every local-business site.
 
+## Moved to Claude-Code-Lab
+- **Sales & inbox agent** (formerly `/automations/outreach-agent/`) is live and now lives in the
+  private Claude-Code-Lab repo at `agents/outreach-agent/`. Edit it there, not here.
+
 ## Products Set Aside for Sale
 - **Riya — WhatsApp/Telegram AI receptionist**
   (`/automations/whatsapp-dental-receptionist/`, Vercel project
