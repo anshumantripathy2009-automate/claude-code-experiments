@@ -147,7 +147,7 @@ We prefer these tools by default. When client needs demand different tools, we a
 
 ## Sales Operating System Reference
 
-Complete sales playbook exists at /docs/sales-os/ with eleven documents covering pricing, ICP and buyer personas, outreach scripts, qualification framework, discovery call playbook, objection handling, proposal templates, follow-up sequences, pipeline tracking, and case study framework. Reference these documents when advising on sales conversations.
+The complete sales playbook lives in the private repo Claude-Code-Lab at docs/sales-os/ (not in this public repo). It has eleven documents covering pricing, ICP and buyer personas, outreach scripts, qualification framework, discovery call playbook, objection handling, proposal templates, follow-up sequences, pipeline tracking, and case study framework. Reference these documents when advising on sales conversations.
 
 ## Client Onboarding Workflow
 
@@ -193,17 +193,23 @@ Anshuman may go offline for extended academic periods. During offline windows:
 
 ## Repository Structure
 
-The repository is organized as follows:
+NoirFlow uses three repos. This one is public, so nothing secret or internal goes here.
 
-Root level contains CLAUDE.md (this file), README.md (public repo description), and top-level configuration.
+| Repo | What lives there | Visibility |
+|---|---|---|
+| claude-code-experiments (this repo) | Demos, portfolio pieces, clinic previews, prototype automations, learning builds | Public |
+| Claude-Code-Lab | Everything live or internal: agency website, client portal, paying-client sites, live agents, Sales OS and templates | Private |
+| automate-noirflow | Archived. Old copy of the agency website; the live code is in Claude-Code-Lab | Private, read-only |
 
-The portfolio folder contains live portfolio and demo sites (Smile Dental, Aurum Realty, and future portfolio pieces), plus its own CLAUDE.md defining portfolio-specific standards.
+Inside this repo:
 
-The automations folder contains production AI products that generate revenue. Each automation lives in its own subfolder with complete documentation, currently including the WhatsApp AI Receptionist for dental clinics.
+- portfolio/: demo sites (Smile Dental, Aurum Realty, FitZone Gym, Patra Electronics), plus its own CLAUDE.md with portfolio standards.
+- demos/: sales demos (Smart Clinic Dashboard, NoirFlow story page, Riya voice).
+- automations/: prototype automations, including the WhatsApp AI receptionist (Riya) and the Maps lead finder.
+- tools/: personal tools such as Focus Loop.
+- docs/security/: the secrets audit for this repo.
 
-The clients folder contains individual client deployments, created when a client closes. Each client has their own subfolder with site code, info file, care log, monthly reports, and invoices.
-
-The docs folder contains sales-os with the eleven-document sales playbook, templates for client onboarding and handoff, and reference documents like the pricing playbook.
+When a client pays, their site goes to Claude-Code-Lab under sites/<client-slug>/, not here. When a prototype starts running for real, it moves to Claude-Code-Lab too.
 
 ## Key Success Metrics (Track Weekly)
 
