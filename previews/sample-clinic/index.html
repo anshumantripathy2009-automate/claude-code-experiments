@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Concept preview</title>
+  <meta name="description" content="Concept homepage preview by NoirFlow AI.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%9C%A8%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #0f766e;           /* overwritten from CONFIG.accentColor */
+      --accent-soft: #0f766e14;
+      --wa: #25D366;
+      --wa-dark: #128C4A;
+      --ink: #0f172a;
+      --muted: #475569;
+      --line: #e2e8f0;
+      --bg: #ffffff;
+      --bg-alt: #f8fafc;
+      --radius: 16px;
+      --bar-h: 64px;
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+    body {
+      margin: 0; background: var(--bg); color: var(--ink);
+      font: 400 16px/1.6 Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      overflow-x: hidden; overflow-wrap: anywhere;
+      padding-bottom: calc(var(--bar-h) + env(safe-area-inset-bottom));
+    }
+    @media (min-width: 768px) { body { padding-bottom: 0; } }
+    h1, h2, h3 { font-family: Fraunces, Georgia, serif; line-height: 1.2; margin: 0 0 .5rem; }
+    h1 { font-size: clamp(2rem, 7vw, 3.25rem); }
+    h2 { font-size: clamp(1.5rem, 5vw, 2.25rem); }
+    h3 { font-size: 1.125rem; }
+    p { margin: 0 0 1rem; }
+    a { color: var(--accent); }
+    svg.icon { width: 22px; height: 22px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .wrap { width: 100%; max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+    section { padding: 56px 0; scroll-margin-top: 72px; }
+    section:nth-of-type(even) { background: var(--bg-alt); }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--accent); font-weight: 600; font-size: .875rem; letter-spacing: .04em; text-transform: uppercase; margin-bottom: .5rem; }
+    .lead { color: var(--muted); font-size: 1.0625rem; max-width: 60ch; }
+    .skip { position: absolute; left: -9999px; }
+    .skip:focus { left: 12px; top: 12px; z-index: 100; background: #fff; padding: 12px; border-radius: 8px; }
+    :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      min-height: 48px; padding: 12px 20px; border-radius: 999px; border: 2px solid transparent;
+      font: 600 1rem/1 Inter, system-ui, sans-serif; text-decoration: none; cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 8px 20px -8px rgba(15,23,42,.35); }
+    .btn-wa { background: var(--wa); color: #0b2e17; }
+    .btn-wa:hover { background: #20c35c; }
+    .btn-accent { background: var(--accent); color: #fff; }
+    .btn-outline { background: transparent; color: var(--accent); border-color: var(--accent); }
+    .btn-sm { min-height: 44px; padding: 10px 16px; font-size: .9375rem; }
+
+    /* Top bar */
+    .topbar { position: sticky; top: 0; z-index: 40; background: rgba(255,255,255,.92); backdrop-filter: saturate(1.4) blur(10px); border-bottom: 1px solid var(--line); }
+    .topbar .wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 64px; }
+    .brand { display: inline-flex; align-items: center; min-height: 44px; font-family: Fraunces, Georgia, serif; font-weight: 700; font-size: 1.125rem; color: var(--ink); text-decoration: none; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    /* Hero */
+    .hero { padding: 48px 0 56px; background:
+      radial-gradient(1200px 400px at 100% 0%, var(--accent-soft), transparent 60%),
+      radial-gradient(800px 300px at 0% 100%, var(--accent-soft), transparent 60%); }
+    .hero .area { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-weight: 500; margin-bottom: 12px; }
+    .hero .tagline { font-size: 1.125rem; color: var(--muted); max-width: 55ch; }
+    .rating { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--ink); text-decoration: none; font-weight: 500; margin-bottom: 20px; }
+    .rating svg.icon { color: #b45309; fill: #f59e0b; stroke: #b45309; width: 18px; height: 18px; }
+    .rating small { color: var(--muted); }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+
+    /* Highlights */
+    .chips { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; padding: 0; list-style: none; }
+    .chips li { display: inline-flex; align-items: center; gap: 8px; padding: 10px 14px; background: #fff; border: 1px solid var(--line); border-radius: 999px; font-weight: 500; }
+    .chips svg.icon { color: var(--accent); width: 18px; height: 18px; }
+
+    /* Cards */
+    .grid { display: grid; gap: 16px; grid-template-columns: 1fr; margin-top: 24px; }
+    @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 960px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+    .card { background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; box-shadow: 0 1px 2px rgba(15,23,42,.04); transition: transform .2s ease, box-shadow .2s ease; }
+    .card:hover { transform: translateY(-2px); box-shadow: 0 12px 28px -14px rgba(15,23,42,.25); }
+    .card .ico { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); margin-bottom: 12px; }
+    .card p { color: var(--muted); margin: 0; }
+
+    /* Doctor */
+    .doctor { display: flex; gap: 20px; align-items: center; flex-wrap: wrap; margin-top: 20px; }
+    .avatar { width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--accent); color: #fff; font: 700 2rem/1 Fraunces, Georgia, serif; flex: none; }
+    .doctor .qual { color: var(--muted); margin: 0; }
+
+    /* Timings */
+    .hours { width: 100%; max-width: 560px; border-collapse: collapse; margin-top: 20px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+    .hours th, .hours td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+    .hours tr:last-child th, .hours tr:last-child td { border-bottom: 0; }
+    .hours th { font-weight: 600; }
+    .hours td { color: var(--muted); text-align: right; }
+
+    /* Location */
+    .loc { display: grid; gap: 20px; margin-top: 20px; }
+    @media (min-width: 860px) { .loc { grid-template-columns: 1.4fr 1fr; align-items: start; } }
+    .map { width: 100%; aspect-ratio: 4 / 3; border: 0; border-radius: var(--radius); background: var(--bg-alt); display: block; }
+    .addr { display: flex; gap: 10px; align-items: flex-start; }
+    .addr svg.icon { color: var(--accent); margin-top: 3px; }
+
+    /* Booking form */
+    form { display: grid; gap: 16px; max-width: 560px; margin-top: 20px; background: #fff; border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; }
+    label { display: grid; gap: 6px; font-weight: 600; font-size: .9375rem; }
+    input, select, textarea { width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid #cbd5e1; border-radius: 12px; font: 400 1rem/1.4 Inter, system-ui, sans-serif; color: var(--ink); background: #fff; }
+    textarea { min-height: 96px; resize: vertical; }
+    input:focus, select:focus, textarea:focus { outline: 3px solid var(--accent-soft); border-color: var(--accent); }
+    .hint { color: var(--muted); font-size: .875rem; margin: 0; }
+    .err { color: #b91c1c; font-size: .875rem; margin: 0; min-height: 1.2em; }
+
+    /* Footer */
+    footer { padding: 32px 0; background: var(--ink); color: #cbd5e1; font-size: .9375rem; }
+    footer p { margin: 0 0 6px; }
+    footer .credit { color: #94a3b8; }
+
+    /* Mobile action bar */
+    .actionbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: grid; grid-template-columns: repeat(3, 1fr); background: #fff; border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); box-shadow: 0 -6px 18px -12px rgba(15,23,42,.3); }
+    .actionbar a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: var(--bar-h); font-weight: 600; font-size: .8125rem; text-decoration: none; color: var(--accent); }
+    .actionbar a.wa { background: var(--wa); color: #0b2e17; }
+    @media (min-width: 768px) { .actionbar { display: none; } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+      .btn:hover, .card:hover { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div id="app"></div>
+  <noscript><p style="padding:20px">This preview needs JavaScript to display.</p></noscript>
+
+<script>
+"use strict";
+
+/* =====================================================================
+   CONFIG: everything business-specific lives here.
+   Fill this in for each business. Leave optional fields empty ("" or
+   null) and their sections hide automatically.
+   phone / whatsapp: digits only, with country code (e.g. 91XXXXXXXXXX).
+   ===================================================================== */
+/* CONFIG:START */
+const CONFIG = {
+  businessType: "clinic",
+
+  name: "Sample Dental Care",
+  tagline: "Gentle, modern dental care for the whole family. (Fictional test data.)",
+  area: "Sample Nagar",
+  city: "Demo City",
+
+  doctorName: "Dr. Sample Doctor",
+  doctorQualification: "BDS, MDS (sample qualification)",
+
+  phone: "910000000000",
+  whatsapp: "910000000000",
+
+  address: "12 Example Street, Sample Nagar, Demo City 000000",
+  mapQuery: "Bhubaneswar, Odisha",
+
+  hours: [
+    ["Monday – Saturday", "10:00 AM – 1:30 PM, 5:00 PM – 9:00 PM"],
+    ["Sunday", "By appointment"]
+  ],
+
+  services: [
+    { name: "Root canal treatment", description: "Save an infected tooth with a single- or multi-sitting RCT." },
+    { name: "Teeth cleaning", description: "Scaling and polishing to remove tartar and stains." },
+    { name: "Fillings", description: "Tooth-coloured fillings for cavities and chipped teeth." },
+    { name: "Braces & aligners", description: "Straighten teeth with metal, ceramic or clear options." },
+    { name: "Crowns & bridges", description: "Restore broken or missing teeth." },
+    { name: "Kids' dentistry", description: "Check-ups and early care for children." }
+  ],
+
+  highlights: ["Digital X-ray", "Painless RCT", "Sterilised instruments", "Evening slots"],
+
+  rating: null,   // left empty on purpose: never invent a rating
+
+  accentColor: "#0e7490"
+};
+/* CONFIG:END */
+
+/* =====================================================================
+   ICONS: inline SVG paths (24x24, stroke style). Presets refer to these
+   by name. Rendered with createElementNS, never innerHTML.
+   ===================================================================== */
+const ICONS = {
+  whatsapp: ["M7.9 20A9 9 0 1 0 4 16.1L2 22Z"],
+  phone: ["M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"],
+  pin: ["M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z", "M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"],
+  directions: ["M3 11l19-9-9 19-2-8-8-2z"],
+  clock: ["M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20z", "M12 6v6l4 2"],
+  check: ["M20 6 9 17l-5-5"],
+  star: ["M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"],
+  user: ["M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2", "M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"],
+  calendar: ["M8 2v4M16 2v4M3 10h18", "M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"],
+  tooth: ["M7 3c-2.5 0-4 2-4 4.5 0 2 1 3.5 1.5 5.5.6 2.5 1 8 3 8 1.5 0 1.5-5 4.5-5s3 5 4.5 5c2 0 2.4-5.5 3-8 .5-2 1.5-3.5 1.5-5.5C21 5 19.5 3 17 3c-2 0-3 1-5 1S9 3 7 3z"],
+  shield: ["M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z", "M9 12l2 2 4-4"],
+  heart: ["M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"],
+  sparkle: ["M12 3l1.9 5.8L20 10.7l-5.8 1.9L12 18.4l-1.9-5.8L4 10.7l5.8-1.9z"]
+};
+
+/* =====================================================================
+   PRESETS: one entry per businessType. A preset controls structure and
+   wording (section order, headings, icons, WhatsApp message, booking
+   form). CONFIG supplies the facts. The renderers below are shared.
+
+   Available section ids (see RENDERERS):
+     "hero", "highlights", "services", "doctor", "timings", "location", "booking"
+   The sticky top bar, mobile action bar and footer always render.
+
+   Message templates use {placeholders}: {name}, {area}, {city}, and every
+   booking field id (e.g. {patientName}, {date}).
+   ===================================================================== */
+const PRESETS = {
+  clinic: {
+    sections: ["hero", "highlights", "services", "doctor", "timings", "location", "booking"],
+    headings: {
+      highlights: { eyebrow: "Why patients choose us", title: "Care you can count on" },
+      services:   { eyebrow: "Treatments", title: "Our services" },
+      doctor:     { eyebrow: "Your doctor", title: "Meet the doctor" },
+      timings:    { eyebrow: "Timings", title: "Clinic hours" },
+      location:   { eyebrow: "Visit us", title: "How to reach us" },
+      booking:    { eyebrow: "Appointments", title: "Book an appointment", lead: "Fill this in and we'll open WhatsApp with your request ready to send. Nothing is stored on this page." }
+    },
+    labels: {
+      bookWhatsApp: "Book on WhatsApp",
+      callNow: "Call now",
+      topbarCta: "WhatsApp",
+      directions: "Get directions",
+      submit: "Send on WhatsApp"
+    },
+    icons: {
+      service: "tooth",
+      highlight: "check",
+      doctor: "user",
+      timings: "clock",
+      location: "pin"
+    },
+    // Quick message used by every "Book on WhatsApp" button.
+    whatsappMessage: "Namaste! I'd like to book an appointment at {name}, {area}. Please share the available slots.",
+    booking: {
+      fields: [
+        { id: "patientName", label: "Your name", type: "text", required: true, autocomplete: "name", placeholder: "Full name" },
+        { id: "patientPhone", label: "Phone number", type: "tel", required: true, autocomplete: "tel", placeholder: "10-digit mobile number" },
+        { id: "date", label: "Preferred date", type: "date", required: true, minToday: true },
+        { id: "concern", label: "Concern", type: "select", required: true, optionsFrom: "services", extraOptions: ["General check-up", "Something else"] }
+      ],
+      message: [
+        "Namaste! I'd like to book an appointment at {name}.",
+        "",
+        "Name: {patientName}",
+        "Phone: {patientPhone}",
+        "Preferred date: {date}",
+        "Concern: {concern}"
+      ].join("\n")
+    }
+  }
+
+  /* ---------------------------------------------------------------
+     ADD A NEW BUSINESS TYPE HERE. Copy the "clinic" block above,
+     rename the key, and change the wording, icons and form fields.
+     Example skeleton:
+
+  ,gym: {
+    sections: ["hero", "highlights", "services", "timings", "location", "booking"],
+    headings: { ... same keys as clinic ... },
+    labels:   { ... },
+    icons:    { service: "heart", highlight: "check", timings: "clock", location: "pin" },
+    whatsappMessage: "Hi! I'd like to know about membership at {name}.",
+    booking: {
+      fields: [
+        { id: "memberName", label: "Your name", type: "text", required: true },
+        { id: "goal", label: "Goal", type: "select", required: true, extraOptions: ["Weight loss", "Strength", "General fitness"] }
+      ],
+      message: "Hi {name}! I'm {memberName}. My goal: {goal}."
+    }
+  }
+     Then set CONFIG.businessType = "gym". Need a new section type
+     (e.g. "courses" for education)? Add one function to RENDERERS.
+     --------------------------------------------------------------- */
+};
+
+/* =====================================================================
+   RENDERING ENGINE (shared by all presets; no business data below).
+   Every CONFIG value is inserted with textContent or setAttribute.
+   ===================================================================== */
+(function () {
+  const C = CONFIG;
+  const P = PRESETS[C.businessType];
+  const app = document.getElementById("app");
+  if (!P) { app.textContent = "Unknown businessType: " + C.businessType; return; }
+
+  /* ---- helpers ---- */
+  const has = (v) => v !== null && v !== undefined && String(v).trim() !== "";
+  const list = (v) => Array.isArray(v) ? v : [];
+  const digits = (v) => String(v || "").replace(/\D/g, "");
+  const fill = (tpl, data) => String(tpl).replace(/\{(\w+)\}/g, (_, k) => has(data[k]) ? String(data[k]).trim() : "");
+  const safeUrl = (u) => { try { const x = new URL(u); return (x.protocol === "https:" || x.protocol === "http:") ? x.href : null; } catch (e) { return null; } };
+
+  function el(tag, props, children) {
+    const n = document.createElement(tag);
+    if (props) for (const k in props) {
+      const v = props[k];
+      if (v === null || v === undefined || v === false) continue;
+      if (k === "text") n.textContent = String(v);
+      else if (k === "class") n.className = v;
+      else n.setAttribute(k, v === true ? "" : String(v));
+    }
+    for (const c of [].concat(children || [])) if (c) n.appendChild(c);
+    return n;
+  }
+  function icon(name) {
+    const NS = "http://www.w3.org/2000/svg";
+    const s = document.createElementNS(NS, "svg");
+    s.setAttribute("class", "icon"); s.setAttribute("viewBox", "0 0 24 24"); s.setAttribute("aria-hidden", "true");
+    for (const d of (ICONS[name] || ICONS.check)) { const p = document.createElementNS(NS, "path"); p.setAttribute("d", d); s.appendChild(p); }
+    return s;
+  }
+  function heading(key, id) {
+    const h = P.headings[key] || {};
+    return [
+      h.eyebrow ? el("div", { class: "eyebrow", text: h.eyebrow }) : null,
+      el("h2", { id: id, text: h.title || "" }),
+      h.lead ? el("p", { class: "lead", text: h.lead }) : null
+    ];
+  }
+  function section(key, children) {
+    const hid = "h-" + key;
+    return el("section", { id: key, "aria-labelledby": hid }, [el("div", { class: "wrap" }, heading(key, hid).concat(children))]);
+  }
+
+  /* ---- links ---- */
+  const waNum = digits(C.whatsapp);
+  const telNum = digits(C.phone);
+  const ctx = { name: C.name, area: C.area, city: C.city };
+  const waLink = (msg) => "https://wa.me/" + waNum + "?text=" + encodeURIComponent(msg);
+  const quickWa = waLink(fill(P.whatsappMessage, ctx));
+  const telLink = "tel:+" + telNum;
+  const placeText = has(C.mapQuery) ? C.mapQuery : C.address;
+  const dirLink = has(placeText) ? "https://www.google.com/maps/dir/?api=1&destination=" + encodeURIComponent(placeText) : null;
+
+  function waBtn(label, extra) {
+    return el("a", { class: "btn btn-wa " + (extra || ""), href: quickWa, target: "_blank", rel: "noopener" }, [icon("whatsapp"), el("span", { text: label })]);
+  }
+  function callBtn(label) {
+    return el("a", { class: "btn btn-outline", href: telLink }, [icon("phone"), el("span", { text: label })]);
+  }
+
+  /* ---- accent colour (validated hex only) ---- */
+  if (/^#([0-9a-f]{3}|[0-9a-f]{6})$/i.test(String(C.accentColor || ""))) {
+    let hex = C.accentColor;
+    if (hex.length === 4) hex = "#" + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+    document.documentElement.style.setProperty("--accent", hex);
+    document.documentElement.style.setProperty("--accent-soft", hex + "1f");
+  }
+
+  /* ---- head meta ---- */
+  const where = [C.area, C.city].filter(has).join(", ");
+  document.title = [C.name, where].filter(has).join(" | ") + " (concept preview)";
+  const desc = document.querySelector('meta[name="description"]');
+  if (desc) desc.setAttribute("content", (C.name + " in " + where + ". " + (C.tagline || "")).slice(0, 155));
+
+  /* ---- section renderers ---- */
+  const RENDERERS = {
+    hero() {
+      const kids = [];
+      if (has(where)) kids.push(el("div", { class: "area" }, [icon("pin"), el("span", { text: where })]));
+      kids.push(el("h1", { id: "h-hero", text: C.name }));
+      if (has(C.tagline)) kids.push(el("p", { class: "tagline", text: C.tagline }));
+      const r = C.rating;
+      const rUrl = r && safeUrl(r.sourceUrl);
+      if (r && has(r.value) && rUrl) {
+        const label = r.value + " / 5" + (has(r.sourceName) ? " on " + r.sourceName : "");
+        kids.push(el("a", { class: "rating", href: rUrl, target: "_blank", rel: "noopener nofollow" }, [
+          icon("star"), el("span", { text: label }),
+          has(r.count) ? el("small", { text: "(" + r.count + " reviews)" }) : null
+        ]));
+      }
+      kids.push(el("div", { class: "cta-row" }, [waBtn(P.labels.bookWhatsApp), callBtn(P.labels.callNow)]));
+      return el("section", { id: "hero", class: "hero", "aria-labelledby": "h-hero" }, [el("div", { class: "wrap" }, kids)]);
+    },
+
+    highlights() {
+      const items = list(C.highlights).filter(has);
+      if (!items.length) return null;
+      return section("highlights", [el("ul", { class: "chips" }, items.map((t) => el("li", null, [icon(P.icons.highlight), el("span", { text: t })])))]);
+    },
+
+    services() {
+      const items = list(C.services).filter((s) => s && has(s.name));
+      if (!items.length) return null;
+      return section("services", [el("div", { class: "grid" }, items.map((s) => el("article", { class: "card" }, [
+        el("span", { class: "ico" }, [icon(P.icons.service)]),
+        el("h3", { text: s.name }),
+        has(s.description) ? el("p", { text: s.description }) : null
+      ])))]);
+    },
+
+    doctor() {
+      if (!has(C.doctorName)) return null;
+      const initial = String(C.doctorName).replace(/^dr\.?\s*/i, "").trim().charAt(0).toUpperCase() || "D";
+      return section("doctor", [el("div", { class: "doctor" }, [
+        el("div", { class: "avatar", "aria-hidden": "true", text: initial }),
+        el("div", null, [
+          el("h3", { text: C.doctorName }),
+          has(C.doctorQualification) ? el("p", { class: "qual", text: C.doctorQualification }) : null
+        ])
+      ])]);
+    },
+
+    timings() {
+      const rows = list(C.hours).filter((h) => Array.isArray(h) && has(h[0]));
+      if (!rows.length) return null;
+      return section("timings", [el("table", { class: "hours" }, [el("tbody", null, rows.map((h) =>
+        el("tr", null, [el("th", { scope: "row", text: h[0] }), el("td", { text: h[1] || "" })])
+      ))])]);
+    },
+
+    location() {
+      if (!has(C.mapQuery) && !has(C.address)) return null;
+      const side = [];
+      if (has(C.address)) side.push(el("p", { class: "addr" }, [icon(P.icons.location), el("span", { text: C.address })]));
+      if (dirLink) side.push(el("a", { class: "btn btn-accent", href: dirLink, target: "_blank", rel: "noopener" }, [icon("directions"), el("span", { text: P.labels.directions })]));
+      const map = has(C.mapQuery) ? el("iframe", {
+        class: "map", title: "Map showing " + C.name, loading: "lazy", referrerpolicy: "no-referrer-when-downgrade",
+        src: "https://www.google.com/maps?q=" + encodeURIComponent(C.mapQuery) + "&output=embed"
+      }) : null;
+      return section("location", [el("div", { class: "loc" }, [map, el("div", null, side)])]);
+    },
+
+    booking() {
+      const B = P.booking;
+      if (!B || !list(B.fields).length) return null;
+      const form = el("form", { novalidate: true });
+      const today = new Date(); today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+      for (const f of B.fields) {
+        const fid = "f-" + f.id;
+        let input;
+        if (f.type === "select") {
+          input = el("select", { id: fid, name: f.id, required: !!f.required });
+          input.appendChild(el("option", { value: "", text: "Choose one" }));
+          const opts = (f.optionsFrom === "services" ? list(C.services).filter((s) => s && has(s.name)).map((s) => s.name) : [])
+            .concat(list(f.extraOptions));
+          for (const o of opts) input.appendChild(el("option", { value: o, text: o }));
+        } else if (f.type === "textarea") {
+          input = el("textarea", { id: fid, name: f.id, required: !!f.required, placeholder: f.placeholder });
+        } else {
+          input = el("input", {
+            id: fid, name: f.id, type: f.type || "text", required: !!f.required,
+            autocomplete: f.autocomplete, placeholder: f.placeholder,
+            inputmode: f.type === "tel" ? "tel" : null,
+            min: f.minToday ? today.toISOString().slice(0, 10) : null
+          });
+        }
+        form.appendChild(el("label", { for: fid }, [el("span", { text: f.label + (f.required ? " *" : "") }), input]));
+      }
+      const err = el("p", { class: "err", role: "alert", "aria-live": "polite" });
+      form.appendChild(err);
+      form.appendChild(el("button", { class: "btn btn-wa", type: "submit" }, [icon("whatsapp"), el("span", { text: P.labels.submit })]));
+      form.appendChild(el("p", { class: "hint", text: "Opens WhatsApp. You can review the message before sending." }));
+
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const data = Object.assign({}, ctx);
+        for (const f of B.fields) {
+          const v = form.elements[f.id].value.trim();
+          if (f.required && !v) { err.textContent = "Please fill in: " + f.label; form.elements[f.id].focus(); return; }
+          data[f.id] = (f.type === "date" && v) ? new Date(v + "T00:00").toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" }) : v;
+        }
+        err.textContent = "";
+        window.open(waLink(fill(B.message, data)), "_blank", "noopener");
+      });
+      return section("booking", [form]);
+    }
+  };
+
+  /* ---- assemble page ---- */
+  const top = el("header", { class: "topbar" }, [el("div", { class: "wrap" }, [
+    el("a", { class: "brand", href: "#main", text: C.name }),
+    waBtn(P.labels.topbarCta, "btn-sm")
+  ])]);
+
+  const main = el("main", { id: "main" });
+  for (const key of P.sections) {
+    const r = RENDERERS[key];
+    const node = r ? r() : null;
+    if (node) main.appendChild(node);
+  }
+
+  const foot = el("footer", null, [el("div", { class: "wrap" }, [
+    el("p", { text: "Concept preview by NoirFlow AI. This is not the official website of " + C.name + "." }),
+    el("p", { class: "credit", text: "Crafted by NoirFlow" })
+  ])]);
+
+  const bar = el("nav", { class: "actionbar", "aria-label": "Quick actions" }, [
+    el("a", { href: telLink }, [icon("phone"), el("span", { text: "Call" })]),
+    el("a", { class: "wa", href: quickWa, target: "_blank", rel: "noopener" }, [icon("whatsapp"), el("span", { text: "WhatsApp" })]),
+    dirLink ? el("a", { href: dirLink, target: "_blank", rel: "noopener" }, [icon("directions"), el("span", { text: "Directions" })]) : null
+  ]);
+  if (!dirLink) bar.style.gridTemplateColumns = "repeat(2, 1fr)";
+
+  app.appendChild(top);
+  app.appendChild(main);
+  app.appendChild(foot);
+  app.appendChild(bar);
+})();
+</script>
+</body>
+</html>
