@@ -1,7 +1,13 @@
 # Previews
 
-Concept homepage previews for local businesses, served from Cloudflare Pages.
-Every page is `noindex` (meta tag plus the `X-Robots-Tag` header in `_headers`).
+Concept homepage previews for local businesses.
+Every page is `noindex` (meta tag plus an `X-Robots-Tag` header).
+
+## Hosting
+
+- **Now: Vercel.** Project `noirflow-previews`, Root Directory `previews`. Headers come from `vercel.json`.
+- **Later: Cloudflare Pages.** Headers come from `_headers` (same rules). `.vercelignore` keeps `_headers` and this README off Vercel.
+- Keep `vercel.json` and `_headers` in sync if you change a header.
 
 ## Make a new preview
 
